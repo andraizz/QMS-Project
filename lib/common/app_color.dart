@@ -13,4 +13,6 @@ class AppColor {
   static Color saveButton = const Color(0xff008B6B);
   static Color pauseButton = const Color(0xffCF0003);
   static Color closeButton = const Color(0xffFF3030);
+  static Color defaultText = const Color(0xff000000);
+  static Color textBody = const Color(0xff9D9D9D);
 }
