@@ -36,7 +36,7 @@ class LoginPage extends StatelessWidget {
                   height: 20,
                 ),
                 AppButton.primary('LOGIN', () {
-                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const DashboardPage()));
+                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const MainPage()));
                 })
               ],
             ),
@@ -58,8 +58,8 @@ class LoginPage extends StatelessWidget {
             ),
           ),
           Positioned.fill(
-            top: 365,
-            bottom: 48,
+            top: 300,
+            bottom: 45,
             child: DecoratedBox(
               decoration: BoxDecoration(
                   gradient: LinearGradient(colors: [

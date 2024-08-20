@@ -5,3 +5,6 @@ import 'package:d_input/d_input.dart';
 import 'package:qms_application/presentation/widgets/widgets.dart';
 part 'login_page.dart';
 part 'dashboard_page.dart';
+part 'main_page.dart';
+part 'installation_history.dart';
+part 'inspection_history.dart';

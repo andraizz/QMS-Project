@@ -11,9 +11,11 @@ Widget buildItemModuleMenu(
           fit: BoxFit.cover,
         ),
       ),
-      padding: const EdgeInsets.symmetric(
-        horizontal: 20,
-        vertical: 20,
+      padding: const EdgeInsets.only(
+        left: 6,
+        bottom: 15,
+        top: 25,
+        right: 12,
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.end,
@@ -35,7 +37,6 @@ Widget buildItemModuleMenu(
               fontWeight: FontWeight.w600,
             ),
           ),
-          const Gap(6),
           Text(
             '$total tickets',
             style: const TextStyle(

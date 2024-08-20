@@ -15,4 +15,5 @@ class AppColor {
   static Color closeButton = const Color(0xffFF3030);
   static Color defaultText = const Color(0xff000000);
   static Color textBody = const Color(0xff9D9D9D);
+  static Color whiteColor = const Color(0xffFFFFFF);
 }

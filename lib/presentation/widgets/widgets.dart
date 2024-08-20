@@ -8,3 +8,4 @@ part 'appbar_widget.dart';
 part 'buildinfo_row.dart';
 part 'build_item_module_menu.dart';
 part 'build_item_progress_ticket.dart';
+part 'bottom_navigation_baritem.dart';
