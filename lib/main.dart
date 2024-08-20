@@ -47,17 +47,20 @@ class MainApp extends StatelessWidget {
           backgroundColor: Colors.white,
         )
       ),
-      initialRoute: AppRoute.dashboard,
+      initialRoute: AppRoute.login,
       routes: {
-        AppRoute.dashboard: (context) {
-            return FutureBuilder(
-              future: DSession.getUser(),
-              builder: (context, snapshot) {
-                if (snapshot.data == null) return const LoginPage(); //Login
-                return const LoginPage(); 
-              },
-            );
-          },
+        // AppRoute.dashboard: (context) {
+        //     return FutureBuilder(
+        //       future: DSession.getUser(),
+        //       builder: (context, snapshot) {
+        //         if (snapshot.data == null) return const LoginPage(); //Login
+        //         return const LoginPage(); 
+        //       },
+        //     );
+        //   },
+        AppRoute.login: (context) => const LoginPage(),
+        AppRoute.dashboard: (context) => const MainPage(),
+        AppRoute.listInstallation: (context) => const ListInstallationPage()
       },
     );
   }

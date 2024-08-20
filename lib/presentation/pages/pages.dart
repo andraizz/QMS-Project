@@ -8,3 +8,4 @@ part 'dashboard_page.dart';
 part 'main_page.dart';
 part 'installation_history.dart';
 part 'inspection_history.dart';
+part 'installation_list_page.dart';

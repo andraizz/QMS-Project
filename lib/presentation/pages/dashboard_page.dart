@@ -113,7 +113,7 @@ class _DashboardPageState extends State<DashboardPage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const DashboardPage(),
+                  builder: (context) => const ListInstallationPage(),
                 ),
               );
             }),
