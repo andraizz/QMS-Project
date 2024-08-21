@@ -16,4 +16,5 @@ class AppColor {
   static Color defaultText = const Color(0xff000000);
   static Color textBody = const Color(0xff9D9D9D);
   static Color whiteColor = const Color(0xffFFFFFF);
+  static Color disable = const Color(0xffEFEFEF);
 }

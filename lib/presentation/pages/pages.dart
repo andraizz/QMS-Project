@@ -1,3 +1,4 @@
+import 'package:d_button/d_button.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:qms_application/common/common.dart';
@@ -9,3 +10,4 @@ part 'main_page.dart';
 part 'installation_history.dart';
 part 'inspection_history.dart';
 part 'installation_list_page.dart';
+part 'form_installation_page.dart';

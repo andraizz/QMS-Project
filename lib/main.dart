@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:qms_application/common/common.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:d_session/d_session.dart';
+// import 'package:d_session/d_session.dart';
 import 'package:qms_application/presentation/pages/pages.dart';
 
 void main() {
@@ -60,7 +60,9 @@ class MainApp extends StatelessWidget {
         //   },
         AppRoute.login: (context) => const LoginPage(),
         AppRoute.dashboard: (context) => const MainPage(),
-        AppRoute.listInstallation: (context) => const ListInstallationPage()
+        AppRoute.listInstallation: (context) => const ListInstallationPage(),
+        AppRoute.formInstallation: (context) => const FormInstallationPage(),
+        AppRoute.historyInstallation: (context) => const InstallationHistory()
       },
     );
   }

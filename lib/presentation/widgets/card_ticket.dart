@@ -65,7 +65,7 @@ Widget cardTicket(DateTime createdAt, String ttNumber, String section,
         const Gap(10),
         DButtonBorder(
           onClick: () {
-            Navigator.pushNamed(context, AppRoute.detailInstallation);
+            Navigator.pushNamed(context, AppRoute.formInstallation);
           },
           mainColor: Colors.white,
           radius: 10,
