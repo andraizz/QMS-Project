@@ -7,6 +7,6 @@ class AppRoute {
   static const listInstallation = '/list/installations';
   static const moduleInstallation = '/module/installation';
   static const formInstallation = '/form/installation';
-  static const detailInstallation = '/detail/installation';
+  static const detailHistoryInstallation = '/detail/history/installation';
   static const historyInstallation = '/history/installation'; 
 }

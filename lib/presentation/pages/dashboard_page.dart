@@ -44,7 +44,7 @@ class _DashboardPageState extends State<DashboardPage> {
           ),
           Divider(
             color: AppColor.scaffold,
-            thickness: 2,
+            
             height: 4,
           ),
           Padding(

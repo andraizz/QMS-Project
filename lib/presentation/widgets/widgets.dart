@@ -13,3 +13,5 @@ part 'build_item_progress_ticket.dart';
 part 'header_listicket.dart';
 part 'card_ticket.dart';
 part 'input_widget.dart';
+part 'item_history.dart';
+part 'item_text_history.dart';
