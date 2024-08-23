@@ -117,7 +117,7 @@ class _DetailHistoryInstallationPageState
                 'Documentation/Photo',
                 [
                   'https://infopublik.id/resources/album/bulan-september-2019/fiber_compressed.jpg',
-                  'https://infopublik.id/resources/album/bulan-september-2019/fiber_compressed.jpg',
+                  'https://static.promediateknologi.id/crop/0x0:0x0/750x500/webp/photo/radarjember/2023/06/FT-KOTA-penanganan-kabel-ruwet-di-Denpasar-1.jpg',
                   'https://infopublik.id/resources/album/bulan-september-2019/fiber_compressed.jpg',
                   'https://infopublik.id/resources/album/bulan-september-2019/fiber_compressed.jpg',
                   'https://infopublik.id/resources/album/bulan-september-2019/fiber_compressed.jpg',
