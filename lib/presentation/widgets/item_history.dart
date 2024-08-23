@@ -69,7 +69,7 @@ class ItemHistory {
               ),
             ),
             Divider(
-              color: AppColor.greyColor2,
+              color: AppColor.divider,
             ),
             ItemTextHistory.primary("Date", date ?? '-', 1),
             ItemTextHistory.primary("Created By", createdBy ?? '-', 1),

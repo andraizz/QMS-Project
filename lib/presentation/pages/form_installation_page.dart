@@ -198,7 +198,7 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
             edtDescription,
           ),
           const Gap(6),
-          InputWidget.uploadFile('Documentation/Photo', 'Choose documentation'),
+          InputWidget.uploadFile('Documentation/Photo', 'Upload'),
           const Gap(12),
         ],
       ),

@@ -60,14 +60,14 @@ class InputWidget {
             decoration: InputDecoration(
               hintText: hintText,
               filled: true,
-              fillColor: AppColor.disable,
+              fillColor: AppColor.whiteColor,
               border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(5),
-                  borderSide: BorderSide(color: AppColor.disable)),
+                  borderSide: BorderSide(color: AppColor.defaultText)),
               focusedBorder: OutlineInputBorder(
                   borderSide: BorderSide(color: AppColor.defaultText)),
               enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: AppColor.disable)),
+                  borderSide: BorderSide(color: AppColor.defaultText)),
             ),
           ),
         ),
@@ -150,14 +150,14 @@ class InputWidget {
             dropdownDecoratorProps: DropDownDecoratorProps(
               dropdownSearchDecoration: InputDecoration(
                 filled: true,
-                fillColor: AppColor.disable,
+                fillColor: AppColor.whiteColor,
                 border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(5),
-                    borderSide: BorderSide(color: AppColor.disable)),
+                    borderSide: BorderSide(color: AppColor.defaultText)),
                 focusedBorder: OutlineInputBorder(
                     borderSide: BorderSide(color: AppColor.defaultText)),
                 enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: AppColor.disable)),
+                    borderSide: BorderSide(color: AppColor.defaultText)),
               ),
             ),
             onChanged: onChanged,
@@ -195,7 +195,7 @@ class InputWidget {
     );
   }
 
-  static Widget uploadFile(String title ,String textButton) {
+  static Widget uploadFile(String title, String textButton) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -207,7 +207,12 @@ class InputWidget {
         Container(
           height: 160,
           decoration: BoxDecoration(
-              color: AppColor.disable, borderRadius: BorderRadius.circular(5)),
+            color: AppColor.whiteColor,
+            border: Border.all(
+              color: AppColor.defaultText
+            ),
+            borderRadius: BorderRadius.circular(5),
+          ),
           child: Center(
             child: Padding(
               padding: const EdgeInsets.symmetric(
