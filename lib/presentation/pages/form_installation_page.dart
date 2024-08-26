@@ -10,10 +10,30 @@ class FormInstallationPage extends StatefulWidget {
 class _FormInstallationPageState extends State<FormInstallationPage> {
   final documentations = <XFile>[].obs;
 
-  pickImage() async {
+  pickImagesFromGallery() async {
     List<XFile>? results = await ImagePicker().pickMultiImage();
     if (results != null && results.isNotEmpty) {
       documentations.addAll(results);
+    }
+  }
+
+//Fungsi Untuk Mengambil Gambar dari Kamera
+  pickImagesFromCamera() async {
+    List<XFile> cameraImages = [];
+
+    // Loop untuk memungkinkan mengambil beberapa gambar dari kamera
+    while (true) {
+      XFile? result = await ImagePicker().pickImage(source: ImageSource.camera);
+      if (result != null) {
+        cameraImages.add(result);
+      } else {
+        // Hentikan loop jika pengguna membatalkan atau menutup kamera
+        break;
+      }
+    }
+
+    if (cameraImages.isNotEmpty) {
+      documentations.addAll(cameraImages);
     }
   }
 
@@ -232,7 +252,7 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
         ),
         const Gap(3),
         Container(
-          height: 160,
+          height: 300,
           decoration: BoxDecoration(
             color: AppColor.whiteColor,
             border: Border.all(color: AppColor.defaultText),
@@ -244,111 +264,161 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
               Obx(() {
                 // Jika tidak ada gambar yang dipilih, tampilkan teks 'No Image Selected'
                 if (documentations.isEmpty) {
-                  return Text(
-                    'No Image Selected',
-                    style: TextStyle(
-                      color: AppColor.defaultText,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                    ),
+                  return Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      // Text(
+                      //   'No Image Selected',
+                      //   style: TextStyle(
+                      //     color: AppColor.defaultText,
+                      //     fontSize: 14,
+                      //     fontWeight: FontWeight.w500,
+                      //   ),
+                      // ),
+                      // const Gap(20),
+                      // Tampilkan tombol upload menggunakan showModalBottomSheet
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 36),
+                        child: DButtonFlat(
+                          onClick: () {
+                            showModalBottomSheet(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return Wrap(
+                                  children: [
+                                    ListTile(
+                                      leading: const Icon(Icons.photo),
+                                      title: const Text('Pilih dari Galeri'),
+                                      onTap: () {
+                                        Navigator.pop(context);
+                                        pickImagesFromGallery();
+                                      },
+                                    ),
+                                    ListTile(
+                                      leading: const Icon(Icons.camera_alt),
+                                      title: const Text('Ambil dari Kamera'),
+                                      onTap: () {
+                                        Navigator.pop(context);
+                                        pickImagesFromCamera();
+                                      },
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
+                          height: 40,
+                          mainColor: AppColor.blueColor1,
+                          radius: 10,
+                          child: Text(
+                            textButton,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   );
-                }
+                } else {
+                  // Jika ada gambar yang dipilih, tampilkan dalam GridView
+                  return Expanded(
+                    child: GridView.builder(
+                      padding: const EdgeInsets.fromLTRB(12, 12, 24, 12),
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 3, // Atur jumlah kolom yang diinginkan
+                        crossAxisSpacing: 8.0,
+                        mainAxisSpacing: 8.0,
+                      ),
+                      itemCount: documentations.length +
+                          1, // Tambahkan 1 untuk tombol tambah
+                      itemBuilder: (context, index) {
+                        if (index == documentations.length) {
+                          // Tombol '+' untuk menambahkan gambar
+                          return GestureDetector(
+                            onTap: () {
+                              // Tampilkan dialog untuk memilih sumber gambar
+                              showModalBottomSheet(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return Wrap(
+                                    children: [
+                                      ListTile(
+                                        leading: const Icon(Icons.photo),
+                                        title: const Text('Pilih dari Galeri'),
+                                        onTap: () {
+                                          Navigator.pop(context);
+                                          pickImagesFromGallery();
+                                        },
+                                      ),
+                                      ListTile(
+                                        leading: const Icon(Icons.camera_alt),
+                                        title: const Text('Ambil dari Kamera'),
+                                        onTap: () {
+                                          Navigator.pop(context);
+                                          pickImagesFromCamera();
+                                        },
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            },
+                            child: Container(
+                              width: 79,
+                              height: 68,
+                              decoration: BoxDecoration(
+                                border: Border.all(color: AppColor.defaultText),
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                              child: Icon(
+                                Icons.add,
+                                color: AppColor.defaultText,
+                              ),
+                            ),
+                          );
+                        }
 
-                // Jika ada gambar yang dipilih, tampilkan dalam GridView
-                return Expanded(
-                  child: GridView.builder(
-                    padding: const EdgeInsets.only(
-                      left: 12,
-                      right: 12,
-                      top: 10,
-                      bottom: 8,
-                    ),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3, // Atur jumlah kolom yang diinginkan
-                      crossAxisSpacing: 8.0,
-                      mainAxisSpacing: 8.0,
-                    ),
-                    itemCount: documentations.length +
-                        1, // Tambahkan 1 untuk tombol tambah
-                    itemBuilder: (context, index) {
-                      if (index == documentations.length) {
-                        // Tombol '+' untuk menambahkan gambar
-                        return GestureDetector(
-                          onTap: () => pickImage(),
-                          child: Container(
-                            width: 79,
-                            height: 68,
-                            decoration: BoxDecoration(
-                              border: Border.all(color: AppColor.defaultText),
-                              borderRadius: BorderRadius.circular(5),
+                        String path = documentations[index].path;
+                        return Stack(
+                          children: [
+                            // Tampilkan gambar yang dipilih
+                            SizedBox(
+                              width: 79,
+                              height: 68,
+                              child: Image.file(
+                                File(path),
+                                fit: BoxFit.cover,
+                              ),
                             ),
-                            child: Icon(
-                              Icons.add,
-                              color: AppColor.defaultText,
-                            ),
-                          ),
-                        );
-                      }
-
-                      String path = documentations[index].path;
-                      return Stack(
-                        children: [
-                          // Tampilkan gambar yang dipilih
-                          SizedBox(
-                            width: 79,
-                            height: 68,
-                            child: Image.file(
-                              File(path),
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                          // Tombol delete untuk menghapus gambar
-                          Positioned(
-                            left: 0,
-                            top: 0,
-                            child: GestureDetector(
-                              onTap: () => removeImage(index),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: AppColor.closeButton,
-                                ),
-                                child: const Icon(
-                                  Icons.close,
-                                  color: Colors.white,
-                                  size: 16,
+                            // Tombol delete untuk menghapus gambar
+                            Positioned(
+                              left: 0,
+                              top: 0,
+                              child: GestureDetector(
+                                onTap: () => removeImage(index),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: AppColor.closeButton,
+                                  ),
+                                  child: const Icon(
+                                    Icons.close,
+                                    color: Colors.white,
+                                    size: 16,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        ],
-                      );
-                    },
-                  ),
-                );
-              }),
-              // Hanya tampilkan tombol upload jika tidak ada gambar yang dipilih
-              if (documentations.isEmpty)
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 36,
-                  ),
-                  child: DButtonFlat(
-                    onClick: () => pickImage(),
-                    height: 40,
-                    mainColor: AppColor.blueColor1,
-                    radius: 10,
-                    child: Text(
-                      textButton,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                      ),
+                          ],
+                        );
+                      },
                     ),
-                  ),
-                ),
+                  );
+                }
+              }),
             ],
           ),
         ),
