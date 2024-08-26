@@ -13,3 +13,4 @@ part 'inspection_history.dart';
 part 'installation_list_page.dart';
 part 'form_installation_page.dart';
 part 'detail_history_installation_page.dart';
+part 'installation_list_page_old.dart';
