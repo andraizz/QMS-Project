@@ -195,7 +195,7 @@ class InputWidget {
     );
   }
 
-  static Widget uploadFile(String title, String textButton) {
+  Widget uploadFile(String title, String textButton) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
