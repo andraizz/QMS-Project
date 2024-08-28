@@ -30,40 +30,61 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
   }
 
 //Fungsi Untuk Mengambil Gambar dari Kamera
-  pickImagesFromCamera() async {
-    //Meminta izin akses ke kamera dan Lokasi
+  // pickImagesFromCamera() async {
+  //   //Meminta izin akses ke kamera dan Lokasi
+  //   if (await _requestPermission(Permission.camera) &&
+  //       await _requestPermission(Permission.locationWhenInUse)) {
+  //     List<XFile> cameraImages = [];
+  //     Position? position;
+  //     // Loop untuk memungkinkan mengambil beberapa gambar dari kamera
+  //     while (true) {
+  //       XFile? result =
+  //           await ImagePicker().pickImage(source: ImageSource.camera);
+  //       if (result != null) {
+  //         //Ambil Lokasi Saat ini setelah pengguna mengambil gambaar
+  //         position = await Geolocator.getCurrentPosition(
+  //           locationSettings: const LocationSettings(
+  //             distanceFilter: 10,
+  //             accuracy: LocationAccuracy.high,
+  //           ),
+  //         );
+  //         cameraImages.add(result);
+
+  //         //Set Latitude dan longitude ke controller
+  //         edtLatitudeInstall.text = position.latitude.toString();
+  //         edtLongtitudeInstall.text = position.longitude.toString();
+  //       } else {
+  //         // Hentikan loop jika pengguna membatalkan atau menutup kamera
+  //         break;
+  //       }
+  //     }
+  //     if (cameraImages.isNotEmpty) {
+  //       documentations.addAll(cameraImages);
+  //     }
+  //   } else {
+  //     //Tampilkan pesan jika izin tidak diberikan
+  //     print("Akses kamera tidak diizinkan");
+  //   }
+  // }
+
+  pickImagesFromCamera(BuildContext context) async {
     if (await _requestPermission(Permission.camera) &&
         await _requestPermission(Permission.locationWhenInUse)) {
-      List<XFile> cameraImages = [];
-      Position? position;
-      // Loop untuk memungkinkan mengambil beberapa gambar dari kamera
-      while (true) {
-        XFile? result =
-            await ImagePicker().pickImage(source: ImageSource.camera);
-        if (result != null) {
-          //Ambil Lokasi Saat ini setelah pengguna mengambil gambaar
-          position = await Geolocator.getCurrentPosition(
-            locationSettings: const LocationSettings(
-              distanceFilter: 10,
-              accuracy: LocationAccuracy.high,
-            ),
-          );
-          cameraImages.add(result);
-
-          //Set Latitude dan longitude ke controller
-          edtLatitudeInstall.text = position.latitude.toString();
-          edtLongtitudeInstall.text = position.longitude.toString();
-        } else {
-          // Hentikan loop jika pengguna membatalkan atau menutup kamera
-          break;
-        }
-      }
-      if (cameraImages.isNotEmpty) {
-        documentations.addAll(cameraImages);
-      }
+      if (!mounted) return; // Check mounted to avoid context issues
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => CameraWithLocationOverlay(
+            onImageTaken: (XFile image, Position position) {
+              documentations.add(image);
+              edtLatitudeInstall.text = position.latitude.toString();
+              edtLongtitudeInstall.text = position.longitude.toString();
+            },
+          ),
+        ),
+      );
     } else {
-      //Tampilkan pesan jika izin tidak diberikan
-      print("Akses kamera tidak diizinkan");
+      print("Camera or location access not granted");
     }
   }
 
@@ -335,7 +356,7 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
                                       title: const Text('Ambil dari Kamera'),
                                       onTap: () {
                                         Navigator.pop(context);
-                                        pickImagesFromCamera();
+                                        pickImagesFromCamera(context);
                                       },
                                     ),
                                   ],
@@ -395,7 +416,7 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
                                         title: const Text('Ambil dari Kamera'),
                                         onTap: () {
                                           Navigator.pop(context);
-                                          pickImagesFromCamera();
+                                          pickImagesFromCamera(context);
                                         },
                                       ),
                                     ],

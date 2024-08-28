@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:camera/camera.dart';
 import 'package:d_button/d_button.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
@@ -13,7 +14,6 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:image/image.dart' as img;
 // import 'package:extended_image/extended_image.dart';
 
 part 'login_page.dart';
@@ -26,3 +26,4 @@ part 'form_installation_page.dart';
 part 'detail_history_installation_page.dart';
 part 'installation_list_page_old.dart';
 part 'form_installation_page_old.dart';
+part 'camera_with_location_overlay.dart';
