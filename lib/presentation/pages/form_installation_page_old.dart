@@ -1,16 +1,14 @@
 part of 'pages.dart';
 
-class FormInstallationPage extends StatefulWidget {
-  const FormInstallationPage({super.key});
+class FormInstallationPageOld extends StatefulWidget {
+  const FormInstallationPageOld({super.key});
 
   @override
-  State<FormInstallationPage> createState() => _FormInstallationPageState();
+  State<FormInstallationPageOld> createState() => _FormInstallationPageOldState();
 }
 
-class _FormInstallationPageState extends State<FormInstallationPage> {
+class _FormInstallationPageOldState extends State<FormInstallationPageOld> {
   final documentations = <XFile>[].obs;
-  final edtLatitudeInstall = TextEditingController(text: '');
-  final edtLongtitudeInstall = TextEditingController(text: '');
 
   Future<bool> _requestPermission(Permission permission) async {
     final status = await permission.request();
@@ -29,30 +27,17 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
     }
   }
 
-//Fungsi Untuk Mengambil Gambar dari Kamera
+  //Fungsi Untuk Mengambil Gambar dari Kamera
   pickImagesFromCamera() async {
-    //Meminta izin akses ke kamera dan Lokasi
-    if (await _requestPermission(Permission.camera) &&
-        await _requestPermission(Permission.locationWhenInUse)) {
+    //Meminta izin akses ke kamera
+    if (await _requestPermission(Permission.camera)) {
       List<XFile> cameraImages = [];
-      Position? position;
       // Loop untuk memungkinkan mengambil beberapa gambar dari kamera
       while (true) {
         XFile? result =
             await ImagePicker().pickImage(source: ImageSource.camera);
         if (result != null) {
-          //Ambil Lokasi Saat ini setelah pengguna mengambil gambaar
-          position = await Geolocator.getCurrentPosition(
-            locationSettings: const LocationSettings(
-              distanceFilter: 10,
-              accuracy: LocationAccuracy.high,
-            ),
-          );
           cameraImages.add(result);
-
-          //Set Latitude dan longitude ke controller
-          edtLatitudeInstall.text = position.latitude.toString();
-          edtLongtitudeInstall.text = position.longitude.toString();
         } else {
           // Hentikan loop jika pengguna membatalkan atau menutup kamera
           break;
@@ -61,7 +46,7 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
       if (cameraImages.isNotEmpty) {
         documentations.addAll(cameraImages);
       }
-    } else {
+    }else {
       //Tampilkan pesan jika izin tidak diberikan
       print("Akses kamera tidak diizinkan");
     }
@@ -70,8 +55,6 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
   //Fungsi Untuk Mengahapus Gambar
   void removeImage(int index) {
     documentations.removeAt(index);
-    // edtLatitudeInstall.text = '';
-    // edtLongtitudeInstall.text = '';
   }
 
   @override
@@ -208,6 +191,7 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
     );
   }
 
+
   Widget formInstallation() {
     String? selectedValue;
     final edtDescription = TextEditingController();
@@ -268,10 +252,6 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
           ),
           const Gap(6),
           uploadFile('Documentation/Photo', 'Upload'),
-          const Gap(6),
-          InputWidget.disable('Latitude', edtLatitudeInstall),
-          const Gap(6),
-          InputWidget.disable('Longitude', edtLongtitudeInstall),
           const Gap(12),
         ],
       ),
