@@ -346,15 +346,27 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
                         return Stack(
                           children: [
                             // Tampilkan gambar yang dipilih
-                            SizedBox(
-                              width: 79,
-                              height: 68,
-                              child: Image.file(
-                                File(path),
-                                fit: BoxFit.cover,
+                            GestureDetector(
+                              onTap: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (_) => Dialog(
+                                    child: Image.file(
+                                      File(path),
+                                      fit: BoxFit.contain,
+                                    ),
+                                  ),
+                                );
+                              },
+                              child: SizedBox(
+                                width: 79,
+                                height: 68,
+                                child: Image.file(
+                                  File(path),
+                                  fit: BoxFit.cover,
+                                ),
                               ),
                             ),
-                            // Tombol delete untuk menghapus gambar
                             Positioned(
                               left: 0,
                               top: 0,
