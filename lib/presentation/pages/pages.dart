@@ -13,7 +13,7 @@ import 'package:qms_application/presentation/widgets/widgets.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:path_provider/path_provider.dart';
+// import 'package:path_provider/path_provider.dart';
 // import 'package:extended_image/extended_image.dart';
 
 part 'login_page.dart';

@@ -10,9 +10,9 @@ part of 'common.dart';
 
 //Format Untuk Tanggal dan Jam
 
-String _formatDateTime1 (DateTime dateTime) {
-  return DateFormat('d MMMM yyyy, HH:mm').format(dateTime);
-}
+// String _formatDateTime1 (DateTime dateTime) {
+//   return DateFormat('d MMMM yyyy, HH:mm').format(dateTime);
+// }
 
 
 // String iconByStatus() {

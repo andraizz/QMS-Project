@@ -9,8 +9,6 @@ class FormInstallationPage extends StatefulWidget {
 
 class _FormInstallationPageState extends State<FormInstallationPage> {
   final documentations = <XFile>[].obs;
-  final edtLatitudeInstall = TextEditingController(text: '');
-  final edtLongtitudeInstall = TextEditingController(text: '');
 
   Future<bool> _requestPermission(Permission permission) async {
     final status = await permission.request();
@@ -21,78 +19,36 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
     //Meminta Izin akses ke galeri
     if (await _requestPermission(Permission.storage)) {
       List<XFile>? results = await ImagePicker().pickMultiImage();
-      if (results != null && results.isNotEmpty) {
+      if (results.isNotEmpty) {
         documentations.addAll(results);
       }
     } else {
-      print('Akses galeri tidak diizinkan');
-    }
-  }
-
-//Fungsi Untuk Mengambil Gambar dari Kamera
-  // pickImagesFromCamera() async {
-  //   //Meminta izin akses ke kamera dan Lokasi
-  //   if (await _requestPermission(Permission.camera) &&
-  //       await _requestPermission(Permission.locationWhenInUse)) {
-  //     List<XFile> cameraImages = [];
-  //     Position? position;
-  //     // Loop untuk memungkinkan mengambil beberapa gambar dari kamera
-  //     while (true) {
-  //       XFile? result =
-  //           await ImagePicker().pickImage(source: ImageSource.camera);
-  //       if (result != null) {
-  //         //Ambil Lokasi Saat ini setelah pengguna mengambil gambaar
-  //         position = await Geolocator.getCurrentPosition(
-  //           locationSettings: const LocationSettings(
-  //             distanceFilter: 10,
-  //             accuracy: LocationAccuracy.high,
-  //           ),
-  //         );
-  //         cameraImages.add(result);
-
-  //         //Set Latitude dan longitude ke controller
-  //         edtLatitudeInstall.text = position.latitude.toString();
-  //         edtLongtitudeInstall.text = position.longitude.toString();
-  //       } else {
-  //         // Hentikan loop jika pengguna membatalkan atau menutup kamera
-  //         break;
-  //       }
-  //     }
-  //     if (cameraImages.isNotEmpty) {
-  //       documentations.addAll(cameraImages);
-  //     }
-  //   } else {
-  //     //Tampilkan pesan jika izin tidak diberikan
-  //     print("Akses kamera tidak diizinkan");
-  //   }
-  // }
-
-  pickImagesFromCamera(BuildContext context) async {
-    if (await _requestPermission(Permission.camera) &&
-        await _requestPermission(Permission.locationWhenInUse)) {
-      if (!mounted) return; // Check mounted to avoid context issues
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => CameraWithLocationOverlay(
-            onImageTaken: (XFile image, Position position) {
-              documentations.add(image);
-              edtLatitudeInstall.text = position.latitude.toString();
-              edtLongtitudeInstall.text = position.longitude.toString();
-            },
-          ),
-        ),
-      );
-    } else {
-      print("Camera or location access not granted");
+      if (mounted) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Akses Galeri Ditolak'),
+              content: const Text(
+                  'Akses ke galeri tidak diizinkan. Anda perlu memberikan izin untuk mengakses galeri.'),
+              actions: <Widget>[
+                TextButton(
+                  child: const Text('Tutup'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      }
     }
   }
 
   //Fungsi Untuk Mengahapus Gambar
   void removeImage(int index) {
     documentations.removeAt(index);
-    // edtLatitudeInstall.text = '';
-    // edtLongtitudeInstall.text = '';
   }
 
   @override
@@ -289,10 +245,6 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
           ),
           const Gap(6),
           uploadFile('Documentation/Photo', 'Upload'),
-          const Gap(6),
-          InputWidget.disable('Latitude', edtLatitudeInstall),
-          const Gap(6),
-          InputWidget.disable('Longitude', edtLongtitudeInstall),
           const Gap(12),
         ],
       ),
@@ -338,31 +290,7 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
                         padding: const EdgeInsets.symmetric(horizontal: 36),
                         child: DButtonFlat(
                           onClick: () {
-                            showModalBottomSheet(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return Wrap(
-                                  children: [
-                                    ListTile(
-                                      leading: const Icon(Icons.photo),
-                                      title: const Text('Pilih dari Galeri'),
-                                      onTap: () {
-                                        Navigator.pop(context);
-                                        pickImagesFromGallery();
-                                      },
-                                    ),
-                                    ListTile(
-                                      leading: const Icon(Icons.camera_alt),
-                                      title: const Text('Ambil dari Kamera'),
-                                      onTap: () {
-                                        Navigator.pop(context);
-                                        pickImagesFromCamera(context);
-                                      },
-                                    ),
-                                  ],
-                                );
-                              },
-                            );
+                            pickImagesFromGallery();
                           },
                           height: 40,
                           mainColor: AppColor.blueColor1,
@@ -397,32 +325,7 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
                           // Tombol '+' untuk menambahkan gambar
                           return GestureDetector(
                             onTap: () {
-                              // Tampilkan dialog untuk memilih sumber gambar
-                              showModalBottomSheet(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return Wrap(
-                                    children: [
-                                      ListTile(
-                                        leading: const Icon(Icons.photo),
-                                        title: const Text('Pilih dari Galeri'),
-                                        onTap: () {
-                                          Navigator.pop(context);
-                                          pickImagesFromGallery();
-                                        },
-                                      ),
-                                      ListTile(
-                                        leading: const Icon(Icons.camera_alt),
-                                        title: const Text('Ambil dari Kamera'),
-                                        onTap: () {
-                                          Navigator.pop(context);
-                                          pickImagesFromCamera(context);
-                                        },
-                                      ),
-                                    ],
-                                  );
-                                },
-                              );
+                              pickImagesFromGallery();
                             },
                             child: Container(
                               width: 79,

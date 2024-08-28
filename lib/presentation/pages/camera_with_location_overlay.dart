@@ -122,15 +122,15 @@ class _CameraWithLocationOverlayState extends State<CameraWithLocationOverlay> {
                         children: [
                           Text(
                             'Latitude: ${_currentPosition?.latitude ?? 'Loading...'}',
-                            style: TextStyle(color: Colors.white),
+                            style: const TextStyle(color: Colors.white),
                           ),
                           Text(
                             'Longitude: ${_currentPosition?.longitude ?? 'Loading...'}',
-                            style: TextStyle(color: Colors.white),
+                            style: const TextStyle(color: Colors.white),
                           ),
                           Text(
                             'Location: $_currentAddress',
-                            style: TextStyle(color: Colors.white),
+                            style: const TextStyle(color: Colors.white),
                           ),
                         ],
                       ),

@@ -52,6 +52,28 @@ class _FormInstallationPageOldState extends State<FormInstallationPageOld> {
     }
   }
 
+  //Fungsi Pick Images camera + location
+    // pickImagesFromCamera(BuildContext context) async {
+  //   if (await _requestPermission(Permission.camera) &&
+  //       await _requestPermission(Permission.locationWhenInUse)) {
+  //     if (!mounted) return; // Check mounted to avoid context issues
+  //     Navigator.push(
+  //       context,
+  //       MaterialPageRoute(
+  //         builder: (context) => CameraWithLocationOverlay(
+  //           onImageTaken: (XFile image, Position position) {
+  //             documentations.add(image);
+  //             edtLatitudeInstall.text = position.latitude.toString();
+  //             edtLongtitudeInstall.text = position.longitude.toString();
+  //           },
+  //         ),
+  //       ),
+  //     );
+  //   } else {
+  //     print("Camera or location access not granted");
+  //   }
+  // }
+
   //Fungsi Untuk Mengahapus Gambar
   void removeImage(int index) {
     documentations.removeAt(index);
