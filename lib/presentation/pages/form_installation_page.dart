@@ -8,6 +8,13 @@ class FormInstallationPage extends StatefulWidget {
 }
 
 class _FormInstallationPageState extends State<FormInstallationPage> {
+  @override
+  void initState() {
+    super.initState();
+    // Mengirim event untuk memulai pengambilan data dari CategoryItemBloc
+    context.read<CategoryItemBloc>().add(const FetchCategoryItems());
+  }
+
   final documentations = <XFile>[].obs;
 
   Future<bool> _requestPermission(Permission permission) async {
@@ -64,6 +71,7 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
               children: [
                 contentTicketDMS(),
                 const Gap(24),
+                // contentTicketDMS(),
                 formInstallation(),
               ],
             ),
@@ -188,67 +196,105 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
   Widget formInstallation() {
     String? selectedValue;
     final edtDescription = TextEditingController();
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColor.whiteColor,
-        borderRadius: BorderRadius.circular(5),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Form Installation',
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: AppColor.defaultText,
-            ),
+    return BlocBuilder<CategoryItemBloc, CategoryItemState>(
+        builder: (context, state) {
+      if (state is CategoryItemLoading) {
+        return const Center(child: CircularProgressIndicator());
+      } else if (state is CategoryItemFailed) {
+        return Center(child: Text(state.message));
+      } else if (state is CategoryItemLoaded) {
+        List<String> typeOfCables = state.categoryItems
+            .map((item) => item.cableType ?? '')
+            .where((type) => type.isNotEmpty)
+            .toSet() // Remove duplicates
+            .toList();
+
+        List<String> categoryOfInstallation = state.categoryItems
+            .map((item) => item.categoryItem ?? '')
+            .where((type) => type.isNotEmpty)
+            .toSet() // Remove duplicates
+            .toList();
+
+        List<String> categoryOfInstallationDetails = state.categoryItems
+            .map((item) => item.item ?? '')
+            .where((type) => type.isNotEmpty)
+            .toSet() // Remove duplicates
+            .toList();
+        return Container(
+          decoration: BoxDecoration(
+            color: AppColor.whiteColor,
+            borderRadius: BorderRadius.circular(5),
           ),
-          Divider(
-            color: AppColor.greyColor2,
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Form Installation',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: AppColor.defaultText,
+                ),
+              ),
+              Divider(
+                color: AppColor.greyColor2,
+              ),
+              InputWidget.dropDown2(
+                'Type of cable/enviroment installation',
+                "Select Type Of Cable",
+                selectedValue,
+                typeOfCables,
+                (newValue) {
+                  setState(() {
+                    selectedValue = newValue;
+                  });
+                },
+                'Search type cable/environment installation',
+              ),
+              InputWidget.dropDown2(
+                'Category of installation',
+                "Select Category of installation",
+                selectedValue,
+                categoryOfInstallation,
+                (newValue) {
+                  setState(() {
+                    selectedValue = newValue;
+                  });
+                },
+                'Search category of installation',
+              ),
+              const Gap(6),
+              InputWidget.dropDown2(
+                'Category of installation Details',
+                "Select Category of installation Details",
+                selectedValue,
+                categoryOfInstallationDetails,
+                (newValue) {
+                  setState(() {
+                    selectedValue = newValue;
+                  });
+                },
+                'Search category of installation',
+              ),           
+              const Gap(6),
+              InputWidget.textArea(
+                'Description',
+                'Description',
+                edtDescription,
+              ),
+              const Gap(6),
+              uploadFile('Documentation/Photo', 'Upload'),
+              const Gap(12),
+            ],
           ),
-          InputWidget.dropDown2('Type of cable/enviroment installation',
-              "Select Type Of Cable", selectedValue, ["KT", "KU"], (newValue) {
-            setState(() {
-              selectedValue = newValue;
-            });
-          }, 'Search type cable/enviroment installation'),
-          InputWidget.dropDown2('Category of installation',
-              "Select Category of installation", selectedValue, [
-            "Spare Kabel di Closure",
-            "Kabel Menjuntai",
-            "Pembaruan Kabel",
-            "Kabel Terputus"
-          ], (newValue) {
-            setState(() {
-              selectedValue = newValue;
-            });
-          }, 'Search category of installation'),
-          const Gap(6),
-          InputWidget.dropDown2('Category of installation Details',
-              "Select Category of installation Details", selectedValue, [
-            "Pergantian Kabel Cacat Karena Bite By Animal",
-            "Kabel Terputus",
-            "Kabel 1 di Gigit Harimau",
-            "Kabel Terputus",
-          ], (newValue) {
-            setState(() {
-              selectedValue = newValue;
-            });
-          }, 'Search category of installation'),
-          const Gap(6),
-          InputWidget.textArea(
-            'Description',
-            'Description',
-            edtDescription,
-          ),
-          const Gap(6),
-          uploadFile('Documentation/Photo', 'Upload'),
-          const Gap(12),
-        ],
-      ),
-    );
+        );
+      } else {
+        return const Center(
+          child: FailedUI(message: 'Error Fetch Data Gagal',),
+        );
+      }
+    });
   }
 
   Widget uploadFile(String title, String textButton) {

@@ -181,12 +181,16 @@ class InputWidget {
                 ),
               ),
             ),
-            dropdownBuilder: (context, selectedItem) => Text(
-              selectedItem ?? hintText,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: AppColor.defaultText,
+            dropdownBuilder: (context, selectedItem) => Container(
+              
+              child: Text(
+                selectedItem ?? hintText,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: AppColor.defaultText,
+                ),
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           ),

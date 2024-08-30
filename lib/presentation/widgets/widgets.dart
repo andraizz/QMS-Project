@@ -16,3 +16,4 @@ part 'input_widget.dart';
 part 'item_history.dart';
 part 'item_text_history.dart';
 part 'item_description_detail.dart';
+part 'failed_ui.dart';

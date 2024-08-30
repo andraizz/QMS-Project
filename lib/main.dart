@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:qms_application/common/common.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:qms_application/data/source/sources.dart';
+import 'package:qms_application/presentation/bloc/bloc/category_item_bloc.dart';
 // import 'package:d_session/d_session.dart';
 import 'package:qms_application/presentation/pages/pages.dart';
 
@@ -19,52 +22,63 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData.light(useMaterial3: true).copyWith(
-        primaryColor: AppColor.blueColor1,
-        colorScheme: ColorScheme.light(
-          primary: AppColor.blueColor1,
-          secondary: AppColor.backgroundLogo
-        ),
-        scaffoldBackgroundColor: AppColor.scaffold,
-        textTheme: GoogleFonts.poppinsTextTheme(),
-        appBarTheme: AppBarTheme(
-          surfaceTintColor: AppColor.blueColor1,
-          backgroundColor: AppColor.blueColor1,
-          foregroundColor: Colors.white,
-          titleTextStyle: const TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: 16,
+    final categoryItemSource = CategoryItemSource();
+
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<CategoryItemBloc>(
+          create: (context) => CategoryItemBloc(
+           categoryItemSource: categoryItemSource
           ),
-        ),
-        popupMenuTheme: const PopupMenuThemeData(
-          color: Colors.white,
-          surfaceTintColor: Colors.white,
-        ), 
-        dialogTheme: const DialogTheme(
-          surfaceTintColor: Colors.white,
-          backgroundColor: Colors.white,
         )
+      ],
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData.light(useMaterial3: true).copyWith(
+            primaryColor: AppColor.blueColor1,
+            colorScheme: ColorScheme.light(
+                primary: AppColor.blueColor1,
+                secondary: AppColor.backgroundLogo),
+            scaffoldBackgroundColor: AppColor.scaffold,
+            textTheme: GoogleFonts.poppinsTextTheme(),
+            appBarTheme: AppBarTheme(
+              surfaceTintColor: AppColor.blueColor1,
+              backgroundColor: AppColor.blueColor1,
+              foregroundColor: Colors.white,
+              titleTextStyle: const TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 16,
+              ),
+            ),
+            popupMenuTheme: const PopupMenuThemeData(
+              color: Colors.white,
+              surfaceTintColor: Colors.white,
+            ),
+            dialogTheme: const DialogTheme(
+              surfaceTintColor: Colors.white,
+              backgroundColor: Colors.white,
+            )),
+        initialRoute: AppRoute.login,
+        routes: {
+          // AppRoute.dashboard: (context) {
+          //     return FutureBuilder(
+          //       future: DSession.getUser(),
+          //       builder: (context, snapshot) {
+          //         if (snapshot.data == null) return const LoginPage(); //Login
+          //         return const LoginPage();
+          //       },
+          //     );
+          //   },
+          AppRoute.login: (context) => const LoginPage(),
+          AppRoute.dashboard: (context) => const MainPage(),
+          AppRoute.listInstallation: (context) => const ListInstallationPage(),
+          AppRoute.formInstallation: (context) => const FormInstallationPage(),
+          AppRoute.historyInstallation: (context) =>
+              const InstallationHistory(),
+          AppRoute.detailHistoryInstallation: (context) =>
+              const DetailHistoryInstallationPage()
+        },
       ),
-      initialRoute: AppRoute.login,
-      routes: {
-        // AppRoute.dashboard: (context) {
-        //     return FutureBuilder(
-        //       future: DSession.getUser(),
-        //       builder: (context, snapshot) {
-        //         if (snapshot.data == null) return const LoginPage(); //Login
-        //         return const LoginPage(); 
-        //       },
-        //     );
-        //   },
-        AppRoute.login: (context) => const LoginPage(),
-        AppRoute.dashboard: (context) => const MainPage(),
-        AppRoute.listInstallation: (context) => const ListInstallationPage(),
-        AppRoute.formInstallation: (context) => const FormInstallationPage(),
-        AppRoute.historyInstallation: (context) => const InstallationHistory(),
-        AppRoute.detailHistoryInstallation: (context) => const DetailHistoryInstallationPage()
-      },
     );
   }
 }
