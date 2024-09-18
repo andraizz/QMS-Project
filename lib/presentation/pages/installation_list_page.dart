@@ -1,7 +1,18 @@
 part of 'pages.dart';
 
 class ListInstallationPage extends StatefulWidget {
-  const ListInstallationPage({super.key});
+  final int cmCount;
+  final int pmCount;
+  final List<TicketByUser>? ticketByUserCM;
+  final List<TicketByUser>? ticketByUserPM;
+
+  const ListInstallationPage({
+    super.key,
+    this.cmCount = 0,
+    this.pmCount = 0,
+    this.ticketByUserCM,
+    this.ticketByUserPM,
+  });
 
   @override
   State<ListInstallationPage> createState() => _ListInstallationPageState();
@@ -28,6 +39,9 @@ class _ListInstallationPageState extends State<ListInstallationPage>
 
   @override
   Widget build(BuildContext context) {
+    final cmTickets =
+        widget.ticketByUserCM ?? []; // Fallback to an empty list if null
+    final pmTickets = widget.ticketByUserPM ?? [];
     return Scaffold(
       body: Column(
         children: [
@@ -60,7 +74,7 @@ class _ListInstallationPageState extends State<ListInstallationPage>
                         borderRadius: BorderRadius.circular(5),
                       ),
                       child: Text(
-                        'DMS TT CM (3)',
+                        'DMS TT CM (${widget.cmCount})',
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
@@ -94,7 +108,7 @@ class _ListInstallationPageState extends State<ListInstallationPage>
                               : Colors.grey,
                           borderRadius: BorderRadius.circular(5)),
                       child: Text(
-                        'DMS TT PM (2)',
+                        'DMS TT PM (${widget.pmCount})',
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
@@ -113,34 +127,101 @@ class _ListInstallationPageState extends State<ListInstallationPage>
             child: TabBarView(
               controller: tabController,
               children: [
-                ListView.builder(
-                  padding: const EdgeInsets.all(20),
-                  physics: const BouncingScrollPhysics(),
-                  itemCount: 3,
-                  itemBuilder: (context, index) {
-                    return cardTicket(
-                      DateTime.now(),
-                      'TT-24082800S009',
-                      'Trias_Jember-Kalibaru',
-                      'Batam 1',
-                      context,
-                    );
-                  },
-                ),
-                 ListView.builder(
-                  padding: const EdgeInsets.all(20),
-                  physics: const BouncingScrollPhysics(),
-                  itemCount: 2,
-                  itemBuilder: (context, index) {
-                    return cardTicket(
-                      DateTime.now(),
-                      'TT-24082800S009',
-                      'Trias_Jember-Kalibaru',
-                      'Batam 1',
-                      context,
-                    );
-                  },
-                ),
+                cmTickets.isEmpty
+                    ? const Center(
+                        child: Text('Ticket DMS TT CM Empty'),
+                      )
+                    : ListView.builder(
+                        padding: const EdgeInsets.only(
+                            top: 16, bottom: 24, left: 24, right: 24),
+                        physics: const BouncingScrollPhysics(),
+                        itemCount: cmTickets.length,
+                        itemBuilder: (context, index) {
+                          final ticket = cmTickets[index];
+                          return cardTicket(
+                            createdAt: ticket.ticketStatusDate!,
+                            ttNumber: 'TT-${ticket.ticketNumber}',
+                            section: ticket.sectionName!,
+                            servicePoint: ticket.servicePointName!,
+                            onClick: () {
+                              if (ticket.ticketNumber != null) {
+                                Navigator.pushNamed(
+                                  context,
+                                  AppRoute.formInstallation,
+                                  arguments: {
+                                    'ticketNumber': ticket.ticketNumber!,
+                                    'servicePointName':
+                                        ticket.servicePointName!,
+                                  },
+                                );
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content:
+                                        Text('Error: Ticket number is missing'),
+                                  ),
+                                );
+                              }
+                            },
+                            context: context,
+                          );
+                        },
+                      ),
+                pmTickets.isEmpty
+                    ? const Center(
+                        child: Text('Ticket DMS TT PM Empty'),
+                      )
+                    : ListView.builder(
+                        padding: const EdgeInsets.all(20),
+                        physics: const BouncingScrollPhysics(),
+                        itemCount: pmTickets.length,
+                        itemBuilder: (context, index) {
+                          final ticket = pmTickets[index];
+                          return cardTicket(
+                            createdAt: ticket.ticketStatusDate!,
+                            ttNumber: 'TT-${ticket.ticketNumber}',
+                            section: ticket.sectionName!,
+                            servicePoint: ticket.servicePointName!,
+                            onClick: () {
+                              // if (ticket.ticketNumber != null) {
+                              //   Navigator.push(
+                              //     context,
+                              //     MaterialPageRoute(
+                              //       builder: (context) => FormInstallationPage(
+                              //           ticketNumber: ticket.ticketNumber!),
+                              //     ),
+                              //   );
+                              // } else {
+                              //   ScaffoldMessenger.of(context).showSnackBar(
+                              //     const SnackBar(
+                              //         content: Text(
+                              //             'Error: Ticket number is missing')),
+                              //   );
+                              // }
+
+                              if (ticket.ticketNumber != null) {
+                                Navigator.pushNamed(
+                                  context,
+                                  AppRoute.formInstallation,
+                                  arguments: {
+                                    'ticketNumber': ticket.ticketNumber!,
+                                    'servicePointName':
+                                        ticket.servicePointName!,
+                                  },
+                                );
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content:
+                                        Text('Error: Ticket number is missing'),
+                                  ),
+                                );
+                              }
+                            },
+                            context: context,
+                          );
+                        },
+                      ),
               ],
             ),
           )

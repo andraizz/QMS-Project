@@ -8,19 +8,58 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
+  List<TicketByUser> ticketByUserCM = [];
+  List<TicketByUser> ticketByUserPM = [];
+
+  bool navigateToInstallation = false;
+
+  @override
+  void initState() {
+    super.initState();
+    context.read<TicketByUserBloc>().add(FetchTicketByUserCM());
+    context.read<TicketByUserBloc>().add(FetchTicketByUserPM());
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: ListView(
-        physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.all(24),
-        children: [
-          welcomeCard(),
-          const Gap(36),
-          buildQmsModule(),
-          const Gap(36),
-          buildProgressQmsTicket(),
-        ],
+      body: BlocListener<TicketByUserBloc, TicketByUserState>(
+        listener: (context, state) {
+          if (state is TicketByUserLoaded && navigateToInstallation) {
+            setState(() {
+              navigateToInstallation = false; // Reset the flag after navigation
+            });
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ListInstallationPage(
+                  cmCount: state.cmTickets.length,
+                  pmCount: state.pmTickets.length,
+                  ticketByUserCM: state.cmTickets,
+                  ticketByUserPM: state.pmTickets,
+                ),
+              ),
+            );
+          } else if (state is TicketError && navigateToInstallation) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(state.message)),
+            );
+            setState(() {
+              navigateToInstallation = false; // Reset the flag on error
+            });
+          }
+        },
+        child: ListView(
+          physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.all(24),
+          children: [
+            welcomeCard(),
+            const Gap(36),
+            buildQmsModule(),
+            const Gap(36),
+            buildProgressQmsTicket(),
+          ],
+        ),
       ),
     );
   }
@@ -44,7 +83,6 @@ class _DashboardPageState extends State<DashboardPage> {
           ),
           Divider(
             color: AppColor.scaffold,
-            
             height: 4,
           ),
           Padding(
@@ -92,47 +130,76 @@ class _DashboardPageState extends State<DashboardPage> {
           ),
         ),
         const Gap(20),
-        GridView.count(
-          padding: const EdgeInsets.all(0),
-          physics: const NeverScrollableScrollPhysics(),
-          shrinkWrap: true,
-          crossAxisCount: 2,
-          childAspectRatio: 1.5,
-          mainAxisSpacing: 16,
-          crossAxisSpacing: 16,
-          children: [
-            buildItemModuleMenu(
-                'assets/images/inspection_bg.png', 'Inspection', 1, () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const DashboardPage()));
-            }),
-            buildItemModuleMenu(
-                'assets/images/installation_bg.png', 'Installation', 1, () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const ListInstallationPage(),
-                ),
-              );
-            }),
-            buildItemModuleMenu(
-                'assets/images/rectification_bg.png', 'Rectification', 1, () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const DashboardPage()));
-            }),
-            buildItemModuleMenu(
-                'assets/images/qualityaudit_bg.png', 'Quality Audit', 1, () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const DashboardPage()));
-            }),
-          ],
-        )
+        BlocBuilder<TicketByUserBloc, TicketByUserState>(
+            builder: (context, state) {
+          int cmCount = 0;
+          int pmCount = 0;
+          int totalTicketsInstallation = 0;
+          // ticketByUserCM = [];
+          // ticketByUserPM = [];
+
+          if (state is TicketByUserLoaded) {
+            cmCount = state.cmTickets.length;
+            pmCount = state.pmTickets.length;
+            totalTicketsInstallation = cmCount + pmCount;
+          }
+          return GridView.count(
+            padding: const EdgeInsets.all(0),
+            physics: const NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            crossAxisCount: 2,
+            childAspectRatio: 1.5,
+            mainAxisSpacing: 16,
+            crossAxisSpacing: 16,
+            children: [
+              buildItemModuleMenu(
+                  asset: 'assets/images/inspection_bg.png',
+                  status: 'Inspection',
+                  total: 1,
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const DashboardPage()));
+                  }),
+              buildItemModuleMenu(
+                asset: 'assets/images/installation_bg.png',
+                status: 'Installation',
+                total: totalTicketsInstallation,
+                onTap: () {
+                  // Trigger the fetch events
+                  context.read<TicketByUserBloc>().add(FetchTicketByUserCM());
+                  context.read<TicketByUserBloc>().add(FetchTicketByUserPM());
+
+                  // Set the flag to true to navigate when data is loaded
+                  setState(() {
+                    navigateToInstallation = true;
+                  });
+                },
+              ),
+              buildItemModuleMenu(
+                  asset: 'assets/images/rectification_bg.png',
+                  status: 'Rectification',
+                  total: 1,
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const DashboardPage()));
+                  }),
+              buildItemModuleMenu(
+                  asset: 'assets/images/qualityaudit_bg.png',
+                  status: 'Quality Audit',
+                  total: 1,
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const DashboardPage()));
+                  }),
+            ],
+          );
+        })
       ],
     );
   }

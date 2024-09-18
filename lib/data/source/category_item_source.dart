@@ -17,7 +17,11 @@ class CategoryItemSource {
         return null;
       }
     }catch(e) {
-      DMethod.log(e.toString(), colorCode: 1);
+      if (e is http.ClientException) {
+        DMethod.log('Network error: ${e.message}', colorCode: 1);
+      } else {
+        DMethod.log('Error: ${e.toString()}', colorCode: 1);
+      }
       return null;
     }
   }

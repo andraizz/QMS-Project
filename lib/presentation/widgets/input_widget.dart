@@ -10,26 +10,63 @@ class InputWidget {
           style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
         ),
         const Gap(3),
+        TextFormField(
+          readOnly: true,
+          controller: controller,
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+            color: AppColor.greyColor2,
+          ),
+          minLines: 1,
+          maxLines: null,
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: AppColor.disable,
+            border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(5),
+                borderSide: BorderSide(color: AppColor.disable)),
+            focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: AppColor.disable)),
+            enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: AppColor.disable)),
+          ),
+        ),
+      ],
+    );
+  }
+
+  static Widget available(
+      String title, String hintText, TextEditingController controller) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+        ),
+        const Gap(3),
         SizedBox(
-          height: 50,
+          height: 45,
           child: TextFormField(
-            readOnly: true,
             controller: controller,
+            maxLines: 2,
             style: TextStyle(
               fontSize: 12,
-              fontWeight: FontWeight.w500,
-              color: AppColor.greyColor2,
+              fontWeight: FontWeight.w600,
+              color: AppColor.defaultText,
             ),
             decoration: InputDecoration(
+              hintText: hintText,
               filled: true,
-              fillColor: AppColor.disable,
+              fillColor: AppColor.whiteColor,
               border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(5),
-                  borderSide: BorderSide(color: AppColor.disable)),
+                  borderSide: BorderSide(color: AppColor.defaultText)),
               focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: AppColor.disable)),
+                  borderSide: BorderSide(color: AppColor.defaultText)),
               enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: AppColor.disable)),
+                  borderSide: BorderSide(color: AppColor.defaultText)),
             ),
           ),
         ),
@@ -127,13 +164,15 @@ class InputWidget {
     );
   }
 
-  static Widget dropDown2(
-      String title,
-      String hintText,
-      String? value,
-      List<String> items,
-      void Function(String?)? onChanged,
-      String hintTextSearch) {
+  static Widget dropDown2({
+    String title = '',
+    String hintText = '',
+    String value = '',
+    List<String>? items,
+    void Function(String?)? onChanged,
+    bool isEnabled = true,
+    String hintTextSearch = '',
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -145,30 +184,37 @@ class InputWidget {
         SizedBox(
           height: 50,
           child: DropdownSearch<String>(
-            selectedItem: value,
-            items: items,
+            selectedItem: value.isEmpty ? null : value,
+            items: items ?? [], // Handle null for items
             dropdownDecoratorProps: DropDownDecoratorProps(
               dropdownSearchDecoration: InputDecoration(
                 filled: true,
                 fillColor: AppColor.whiteColor,
                 border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(5),
-                    borderSide: BorderSide(color: AppColor.defaultText)),
+                  borderRadius: BorderRadius.circular(5),
+                  borderSide: BorderSide(color: AppColor.defaultText),
+                ),
                 focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: AppColor.defaultText)),
+                  borderSide: BorderSide(color: AppColor.defaultText),
+                ),
                 enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: AppColor.defaultText)),
+                  borderSide: BorderSide(color: AppColor.defaultText),
+                ),
               ),
             ),
-            onChanged: onChanged,
+            onChanged: (newValue) {
+              if (onChanged != null) {
+                onChanged(newValue);
+              }
+            },
             popupProps: PopupProps.dialog(
               dialogProps: DialogProps(
-                  backgroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  elevation: 8),
-              // isFilterOnline: true, //Untuk Mengaktifkan Jika mengambil data dari online
+                backgroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                elevation: 8,
+              ),
               showSearchBox: true,
               searchFieldProps: TextFieldProps(
                 decoration: InputDecoration(
@@ -177,14 +223,15 @@ class InputWidget {
                   filled: true,
                   fillColor: AppColor.disable,
                   focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: AppColor.defaultText)),
+                    borderSide: BorderSide(color: AppColor.defaultText),
+                  ),
                 ),
               ),
             ),
             dropdownBuilder: (context, selectedItem) => Container(
-              
+              alignment: Alignment.centerLeft,
               child: Text(
-                selectedItem ?? hintText,
+                selectedItem?.isNotEmpty == true ? selectedItem! : hintText,
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
@@ -193,6 +240,7 @@ class InputWidget {
                 overflow: TextOverflow.ellipsis,
               ),
             ),
+            enabled: isEnabled,
           ),
         ),
       ],
@@ -212,9 +260,7 @@ class InputWidget {
           height: 160,
           decoration: BoxDecoration(
             color: AppColor.whiteColor,
-            border: Border.all(
-              color: AppColor.defaultText
-            ),
+            border: Border.all(color: AppColor.defaultText),
             borderRadius: BorderRadius.circular(5),
           ),
           child: Center(

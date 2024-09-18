@@ -9,4 +9,6 @@ class AppRoute {
   static const formInstallation = '/form/installation';
   static const detailHistoryInstallation = '/detail/history/installation';
   static const historyInstallation = '/history/installation'; 
+  static const summaryInstallation = '/summary/installation';
+  static const detailStepInstallation = '/detail/step/installation';
 }

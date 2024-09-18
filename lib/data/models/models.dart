@@ -1,6 +1,12 @@
-
-import 'dart:convert';
-
 part 'form_installation.dart';
 part 'category_item.dart';
-
+part 'category_item_old.dart';
+part 'cable_type.dart';
+part 'item.dart';
+part 'installation_type.dart';
+part 'installation_step.dart';
+part 'installation_record.dart';
+part 'photo.dart';
+part 'ticket_by_user.dart';
+part 'ticket_assignee.dart';
+part 'ticket_detail.dart';

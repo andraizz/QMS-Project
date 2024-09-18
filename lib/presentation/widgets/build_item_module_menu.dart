@@ -1,7 +1,11 @@
 part of 'widgets.dart';
 
-Widget buildItemModuleMenu(
-    String asset, String status, int total, void Function()? onTap) {
+Widget buildItemModuleMenu({
+  String asset = '',
+  String status = '',
+  int total = 0,
+  void Function()? onTap,
+}) {
   return GestureDetector(
     onTap: onTap,
     child: Container(

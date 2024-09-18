@@ -1,6 +1,7 @@
 part of 'pages.dart';
 
 class FormInstallationPage extends StatefulWidget {
+  // final String? ticketNumber;
   const FormInstallationPage({super.key});
 
   @override
@@ -8,11 +9,44 @@ class FormInstallationPage extends StatefulWidget {
 }
 
 class _FormInstallationPageState extends State<FormInstallationPage> {
+  String? ticketNumber;
+  String? servicePointName;
+
+  bool isLoadingInstallationTypes = false;
+  bool isLoadingInstallationSteps = false;
+
+  List<InstallationType> installationType = [];
+  InstallationType? selectedInstallationType;
+
+  List<InstallationStep> installationStep = [];
+  InstallationStep? selectedInstallationStep;
+
+  int currentStepNumber = 1;
+  int totalSteps = 0;
+
+  final edtDescription = TextEditingController();
+
   @override
   void initState() {
     super.initState();
-    // Mengirim event untuk memulai pengambilan data dari CategoryItemBloc
-    context.read<CategoryItemBloc>().add(const FetchCategoryItems());
+    // Mengirim event untuk memulai pengambilan data dari CategoryInstallationBloc untuk Cable Types
+    context.read<InstallationBloc>().add(FetchInstallationTypes());
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    final args = ModalRoute.of(context)?.settings.arguments as Map?;
+
+    if (args != null) {
+      ticketNumber = args['ticketNumber'] as String?;
+      servicePointName = args['servicePointName'] as String?;
+    }
+
+    if (ticketNumber != null) {
+      context.read<TicketDetailBloc>().add(FetchTicketDetail(ticketNumber!));
+    }
   }
 
   final documentations = <XFile>[].obs;
@@ -27,7 +61,9 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
     if (await _requestPermission(Permission.storage)) {
       List<XFile>? results = await ImagePicker().pickMultiImage();
       if (results.isNotEmpty) {
-        documentations.addAll(results);
+        setState(() {
+          documentations.addAll(results);
+        });
       }
     } else {
       if (mounted) {
@@ -55,13 +91,15 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
 
   //Fungsi Untuk Mengahapus Gambar
   void removeImage(int index) {
-    documentations.removeAt(index);
+    setState(() {
+      documentations.removeAt(index);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBarWidget.secondary('Detail Ticket', context),
+      appBar: AppBarWidget.secondary('Detail', context),
       body: Column(
         children: [
           Expanded(
@@ -71,7 +109,6 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
               children: [
                 contentTicketDMS(),
                 const Gap(24),
-                // contentTicketDMS(),
                 formInstallation(),
               ],
             ),
@@ -81,14 +118,15 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
       bottomNavigationBar: Container(
         height: 50,
         decoration: BoxDecoration(
-            color: AppColor.whiteColor,
-            borderRadius: BorderRadius.circular(10),
-            boxShadow: const [
-              BoxShadow(
-                  offset: Offset(0, 3),
-                  blurRadius: 10,
-                  blurStyle: BlurStyle.outer)
-            ]),
+          color: AppColor.whiteColor,
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: const [
+            BoxShadow(
+                offset: Offset(0, 3),
+                blurRadius: 10,
+                blurStyle: BlurStyle.outer)
+          ],
+        ),
         child: Center(
           child: Padding(
             padding: const EdgeInsets.symmetric(
@@ -97,14 +135,37 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
             ),
             child: DButtonFlat(
               onClick: () {
-                Navigator.pushNamed(context, AppRoute.dashboard);
+                setState(() {
+                  final currentStep = installationStep.isNotEmpty
+                      ? installationStep[currentStepNumber - 1]
+                      : null;
+
+                  // Cek apakah jumlah gambar yang diunggah sudah sesuai dengan imageLength
+                  if (currentStep != null &&
+                      documentations.length < currentStep.imageLength!) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          'Please upload at least ${currentStep.imageLength} images to continue.',
+                        ),
+                      ),
+                    );
+                    return; // Stop if image upload is not complete
+                  }
+
+                  showConfirmationDialog(context);
+                });
               },
               radius: 10,
               mainColor: AppColor.blueColor1,
-              child: const Text(
-                'Submit',
+              child: Text(
+                currentStepNumber < totalSteps
+                    ? 'Next'
+                    : (currentStepNumber == totalSteps)
+                        ? 'Finish'
+                        : 'Next',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: AppColor.whiteColor,
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                 ),
@@ -116,110 +177,56 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
     );
   }
 
-  Widget contentTicketDMS() {
-    final edtServicePoint = TextEditingController(text: 'Serpo Batam 1');
-    final edtProject = TextEditingController(text: 'B2JS');
-    final edtSegment =
-        TextEditingController(text: 'TRIAS_Tanjung Bemban - Tanjung Pinggir');
-    final edtSection = TextEditingController(
-        text: 'TRIAS_Diversity Tanjung Pinggir - Batam Center');
-    final edtWorker = TextEditingController(
-        text: 'TRIAS_Diversity Tanjung Pinggir - Batam Center');
-    final edtArea = TextEditingController(text: 'West 1');
-    final edtLatitude = TextEditingController(text: '-6.225678');
-    final edtLongtitude = TextEditingController(text: '106.873981');
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColor.whiteColor,
-        borderRadius: BorderRadius.circular(5),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'TT-24082800S009',
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: AppColor.defaultText,
+  void showConfirmationDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Form Installation'),
+          content: const Text('Apakah Anda yakin form yang diisi sudah benar?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Tutup dialog
+              },
+              child: const Text('Tidak'),
             ),
-          ),
-          Divider(
-            color: AppColor.greyColor2,
-          ),
-          InputWidget.disable(
-            'Service Point',
-            edtServicePoint,
-          ),
-          const Gap(6),
-          InputWidget.disable(
-            'Project',
-            edtProject,
-          ),
-          const Gap(6),
-          InputWidget.disable(
-            'Segment',
-            edtSegment,
-          ),
-          const Gap(6),
-          InputWidget.disable(
-            'Section Name',
-            edtSection,
-          ),
-          const Gap(6),
-          InputWidget.disable(
-            'Worker',
-            edtWorker,
-          ),
-          const Gap(6),
-          InputWidget.disable(
-            'Area',
-            edtArea,
-          ),
-          const Gap(6),
-          InputWidget.disable(
-            'Latitude',
-            edtLatitude,
-          ),
-          const Gap(6),
-          InputWidget.disable(
-            'Longitude',
-            edtLongtitude,
-          ),
-          const Gap(6),
-        ],
-      ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Tutup dialog
+                // Lanjutkan ke langkah berikutnya atau halaman ringkasan
+                setState(() {
+                  if (currentStepNumber < totalSteps) {
+                    currentStepNumber++;
+                  } else {
+                    Navigator.pushNamed(
+                      context,
+                      AppRoute.summaryInstallation,
+                      arguments: {
+                        'selectedInstallationType': selectedInstallationType,
+                        'installationSteps': installationStep,
+                      },
+                    );
+                  }
+                });
+              },
+              child: const Text('Iya'),
+            ),
+          ],
+        );
+      },
     );
   }
 
-  Widget formInstallation() {
-    String? selectedValue;
-    final edtDescription = TextEditingController();
-    return BlocBuilder<CategoryItemBloc, CategoryItemState>(
+  Widget contentTicketDMS() {
+    return BlocBuilder<TicketDetailBloc, TicketDetailState>(
         builder: (context, state) {
-      if (state is CategoryItemLoading) {
-        return const Center(child: CircularProgressIndicator());
-      } else if (state is CategoryItemFailed) {
-        return Center(child: Text(state.message));
-      } else if (state is CategoryItemLoaded) {
-        List<String> typeOfCables = state.categoryItems
-            .map((item) => item.cableType ?? '')
-            .where((type) => type.isNotEmpty)
-            .toSet() // Remove duplicates
-            .toList();
-
-        List<String> categoryOfInstallation = state.categoryItems
-            .map((item) => item.categoryItem ?? '')
-            .where((type) => type.isNotEmpty)
-            .toSet() // Remove duplicates
-            .toList();
-
-        List<String> categoryOfInstallationDetails = state.categoryItems
-            .map((item) => item.item ?? '')
-            .where((type) => type.isNotEmpty)
-            .toSet() // Remove duplicates
-            .toList();
+      if (state is TicketDetailLoading) {
+        return const Center(
+          child: CircularProgressIndicator(),
+        );
+      } else if (state is TicketDetailLoaded) {
+        final ticketDetails = state.ticketDetail;
         return Container(
           decoration: BoxDecoration(
             color: AppColor.whiteColor,
@@ -230,7 +237,7 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Form Installation',
+                'TT-$ticketNumber',
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
@@ -240,64 +247,204 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
               Divider(
                 color: AppColor.greyColor2,
               ),
-              InputWidget.dropDown2(
-                'Type of cable/enviroment installation',
-                "Select Type Of Cable",
-                selectedValue,
-                typeOfCables,
-                (newValue) {
-                  setState(() {
-                    selectedValue = newValue;
-                  });
-                },
-                'Search type cable/environment installation',
-              ),
-              InputWidget.dropDown2(
-                'Category of installation',
-                "Select Category of installation",
-                selectedValue,
-                categoryOfInstallation,
-                (newValue) {
-                  setState(() {
-                    selectedValue = newValue;
-                  });
-                },
-                'Search category of installation',
+              InputWidget.disable(
+                'Service Point',
+                TextEditingController(text: servicePointName),
               ),
               const Gap(6),
-              InputWidget.dropDown2(
-                'Category of installation Details',
-                "Select Category of installation Details",
-                selectedValue,
-                categoryOfInstallationDetails,
-                (newValue) {
-                  setState(() {
-                    selectedValue = newValue;
-                  });
-                },
-                'Search category of installation',
-              ),           
-              const Gap(6),
-              InputWidget.textArea(
-                'Description',
-                'Description',
-                edtDescription,
+              InputWidget.disable(
+                'Project',
+                TextEditingController(text: ticketDetails.projectName),
               ),
               const Gap(6),
-              uploadFile('Documentation/Photo', 'Upload'),
-              const Gap(12),
+              InputWidget.disable(
+                'Segment',
+                TextEditingController(text: ticketDetails.spanName),
+              ),
+              const Gap(6),
+              InputWidget.disable(
+                'Section Name',
+                TextEditingController(text: ticketDetails.sectionName),
+              ),
+              const Gap(6),
+              InputWidget.disable(
+                'Area',
+                TextEditingController(
+                    text: ticketDetails.ticketAssignees?[0].serviceAreaName),
+              ),
+              const Gap(6),
+              InputWidget.disable(
+                'Latitude',
+                TextEditingController(text: ticketDetails.latitude.toString()),
+              ),
+              const Gap(6),
+              InputWidget.disable(
+                'Longitude',
+                TextEditingController(text: ticketDetails.longitude.toString()),
+              ),
+              const Gap(6),
             ],
           ),
         );
+      } else if (state is TicketDetailError) {
+        return Center(
+          child: Text('Error: ${state.message}'),
+        );
       } else {
         return const Center(
-          child: FailedUI(message: 'Error Fetch Data Gagal',),
+          child: Text('No Detail Available'),
         );
       }
     });
   }
 
-  Widget uploadFile(String title, String textButton) {
+  Widget formInstallation() {
+    return BlocBuilder<InstallationBloc, InstallationState>(
+      builder: (context, state) {
+        if (state is InstallationLoading) {
+          isLoadingInstallationTypes = true;
+        } else if (state is InstallationTypesLoading) {
+          isLoadingInstallationTypes = true;
+          if (state.previousState is InstallationTypesLoaded) {
+            installationType = (state.previousState as InstallationTypesLoaded)
+                .installationTypes
+                .toList();
+          }
+        } else if (state is InstallationStepsLoading) {
+          isLoadingInstallationSteps = true;
+          if (state.previousState is InstallationTypesLoaded) {
+            installationType = (state.previousState as InstallationTypesLoaded)
+                .installationTypes
+                .toList();
+          } else if (state.previousState is InstallationStepsLoaded) {
+            installationStep = (state.previousState as InstallationStepsLoaded)
+                .installationSteps
+                .toList();
+          }
+        } else if (state is InstallationTypesLoaded) {
+          installationType = state.installationTypes.toList();
+        } else if (state is InstallationStepsLoaded) {
+          installationStep = state.installationSteps;
+          totalSteps = state.installationSteps.length;
+        } else if (state is InstallationError) {
+          return Center(child: Text(state.message));
+        }
+
+        final currentStep = installationStep.isNotEmpty
+            ? installationStep[currentStepNumber -
+                1] // Show the current step based on currentStepNumber
+            : InstallationStep();
+
+        return Container(
+          decoration: BoxDecoration(
+            color: AppColor.whiteColor,
+            borderRadius: BorderRadius.circular(5),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Form Installation',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: AppColor.defaultText,
+                    ),
+                  ),
+                  Text(
+                    selectedInstallationType != null &&
+                            selectedInstallationType!.id != null
+                        ? 'Step Installation $currentStepNumber of $totalSteps'
+                        : '',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: AppColor.defaultText,
+                    ),
+                  ),
+                ],
+              ),
+              Divider(
+                color: AppColor.greyColor2,
+              ),
+              if (currentStepNumber == 1)
+                InputWidget.dropDown2(
+                  title: 'Type of installation',
+                  hintText: 'Select Type Of Installation',
+                  value: selectedInstallationType?.typeName ??
+                      '', // Handle potential null value
+                  items: installationType
+                      .map((type) => type.typeName ?? '')
+                      .toList(),
+                  onChanged: (newValue) {
+                    setState(() {
+                      // Cari objek InstallationType berdasarkan typeName yang dipilih
+                      selectedInstallationType = installationType.firstWhere(
+                        (element) => element.typeName == newValue,
+                        orElse: () => InstallationType(
+                            id: null,
+                            typeName:
+                                null), // Hindari pengembalian null, buat objek kosongp
+                      );
+
+                      selectedInstallationStep = null;
+
+                      // Pastikan selectedInstallationType tidak null dan id tersedia
+                      if (selectedInstallationType != null &&
+                          selectedInstallationType!.id != null) {
+                        context.read<InstallationBloc>().add(
+                            FetchInstallationSteps(selectedInstallationType!
+                                .id!)); // Kirimkan id ke event
+                      } else {
+                        installationStep.clear();
+                        totalSteps = 0;
+                      }
+                    });
+                  },
+                  hintTextSearch: 'Search type of installation',
+                ),
+              if (currentStepNumber > 1)
+                InputWidget.dropDown2(
+                  title: 'Type of installation',
+                  hintText: 'Select Type Of Installation',
+                  value: selectedInstallationType?.typeName ?? '',
+                  items: installationType
+                      .map((type) => type.typeName ?? '')
+                      .toList(),
+                  onChanged:
+                      null, // Dropdown di-disable pada step setelah Step 1
+                  hintTextSearch: 'Search type of installation',
+                  isEnabled: false, // Disable the dropdown
+                ),
+              const Gap(12),
+              if (selectedInstallationType != null &&
+                  selectedInstallationType!.id != null) ...[
+                uploadFile(
+                    currentStep.stepDescription ?? 'No Image Uploaded',
+                    'Upload',
+                    'No Image Uploaded',
+                    currentStep.imageLength ?? 0),
+                const Gap(12),
+                InputWidget.textArea(
+                  'Description',
+                  'Description',
+                  edtDescription,
+                ),
+              ],
+              const Gap(24)
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget uploadFile(
+      String title, String textButton, String hintUpload, int imageLength) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -320,10 +467,10 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
                 // Jika tidak ada gambar yang dipilih, tampilkan teks 'No Image Selected'
                 if (documentations.isEmpty) {
                   return Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       Text(
-                        'No Image Selected',
+                        hintUpload,
                         style: TextStyle(
                           color: AppColor.defaultText,
                           fontSize: 14,
@@ -364,8 +511,7 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
                         crossAxisSpacing: 8.0,
                         mainAxisSpacing: 8.0,
                       ),
-                      itemCount: documentations.length +
-                          1, // Tambahkan 1 untuk tombol tambah
+                      itemCount: documentations.length + 1,
                       itemBuilder: (context, index) {
                         if (index == documentations.length) {
                           // Tombol '+' untuk menambahkan gambar
@@ -440,6 +586,11 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
               }),
             ],
           ),
+        ),
+        const Gap(12),
+        Text(
+          "Uploaded: ${documentations.length}/$imageLength", // Display the number of uploaded images
+          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
         ),
       ],
     );

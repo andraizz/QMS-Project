@@ -4,7 +4,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:qms_application/common/common.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:qms_application/data/source/sources.dart';
-import 'package:qms_application/presentation/bloc/bloc/category_item_bloc.dart';
+import 'package:qms_application/presentation/bloc/category_installation/category_installation_bloc.dart';
+import 'package:qms_application/presentation/bloc/installation/installation_bloc.dart';
+import 'package:qms_application/presentation/bloc/ticket_by_user/ticket_by_user_bloc.dart';
+import 'package:qms_application/presentation/bloc/ticket_detail/ticket_detail_bloc.dart';
+// import 'package:qms_application/presentation/bloc/ticket_detail/ticket_detail_bloc.dart';
 // import 'package:d_session/d_session.dart';
 import 'package:qms_application/presentation/pages/pages.dart';
 
@@ -22,14 +26,24 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final categoryItemSource = CategoryItemSource();
-
+    final categoryInstallationSource = CategoryInstallationSource();
+    final installationSource = InstallationSource();
+    final ticketByUserSource = TicketByUserSource();
+    final ticketDetailSource = TicketDetailSource();
     return MultiBlocProvider(
       providers: [
-        BlocProvider<CategoryItemBloc>(
-          create: (context) => CategoryItemBloc(
-           categoryItemSource: categoryItemSource
-          ),
+        BlocProvider<CategoryInstallationBloc>(
+          create: (context) =>
+              CategoryInstallationBloc(categoryInstallationSource),
+        ),
+        BlocProvider<InstallationBloc>(
+          create: (context) => InstallationBloc(installationSource),
+        ),
+        BlocProvider<TicketByUserBloc>(
+          create: (context) => TicketByUserBloc(ticketByUserSource),
+        ),
+        BlocProvider<TicketDetailBloc>(
+          create: (context) => TicketDetailBloc(ticketDetailSource: ticketDetailSource),
         )
       ],
       child: MaterialApp(
@@ -76,7 +90,11 @@ class MainApp extends StatelessWidget {
           AppRoute.historyInstallation: (context) =>
               const InstallationHistory(),
           AppRoute.detailHistoryInstallation: (context) =>
-              const DetailHistoryInstallationPage()
+              const DetailHistoryInstallationPage(),
+          AppRoute.summaryInstallation: (context) =>
+              const SummaryInstallationPage(),
+          AppRoute.detailStepInstallation: (context) =>
+              const DetailStepInstallationPage(),
         },
       ),
     );

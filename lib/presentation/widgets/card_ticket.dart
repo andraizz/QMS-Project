@@ -1,7 +1,12 @@
 part of 'widgets.dart';
 
-Widget cardTicket(DateTime createdAt, String ttNumber, String section,
-    String servicePoint, BuildContext context) {
+Widget cardTicket(
+    {DateTime? createdAt,
+    String? ttNumber,
+    String? section,
+    String? servicePoint,
+    dynamic Function()? onClick,
+    BuildContext? context}) {
   return Container(
     decoration: BoxDecoration(
       color: AppColor.whiteColor,
@@ -23,7 +28,7 @@ Widget cardTicket(DateTime createdAt, String ttNumber, String section,
             Text(
               //Jika ingin menampilkan 20 Aug 2024 saja tanpa harus 20 agustus cukup dengan
               //dd MMM yyyy
-              DateFormat('dd MMMM yyyy').format(createdAt),
+              DateFormat('dd MMMM yyyy').format(createdAt!),
               style: const TextStyle(
                 color: Colors.grey,
                 fontSize: 12,
@@ -33,7 +38,7 @@ Widget cardTicket(DateTime createdAt, String ttNumber, String section,
         ),
         const Gap(12),
         Text(
-          ttNumber,
+          ttNumber!,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
@@ -44,8 +49,8 @@ Widget cardTicket(DateTime createdAt, String ttNumber, String section,
         ),
         const Gap(6),
         Text(
-          section,
-          maxLines: 1,
+          section!,
+          maxLines: 2,
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
             color: AppColor.textBody,
@@ -64,9 +69,7 @@ Widget cardTicket(DateTime createdAt, String ttNumber, String section,
         ),
         const Gap(10),
         DButtonBorder(
-          onClick: () {
-            Navigator.pushNamed(context, AppRoute.formInstallation);
-          },
+          onClick: onClick,
           mainColor: Colors.white,
           radius: 10,
           borderColor: AppColor.scaffold,
