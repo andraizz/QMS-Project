@@ -74,7 +74,7 @@ Widget cardTicket(
           radius: 10,
           borderColor: AppColor.scaffold,
           child: const Text(
-            'Create Installation Ticket',
+            'Installation Ticket Form',
             style: TextStyle(
               fontWeight: FontWeight.w600,
               fontSize: 16,

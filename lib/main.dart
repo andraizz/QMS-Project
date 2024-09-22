@@ -95,6 +95,7 @@ class MainApp extends StatelessWidget {
               const SummaryInstallationPage(),
           AppRoute.detailStepInstallation: (context) =>
               const DetailStepInstallationPage(),
+          AppRoute.detailDMSTicket : (context) => const DMSDetailTicket()
         },
       ),
     );

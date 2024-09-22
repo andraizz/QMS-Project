@@ -1,7 +1,6 @@
 part of 'pages.dart';
 
 class FormInstallationPage extends StatefulWidget {
-  // final String? ticketNumber;
   const FormInstallationPage({super.key});
 
   @override
@@ -107,8 +106,8 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
               physics: const BouncingScrollPhysics(),
               children: [
-                contentTicketDMS(),
-                const Gap(24),
+                // contentTicketDMS(),
+                // const Gap(24),
                 formInstallation(),
               ],
             ),
@@ -187,28 +186,59 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(); // Tutup dialog
+                Navigator.of(context).pop(); // Tutup dialog tanpa aksi
               },
               child: const Text('Tidak'),
             ),
             TextButton(
-              onPressed: () {
+              onPressed: () async {
                 Navigator.of(context).pop(); // Tutup dialog
-                // Lanjutkan ke langkah berikutnya atau halaman ringkasan
-                setState(() {
-                  if (currentStepNumber < totalSteps) {
-                    currentStepNumber++;
+
+                // Prepare to call the stepInstallation function
+                final currentStep = installationStep.isNotEmpty
+                    ? installationStep[currentStepNumber - 1]
+                    : null;
+
+                if (currentStep != null) {
+                  bool result = await InstallationSource.stepInstallation(
+                    currentStep.id!, // installationStepId
+                    currentStep.stepNumber!, // stepNumber
+                    'QS.INL-001-$ticketNumber', // qmsId
+                    'QS.INL-001.001-$ticketNumber', // qmsInstallationStepId
+                    selectedInstallationType?.typeName ??
+                        '', // typeOfInstallation
+                    edtDescription.text, // description
+                    documentations, // photos
+                    'created', // status
+                  );
+
+                  if (result) {
+                    setState(() {
+                      edtDescription.clear(); // Clear description
+                      documentations.clear();
+
+                      if (currentStepNumber < totalSteps) {
+                        currentStepNumber++; // Lanjutkan ke step berikutnya
+                      } else {
+                        // Jika sudah di step terakhir, navigasi ke halaman summary
+                        Navigator.pushNamed(
+                          context,
+                          AppRoute.summaryInstallation,
+                          arguments: {
+                            'selectedInstallationType':
+                                selectedInstallationType,
+                            'installationSteps': installationStep,
+                          },
+                        );
+                      }
+                    });
                   } else {
-                    Navigator.pushNamed(
-                      context,
-                      AppRoute.summaryInstallation,
-                      arguments: {
-                        'selectedInstallationType': selectedInstallationType,
-                        'installationSteps': installationStep,
-                      },
+                    // Handle failure case
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Failed to submit step.')),
                     );
                   }
-                });
+                }
               },
               child: const Text('Iya'),
             ),
@@ -216,86 +246,6 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
         );
       },
     );
-  }
-
-  Widget contentTicketDMS() {
-    return BlocBuilder<TicketDetailBloc, TicketDetailState>(
-        builder: (context, state) {
-      if (state is TicketDetailLoading) {
-        return const Center(
-          child: CircularProgressIndicator(),
-        );
-      } else if (state is TicketDetailLoaded) {
-        final ticketDetails = state.ticketDetail;
-        return Container(
-          decoration: BoxDecoration(
-            color: AppColor.whiteColor,
-            borderRadius: BorderRadius.circular(5),
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'TT-$ticketNumber',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: AppColor.defaultText,
-                ),
-              ),
-              Divider(
-                color: AppColor.greyColor2,
-              ),
-              InputWidget.disable(
-                'Service Point',
-                TextEditingController(text: servicePointName),
-              ),
-              const Gap(6),
-              InputWidget.disable(
-                'Project',
-                TextEditingController(text: ticketDetails.projectName),
-              ),
-              const Gap(6),
-              InputWidget.disable(
-                'Segment',
-                TextEditingController(text: ticketDetails.spanName),
-              ),
-              const Gap(6),
-              InputWidget.disable(
-                'Section Name',
-                TextEditingController(text: ticketDetails.sectionName),
-              ),
-              const Gap(6),
-              InputWidget.disable(
-                'Area',
-                TextEditingController(
-                    text: ticketDetails.ticketAssignees?[0].serviceAreaName),
-              ),
-              const Gap(6),
-              InputWidget.disable(
-                'Latitude',
-                TextEditingController(text: ticketDetails.latitude.toString()),
-              ),
-              const Gap(6),
-              InputWidget.disable(
-                'Longitude',
-                TextEditingController(text: ticketDetails.longitude.toString()),
-              ),
-              const Gap(6),
-            ],
-          ),
-        );
-      } else if (state is TicketDetailError) {
-        return Center(
-          child: Text('Error: ${state.message}'),
-        );
-      } else {
-        return const Center(
-          child: Text('No Detail Available'),
-        );
-      }
-    });
   }
 
   Widget formInstallation() {
@@ -371,6 +321,16 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
               Divider(
                 color: AppColor.greyColor2,
               ),
+              InputWidget.disable(
+                'QMS Installation Ticket Number',
+                TextEditingController(text: 'QS.INL-001-$ticketNumber'),
+              ),
+              const Gap(6),
+              InputWidget.disable(
+                'QMS Installation Step ID',
+                TextEditingController(text: 'QS.INL-001.001-$ticketNumber'),
+              ),
+              const Gap(6),
               if (currentStepNumber == 1)
                 InputWidget.dropDown2(
                   title: 'Type of installation',
@@ -505,6 +465,7 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
                   return Expanded(
                     child: GridView.builder(
                       padding: const EdgeInsets.fromLTRB(12, 12, 24, 12),
+                      physics: const NeverScrollableScrollPhysics(),
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 3, // Atur jumlah kolom yang diinginkan

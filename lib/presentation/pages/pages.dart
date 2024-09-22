@@ -1,9 +1,9 @@
-import 'dart:developer' as developer;
+// import 'dart:developer' as developer;
 import 'dart:io';
 
 import 'package:camera/camera.dart';
 import 'package:d_button/d_button.dart';
-import 'package:d_method/d_method.dart';
+// import 'package:d_method/d_method.dart';
 import 'package:flutter/material.dart';
 // import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -15,6 +15,7 @@ import 'package:intl/intl.dart';
 import 'package:qms_application/common/common.dart';
 import 'package:d_input/d_input.dart';
 import 'package:qms_application/data/models/models.dart';
+import 'package:qms_application/data/source/sources.dart';
 // import 'package:qms_application/data/models/models.dart';
 // import 'package:qms_application/presentation/bloc/bloc/category_item_bloc.dart';
 import 'package:qms_application/presentation/bloc/installation/installation_bloc.dart';
@@ -40,5 +41,6 @@ part 'detail_history_installation_page.dart';
 part 'camera_with_location_overlay.dart';
 part 'summary_installation_page.dart';
 part 'detail_step_installation_page.dart';
+part 'dms_detail_ticket_page.dart';
 // part 'form_installation_page_old.dart';
 // part 'form_installation_page_old_dinamis.dart';

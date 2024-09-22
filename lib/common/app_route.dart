@@ -11,4 +11,5 @@ class AppRoute {
   static const historyInstallation = '/history/installation'; 
   static const summaryInstallation = '/summary/installation';
   static const detailStepInstallation = '/detail/step/installation';
+  static const detailDMSTicket = '/detail/dms-ticket';
 }

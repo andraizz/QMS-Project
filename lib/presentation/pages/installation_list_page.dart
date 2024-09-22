@@ -147,7 +147,7 @@ class _ListInstallationPageState extends State<ListInstallationPage>
                               if (ticket.ticketNumber != null) {
                                 Navigator.pushNamed(
                                   context,
-                                  AppRoute.formInstallation,
+                                  AppRoute.detailDMSTicket,
                                   arguments: {
                                     'ticketNumber': ticket.ticketNumber!,
                                     'servicePointName':
