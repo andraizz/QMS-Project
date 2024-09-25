@@ -26,6 +26,32 @@ class ItemDescriptionDetail {
     );
   }
 
+  static Widget primary2({String? title, String? data}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title!,
+          style: TextStyle(
+            fontWeight: FontWeight.w500,
+            color: AppColor.greyColor3,
+            fontSize: 10,
+          ),
+        ),
+        const Gap(3),
+        Text(
+          data!,
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            color: AppColor.defaultText,
+            fontSize: 12,
+          ),
+        ),
+      ],
+    );
+  }
+
+
   static Widget secondary(
       String title, List<String> imageUrls, BuildContext context) {
     return Column(

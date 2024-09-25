@@ -9,7 +9,10 @@ class SummaryInstallationPage extends StatefulWidget {
 }
 
 class _SummaryInstallationPageState extends State<SummaryInstallationPage> {
-  late InstallationType? selectedInstallationType;
+  String? qmsId;
+  String? typeOfInstallationName;
+  int? typeOfInstallationId;
+  // late InstallationType? selectedInstallationType;
   late List<InstallationStep> installationSteps;
 
   @override
@@ -19,11 +22,29 @@ class _SummaryInstallationPageState extends State<SummaryInstallationPage> {
     final args =
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
     if (args != null) {
-      selectedInstallationType =
-          args['selectedInstallationType'] as InstallationType?;
+      qmsId = args['qms_id'] as String?;
+      typeOfInstallationName = args['typeOfInstallationName'] as String?;
+      typeOfInstallationId = args['typeOfInstallationId'] as int?;
       installationSteps = args['installationSteps'] as List<InstallationStep>;
     }
+
+    if (qmsId != null) {
+      context
+          .read<InstallationRecordsBloc>()
+          .add(FetchInstallationRecords(qmsId!));
+    }
   }
+
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   if (qmsId != null) {
+  //     // Jika ID valid, langsung fetch langkah-langkah instalasi berdasarkan typeOfInstallationId
+  //     context
+  //         .read<InstallationRecordsBloc>()
+  //         .add(FetchInstallationRecords(qmsId!));
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +57,10 @@ class _SummaryInstallationPageState extends State<SummaryInstallationPage> {
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
               physics: const BouncingScrollPhysics(),
               children: [
-                ticketDMS('Detail Ticket DMS $selectedInstallationType' ),
+                ticketDMS(
+                  context,
+                  'Detail Ticket DMS $typeOfInstallationName',
+                ),
                 const Gap(24),
                 summaryInstallation('Summary Installation'),
               ],
@@ -82,13 +106,104 @@ class _SummaryInstallationPageState extends State<SummaryInstallationPage> {
     );
   }
 
+  Widget ticketDMS(BuildContext context, String title) {
+    return BlocBuilder<InstallationRecordsBloc, InstallationRecordsState>(
+        builder: (context, state) {
+      if (state is InstallationRecordsLoading) {
+        return const Center(
+          child: CircularProgressIndicator(),
+        );
+      } else if (state is InstallationRecordsLoaded) {
+        // Mengirimkan objek tunggal ke _buildTicketDMSContent
+        return _buildTicketDMSContent(state.record, typeOfInstallationName);
+      } else if (state is InstallationRecordsError) {
+        return Center(
+          child: Text(state.message),
+        );
+      }
+
+      return const Center(
+        child: Text('No Data Available'),
+      );
+    });
+  }
+
+  Widget _buildTicketDMSContent(
+      InstallationRecords record, String? typeOfInstallationName) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(5),
+        color: Colors.white,
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          vertical: 5,
+          horizontal: 12,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Detail Ticket DMS $typeOfInstallationName',
+              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+            ),
+            Divider(
+              color: AppColor.divider,
+            ),
+            ItemDescriptionDetail.primary2(
+              title: 'TT Number',
+              data: "TT-${record.dmsId}",
+            ),
+            const Gap(12),
+            ItemDescriptionDetail.primary2(
+              title: 'Service Point',
+              data: record.servicePoint,
+            ),
+            const Gap(12),
+            ItemDescriptionDetail.primary2(
+              title: 'Project',
+              data: record.project,
+            ),
+            const Gap(12),
+            ItemDescriptionDetail.primary2(
+              title: 'Segment',
+              data: record.segment,
+            ),
+            const Gap(12),
+            ItemDescriptionDetail.primary2(
+              title: 'Section Name',
+              data: record.sectionName,
+            ),
+            const Gap(12),
+            ItemDescriptionDetail.primary2(
+              title: 'Area',
+              data: record.area,
+            ),
+            const Gap(12),
+            ItemDescriptionDetail.primary2(
+              title: 'Latitude',
+              data: record.latitude.toString(),
+            ),
+            const Gap(12),
+            ItemDescriptionDetail.primary2(
+              title: 'Longitude',
+              data: record.longitude.toString(),
+            ),
+            const Gap(12),
+          ],
+        ),
+      ),
+    );
+  }
+
   void showConfirmationDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Form Installation'),
-          content: const Text('Apakah Anda yakin summary installation form yang diisi sudah benar?'),
+          content: const Text(
+              'Apakah Anda yakin summary installation form yang diisi sudah benar?'),
           actions: [
             TextButton(
               onPressed: () {
@@ -114,54 +229,53 @@ class _SummaryInstallationPageState extends State<SummaryInstallationPage> {
     );
   }
 
-  static Widget ticketDMS(String title) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(5),
-        color: Colors.white,
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          vertical: 5,
-          horizontal: 12,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-            ),
-            Divider(
-              color: AppColor.divider,
-            ),
-            ItemDescriptionDetail.primary('TT Number', 'TT-24082800S009'),
-            const Gap(12),
-            ItemDescriptionDetail.primary('Service Point', 'Serpo Batam 2'),
-            const Gap(12),
-            ItemDescriptionDetail.primary('Project', 'B2JS'),
-            const Gap(12),
-            ItemDescriptionDetail.primary(
-                'Segment', 'TRIAS_Tanjung Bemban - Tanjung Pinggir'),
-            const Gap(12),
-            ItemDescriptionDetail.primary('Section Name',
-                'TRIAS_Diversity Tanjung Pinggir - Batam Center'),
-            const Gap(12),
-            ItemDescriptionDetail.primary('Worker', 'Batam 1 J'),
-            const Gap(12),
-            ItemDescriptionDetail.primary('Area', 'MS BATAM'),
-            const Gap(12),
-          ],
-        ),
-      ),
-    );
-  }
+  // static Widget ticketDMS(String title) {
+  //   return Container(
+  //     decoration: BoxDecoration(
+  //       borderRadius: BorderRadius.circular(5),
+  //       color: Colors.white,
+  //     ),
+  //     child: Padding(
+  //       padding: const EdgeInsets.symmetric(
+  //         vertical: 5,
+  //         horizontal: 12,
+  //       ),
+  //       child: Column(
+  //         crossAxisAlignment: CrossAxisAlignment.start,
+  //         children: [
+  //           Text(
+  //             title,
+  //             style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+  //           ),
+  //           Divider(
+  //             color: AppColor.divider,
+  //           ),
+  //           ItemDescriptionDetail.primary('TT Number', 'TT-24082800S009'),
+  //           const Gap(12),
+  //           ItemDescriptionDetail.primary('Service Point', 'Serpo Batam 2'),
+  //           const Gap(12),
+  //           ItemDescriptionDetail.primary('Project', 'B2JS'),
+  //           const Gap(12),
+  //           ItemDescriptionDetail.primary(
+  //               'Segment', 'TRIAS_Tanjung Bemban - Tanjung Pinggir'),
+  //           const Gap(12),
+  //           ItemDescriptionDetail.primary('Section Name',
+  //               'TRIAS_Diversity Tanjung Pinggir - Batam Center'),
+  //           const Gap(12),
+  //           ItemDescriptionDetail.primary('Worker', 'Batam 1 J'),
+  //           const Gap(12),
+  //           ItemDescriptionDetail.primary('Area', 'MS BATAM'),
+  //           const Gap(12),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
 
   Widget summaryInstallation(String title) {
-    final edtQMSTicket =
-        TextEditingController(text: 'TT-240818PL.0021-QS.IS-0001');
-    final typeOfInstallation = TextEditingController(
-        text: selectedInstallationType?.typeName ?? 'Not selected');
+    final edtQMSTicket = TextEditingController(text: qmsId);
+    final typeOfInstallation =
+        TextEditingController(text: typeOfInstallationName);
 
     return Container(
       decoration: BoxDecoration(
@@ -239,8 +353,7 @@ class _SummaryInstallationPageState extends State<SummaryInstallationPage> {
           arguments: {
             'installationTicket':
                 'TT-240818PL.0021-QS.IS-0001', // Ganti dengan ticket dinamis
-            'typeOfInstallation':
-                selectedInstallationType?.typeName ?? 'Not selected',
+            'typeOfInstallation': typeOfInstallationName,
             'stepDescription': stepDescription,
           },
         );

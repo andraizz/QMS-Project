@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:qms_application/data/source/sources.dart';
 import 'package:qms_application/presentation/bloc/category_installation/category_installation_bloc.dart';
 import 'package:qms_application/presentation/bloc/installation/installation_bloc.dart';
+import 'package:qms_application/presentation/bloc/installation_records/installation_records_bloc.dart';
 import 'package:qms_application/presentation/bloc/ticket_by_user/ticket_by_user_bloc.dart';
 import 'package:qms_application/presentation/bloc/ticket_detail/ticket_detail_bloc.dart';
 // import 'package:qms_application/presentation/bloc/ticket_detail/ticket_detail_bloc.dart';
@@ -44,7 +45,10 @@ class MainApp extends StatelessWidget {
         ),
         BlocProvider<TicketDetailBloc>(
           create: (context) => TicketDetailBloc(ticketDetailSource: ticketDetailSource),
-        )
+        ),
+        BlocProvider<InstallationRecordsBloc>(
+          create: (context) => InstallationRecordsBloc(installationSource: installationSource),
+        ),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -95,7 +99,8 @@ class MainApp extends StatelessWidget {
               const SummaryInstallationPage(),
           AppRoute.detailStepInstallation: (context) =>
               const DetailStepInstallationPage(),
-          AppRoute.detailDMSTicket : (context) => const DMSDetailTicket()
+          AppRoute.detailDMSTicket : (context) => const DMSDetailTicket(),
+          AppRoute.formEnvironemntInstallation: (context) => const EnvironmentInstallationPage()
         },
       ),
     );

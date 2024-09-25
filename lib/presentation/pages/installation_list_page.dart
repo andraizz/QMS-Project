@@ -183,26 +183,10 @@ class _ListInstallationPageState extends State<ListInstallationPage>
                             section: ticket.sectionName!,
                             servicePoint: ticket.servicePointName!,
                             onClick: () {
-                              // if (ticket.ticketNumber != null) {
-                              //   Navigator.push(
-                              //     context,
-                              //     MaterialPageRoute(
-                              //       builder: (context) => FormInstallationPage(
-                              //           ticketNumber: ticket.ticketNumber!),
-                              //     ),
-                              //   );
-                              // } else {
-                              //   ScaffoldMessenger.of(context).showSnackBar(
-                              //     const SnackBar(
-                              //         content: Text(
-                              //             'Error: Ticket number is missing')),
-                              //   );
-                              // }
-
                               if (ticket.ticketNumber != null) {
                                 Navigator.pushNamed(
                                   context,
-                                  AppRoute.formInstallation,
+                                  AppRoute.detailDMSTicket,
                                   arguments: {
                                     'ticketNumber': ticket.ticketNumber!,
                                     'servicePointName':

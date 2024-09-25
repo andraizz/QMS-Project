@@ -165,14 +165,64 @@ class _DMSDetailTicketState extends State<DMSDetailTicket> {
               ),
               const Gap(24),
               DButtonBorder(
-                onClick: () {
-                  Navigator.pushNamed(
-                    context,
-                    AppRoute.formInstallation,
-                    arguments: {
-                      'ticketNumber': ticketNumber!,
-                    },
+                onClick: () async {
+                  final response = await InstallationSource.installationRecords(
+                    username: 'spvcentral.1',
+                    dmsId: ticketNumber,
+                    servicePoint: servicePointName,
+                    project: ticketDetails.projectName,
+                    segment: ticketDetails.segmentName,
+                    sectionName: ticketDetails.sectionName,
+                    area:
+                        ticketDetails.ticketAssignees?[0].serviceAreaName ?? '',
+                    latitude: ticketDetails.latitude.toString(),
+                    longitude: ticketDetails.longitude.toString(),
+                    typeOfInstallation:
+                        selectedInstallationType?.typeName ?? '',
                   );
+
+                  if (response != null) {
+                    final qmsId = response['data']
+                        ['qms_id']; // Ambil qms_id dari response
+
+                    // Panggil fungsi untuk generate QMS Installation Step ID
+                    final qmsResponse =
+                        await InstallationSource.generateQMSInstallationStepId(
+                            qmsId: qmsId);
+
+                    if (qmsResponse != null) {
+                      final qmsInstallationStepId = qmsResponse[
+                          'qms_installation_step_id']; // Ambil qms_installation_step_id
+
+                      // Navigasi ke formInstallation dengan qms_id dan qms_installation_step_id
+                      Navigator.pushNamed(
+                        context,
+                        AppRoute.formInstallation,
+                        arguments: {
+                          'ticketNumber': ticketNumber!,
+                          'qms_id': qmsId,
+                          'qms_installation_step_id': qmsInstallationStepId,
+                          'typeOfInstallationId': selectedInstallationType?.id ?? 0,
+                          'typeOfInstallationName': selectedInstallationType?.typeName ?? ''
+                        },
+                      );
+                    } else {
+                      // Tampilkan pesan error jika gagal generate QMS ID
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                              'Failed to generate QMS Installation Step ID'),
+                        ),
+                      );
+                    }
+                  } else {
+                    // Tampilkan pesan error jika gagal submit installation records
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Failed to submit installation records'),
+                      ),
+                    );
+                  }
                 },
                 mainColor: Colors.white,
                 radius: 10,

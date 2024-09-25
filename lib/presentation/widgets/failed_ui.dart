@@ -2,11 +2,11 @@ part of 'widgets.dart';
 
 class FailedUI extends StatelessWidget {
   const FailedUI({
-    Key? key,
+    super.key,
     this.icon,
     required this.message,
     this.margin,
-  }) : super(key: key);
+  });
   final IconData? icon;
   final String message;
   final EdgeInsetsGeometry? margin;

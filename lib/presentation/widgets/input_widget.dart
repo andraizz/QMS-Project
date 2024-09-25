@@ -75,12 +75,15 @@ class InputWidget {
   }
 
   static Widget textArea(
-      String title, String hintText, TextEditingController controller) {
+      {String? title,
+      String? hintText,
+      TextEditingController? controller,
+      FocusNode? focusNode}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          title,
+          title ?? '',
           style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
         ),
         const Gap(3),
@@ -88,6 +91,7 @@ class InputWidget {
           height: 100,
           child: TextFormField(
             controller: controller,
+            focusNode: focusNode!,
             maxLines: 4,
             style: TextStyle(
               fontSize: 12,

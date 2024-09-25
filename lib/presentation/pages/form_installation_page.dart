@@ -8,14 +8,16 @@ class FormInstallationPage extends StatefulWidget {
 }
 
 class _FormInstallationPageState extends State<FormInstallationPage> {
-  String? ticketNumber;
+  String? qmsId;
+  String? initialQMSInstallationStepId; // Ubah dari qmsInstallationStepId
+  String? generatedQMSInstallationStepId;
+  String? qmsInstallationStepId;
   String? servicePointName;
+  int? typeOfInstallationId;
+  String? typeOfInstallationName;
 
-  bool isLoadingInstallationTypes = false;
   bool isLoadingInstallationSteps = false;
-
-  List<InstallationType> installationType = [];
-  InstallationType? selectedInstallationType;
+  bool isLoading = false;
 
   List<InstallationStep> installationStep = [];
   InstallationStep? selectedInstallationStep;
@@ -23,14 +25,9 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
   int currentStepNumber = 1;
   int totalSteps = 0;
 
-  final edtDescription = TextEditingController();
+  final FocusNode _descriptionFocusNode = FocusNode();
 
-  @override
-  void initState() {
-    super.initState();
-    // Mengirim event untuk memulai pengambilan data dari CategoryInstallationBloc untuk Cable Types
-    context.read<InstallationBloc>().add(FetchInstallationTypes());
-  }
+  final edtDescription = TextEditingController();
 
   @override
   void didChangeDependencies() {
@@ -39,29 +36,68 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
     final args = ModalRoute.of(context)?.settings.arguments as Map?;
 
     if (args != null) {
-      ticketNumber = args['ticketNumber'] as String?;
-      servicePointName = args['servicePointName'] as String?;
+      qmsId = args['qms_id'] as String?;
+      initialQMSInstallationStepId =
+          args['qms_installation_step_id'] as String?;
+      typeOfInstallationId = args['typeOfInstallationId'] as int?;
+      typeOfInstallationName = args['typeOfInstallationName'] as String?;
     }
+  }
 
-    if (ticketNumber != null) {
-      context.read<TicketDetailBloc>().add(FetchTicketDetail(ticketNumber!));
+  @override
+  void initState() {
+    super.initState();
+    // Mengirim event untuk memulai pengambilan data dari CategoryInstallationBloc untuk Cable Types
+    if (typeOfInstallationId != null) {
+      // Jika ID valid, langsung fetch langkah-langkah instalasi berdasarkan typeOfInstallationId
+      context
+          .read<InstallationBloc>()
+          .add(FetchInstallationSteps(typeOfInstallationId!));
     }
+  }
+
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    _descriptionFocusNode.dispose();
+    super.dispose();
   }
 
   final documentations = <XFile>[].obs;
 
   Future<bool> _requestPermission(Permission permission) async {
-    final status = await permission.request();
-    return status.isGranted;
+    if (await permission.isGranted) {
+      return true;
+    } else {
+      PermissionStatus status = await permission.request();
+      return status == PermissionStatus.granted;
+    }
   }
 
-  pickImagesFromGallery() async {
-    //Meminta Izin akses ke galeri
-    if (await _requestPermission(Permission.storage)) {
+  Future<void> pickImagesFromGallery() async {
+    if (await _requestPermission(
+        (Platform.isAndroid && (await _isAndroid13OrAbove()))
+            ? Permission.photos
+            : Permission.storage)) {
       List<XFile>? results = await ImagePicker().pickMultiImage();
       if (results.isNotEmpty) {
+        List<XFile> processedFiles = [];
+        for (XFile file in results) {
+          String originalName =
+              path.basename(file.path); // Ambil nama file asli
+
+          Directory appDocDir =
+              await path_provider.getApplicationDocumentsDirectory();
+          String newPath = path.join(appDocDir.path, originalName);
+
+          File newFile = await File(file.path).copy(newPath);
+          processedFiles.add(XFile(newFile.path));
+        }
+
         setState(() {
-          documentations.addAll(results);
+          documentations.addAll(processedFiles);
         });
       }
     } else {
@@ -87,6 +123,52 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
       }
     }
   }
+  // pickImagesFromGallery() async {
+  //   // Check if Android version is 13 or higher, and request the correct permission
+  //   if (await _requestPermission(
+  //       (Platform.isAndroid && (await _isAndroid13OrAbove()))
+  //           ? Permission.photos
+  //           : Permission.storage)) {
+  //     // Picking images from the gallery
+  //     List<XFile>? results = await ImagePicker().pickMultiImage();
+  //     if (results != null && results.isNotEmpty) {
+  //       setState(() {
+  //         documentations.addAll(results);
+  //       });
+  //     }
+  //   } else {
+  //     // Show a dialog if permission is denied
+  //     if (mounted) {
+  //       showDialog(
+  //         context: context,
+  //         builder: (BuildContext context) {
+  //           return AlertDialog(
+  //             title: const Text('Akses Galeri Ditolak'),
+  //             content: const Text(
+  //                 'Akses ke galeri tidak diizinkan. Anda perlu memberikan izin untuk mengakses galeri.'),
+  //             actions: <Widget>[
+  //               TextButton(
+  //                 child: const Text('Tutup'),
+  //                 onPressed: () {
+  //                   Navigator.of(context).pop();
+  //                 },
+  //               ),
+  //             ],
+  //           );
+  //         },
+  //       );
+  //     }
+  //   }
+  // }
+
+  // Function to check if the Android version is 13 or higher
+  Future<bool> _isAndroid13OrAbove() async {
+    if (Platform.isAndroid) {
+      var androidInfo = await DeviceInfoPlugin().androidInfo;
+      return androidInfo.version.sdkInt >= 33; // Android 13+ (API 33)
+    }
+    return false;
+  }
 
   //Fungsi Untuk Mengahapus Gambar
   void removeImage(int index) {
@@ -99,19 +181,31 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBarWidget.secondary('Detail', context),
-      body: Column(
+      body: Stack(
         children: [
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
-              physics: const BouncingScrollPhysics(),
-              children: [
-                // contentTicketDMS(),
-                // const Gap(24),
-                formInstallation(),
-              ],
-            ),
-          )
+          Column(
+            children: [
+              Expanded(
+                child: ListView(
+                  controller: _scrollController,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
+                  physics: const BouncingScrollPhysics(),
+                  children: [
+                    const Gap(6),
+                    formInstallation(),
+                  ],
+                ),
+              )
+            ],
+          ),
+          if (isLoading)
+            Container(
+              color: Colors.black.withOpacity(0.5),
+              child: const Center(
+                child: CircularProgressIndicator(),
+              ),
+            )
         ],
       ),
       bottomNavigationBar: Container(
@@ -152,7 +246,11 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
                     return; // Stop if image upload is not complete
                   }
 
-                  showConfirmationDialog(context);
+                  if (currentStepNumber == totalSteps) {
+                    showEnvironmentDialog(context);
+                  } else {
+                    showConfirmationDialog(context);
+                  }
                 });
               },
               radius: 10,
@@ -186,13 +284,18 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(); // Tutup dialog tanpa aksi
+                Navigator.of(context).pop(); // Close dialog without action
               },
               child: const Text('Tidak'),
             ),
             TextButton(
               onPressed: () async {
-                Navigator.of(context).pop(); // Tutup dialog
+                // Close the dialog immediately
+                Navigator.of(context).pop();
+
+                setState(() {
+                  isLoading = true;
+                });
 
                 // Prepare to call the stepInstallation function
                 final currentStep = installationStep.isNotEmpty
@@ -200,43 +303,46 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
                     : null;
 
                 if (currentStep != null) {
+                  // Use initialQMSInstallationStepId for step 1, else use the last generated ID
+                  String? finalQmsInstallationStepId = currentStepNumber == 1
+                      ? initialQMSInstallationStepId
+                      : qmsInstallationStepId;
+
+                  // Call the step installation function
                   bool result = await InstallationSource.stepInstallation(
-                    currentStep.id!, // installationStepId
-                    currentStep.stepNumber!, // stepNumber
-                    'QS.INL-001-$ticketNumber', // qmsId
-                    'QS.INL-001.001-$ticketNumber', // qmsInstallationStepId
-                    selectedInstallationType?.typeName ??
-                        '', // typeOfInstallation
-                    edtDescription.text, // description
-                    documentations, // photos
-                    'created', // status
+                    installationStepId: currentStep.id,
+                    stepNumber: currentStep.stepNumber!,
+                    qmsId: qmsId,
+                    qmsInstallationStepId:
+                        finalQmsInstallationStepId, // Use the appropriate ID
+                    typeOfInstallation: typeOfInstallationName,
+                    description: edtDescription.text,
+                    photos: documentations,
+                    status: 'created',
                   );
 
-                  if (result) {
-                    setState(() {
-                      edtDescription.clear(); // Clear description
-                      documentations.clear();
+                  setState(() {
+                    isLoading = false;
+                  });
 
-                      if (currentStepNumber < totalSteps) {
-                        currentStepNumber++; // Lanjutkan ke step berikutnya
-                      } else {
-                        // Jika sudah di step terakhir, navigasi ke halaman summary
-                        Navigator.pushNamed(
-                          context,
-                          AppRoute.summaryInstallation,
-                          arguments: {
-                            'selectedInstallationType':
-                                selectedInstallationType,
-                            'installationSteps': installationStep,
-                          },
-                        );
-                      }
-                    });
+                  if (result) {
+                    final newId =
+                        await InstallationSource.generateQMSInstallationStepId(
+                            qmsId: qmsId);
+
+                    if (newId != null &&
+                        newId['qms_installation_step_id'] != null) {
+                      setState(() {
+                        qmsInstallationStepId =
+                            newId['qms_installation_step_id'];
+                      });
+                    } else {
+                      showErrorSnackBar('Failed to generate new step ID.');
+                      return;
+                    }
+                    resetFormAndScroll();
                   } else {
-                    // Handle failure case
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Failed to submit step.')),
-                    );
+                    showErrorSnackBar();
                   }
                 }
               },
@@ -248,43 +354,440 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
     );
   }
 
+  void showLoadingOverlay(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          child: Container(
+            color: Colors.black.withOpacity(0.3),
+            child: const Center(
+              child: CircularProgressIndicator(),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void hideLoadingOverlay(BuildContext context) {
+    Navigator.of(context).pop(); // Close the loading dialog
+  }
+
+  void resetFormAndScroll() {
+    setState(() {
+      edtDescription.clear();
+      _descriptionFocusNode.unfocus();
+      documentations.clear();
+
+      // if (currentStepNumber < totalSteps) {
+      //   currentStepNumber++;
+      // } else {
+      //   showEnvironmentDialog(context);
+      // }
+
+      if (currentStepNumber < totalSteps) {
+        currentStepNumber++;
+      }
+    });
+
+    // Scroll to the top
+    _scrollController.animateTo(
+      0,
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeInOut,
+    );
+  }
+
+  void showErrorSnackBar([String message = 'Failed to submit step.']) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+  }
+
+  void showEnvironmentDialog(BuildContext context) {
+    // Capture the context in a local variable
+    final BuildContext dialogContext = context;
+
+    showDialog(
+      context: dialogContext,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Environment Information'),
+          content:
+              const Text('Apakah terdapat environment information? Optional?'),
+          actions: [
+            TextButton(
+              onPressed: () => _handleEnvironmentResponse(dialogContext, false),
+              child: const Text('No'),
+            ),
+            TextButton(
+              onPressed: () => _handleEnvironmentResponse(dialogContext, true),
+              child: const Text('Yes'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _handleEnvironmentResponse(
+      BuildContext dialogContext, bool hasEnvironmentInfo) async {
+    Navigator.of(dialogContext).pop(); // Close dialog first
+
+    setState(() {
+      isLoading = true;
+    });
+
+    final currentStep = installationStep.isNotEmpty
+        ? installationStep[currentStepNumber - 1]
+        : null;
+
+    if (currentStep != null) {
+      String? finalQmsInstallationStepId = currentStepNumber == 1
+          ? initialQMSInstallationStepId
+          : qmsInstallationStepId;
+
+      bool result = await InstallationSource.stepInstallation(
+        installationStepId: currentStep.id,
+        stepNumber: currentStep.stepNumber!,
+        qmsId: qmsId,
+        qmsInstallationStepId: finalQmsInstallationStepId,
+        typeOfInstallation: typeOfInstallationName,
+        description: edtDescription.text,
+        photos: documentations,
+        status: 'created',
+      );
+
+      setState(() {
+        isLoading = false;
+      });
+
+      if (result) {
+        if (hasEnvironmentInfo) {
+          final newId = await InstallationSource.generateQMSInstallationStepId(
+              qmsId: qmsId);
+
+          if (newId != null && newId['qms_installation_step_id'] != null) {
+            setState(() {
+              qmsInstallationStepId = newId['qms_installation_step_id'];
+            });
+
+            Navigator.pushNamed(
+              dialogContext,
+              AppRoute.formEnvironemntInstallation,
+              arguments: {
+                'typeOfInstallationName': typeOfInstallationName,
+                'installationSteps': installationStep,
+              },
+            );
+          } else {
+            _showErrorSnackBar(
+                dialogContext, 'Failed to generate new step ID.');
+          }
+        } else {
+          Navigator.pushNamed(
+            dialogContext,
+            AppRoute.summaryInstallation,
+            arguments: {
+              'qms_id': qmsId,
+              'typeOfInstallationId': typeOfInstallationId ?? 0,
+              'typeOfInstallationName': typeOfInstallationName,
+              'installationSteps': installationStep,
+            },
+          );
+        }
+      } else {
+        _showErrorSnackBar(dialogContext);
+      }
+    }
+  }
+
+  void _showErrorSnackBar(BuildContext context,
+      [String message = 'Failed to submit step.']) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+  }
+
+  // void showEnvironmentDialog(BuildContext context) {
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return AlertDialog(
+  //         title: const Text('Environment Information'),
+  //         content:
+  //             const Text('Apakah terdapat environment information? Optional?'),
+  //         actions: [
+  //           TextButton(
+  //             onPressed: () async {
+  //               Navigator.of(context).pop(); // Close dialog first
+
+  //               setState(() {
+  //                 isLoading = true;
+  //               });
+
+  //               final currentStep = installationStep.isNotEmpty
+  //                   ? installationStep[currentStepNumber - 1]
+  //                   : null;
+
+  //               if (currentStep != null) {
+  //                 String? finalQmsInstallationStepId = currentStepNumber == 1
+  //                     ? initialQMSInstallationStepId
+  //                     : qmsInstallationStepId;
+
+  //                 bool result = await InstallationSource.stepInstallation(
+  //                   installationStepId: currentStep.id,
+  //                   stepNumber: currentStep.stepNumber!,
+  //                   qmsId: qmsId,
+  //                   qmsInstallationStepId: finalQmsInstallationStepId,
+  //                   typeOfInstallation: typeOfInstallationName,
+  //                   description: edtDescription.text,
+  //                   photos: documentations,
+  //                   status: 'created',
+  //                 );
+
+  //                 setState(() {
+  //                   isLoading = false;
+  //                 });
+
+  //                 if (result) {
+  //                   Navigator.pushNamed(
+  //                     context,
+  //                     AppRoute.summaryInstallation,
+  //                     arguments: {
+  //                       'typeOfInstallationName': typeOfInstallationName,
+  //                       'installationSteps': installationStep,
+  //                     },
+  //                   );
+  //                 } else {
+  //                   showErrorSnackBar();
+  //                 }
+  //               }
+  //             },
+  //             child: const Text('No'),
+  //           ),
+  //           TextButton(
+  //             onPressed: () async {
+  //               Navigator.of(context).pop(); // Close dialog first
+
+  //               setState(() {
+  //                 isLoading = true;
+  //               });
+
+  //               final currentStep = installationStep.isNotEmpty
+  //                   ? installationStep[currentStepNumber - 1]
+  //                   : null;
+
+  //               if (currentStep != null) {
+  //                 String? finalQmsInstallationStepId = currentStepNumber == 1
+  //                     ? initialQMSInstallationStepId
+  //                     : qmsInstallationStepId;
+
+  //                 bool result = await InstallationSource.stepInstallation(
+  //                   installationStepId: currentStep.id,
+  //                   stepNumber: currentStep.stepNumber!,
+  //                   qmsId: qmsId,
+  //                   qmsInstallationStepId: finalQmsInstallationStepId,
+  //                   typeOfInstallation: typeOfInstallationName,
+  //                   description: edtDescription.text,
+  //                   photos: documentations,
+  //                   status: 'created',
+  //                 );
+
+  //                 setState(() {
+  //                   isLoading = false;
+  //                 });
+
+  //                 if (result) {
+  //                   final newId =
+  //                       await InstallationSource.generateQMSInstallationStepId(
+  //                           qmsId: qmsId);
+
+  //                   if (newId != null &&
+  //                       newId['qms_installation_step_id'] != null) {
+  //                     setState(() {
+  //                       qmsInstallationStepId =
+  //                           newId['qms_installation_step_id'];
+  //                     });
+
+  //                     Navigator.pushNamed(
+  //                       context,
+  //                       AppRoute.formEnvironemntInstallation,
+  //                       arguments: {
+  //                         'typeOfInstallationName': typeOfInstallationName,
+  //                         'installationSteps': installationStep,
+  //                       },
+  //                     );
+  //                   } else {
+  //                     showErrorSnackBar('Failed to generate new step ID.');
+  //                   }
+  //                 } else {
+  //                   showErrorSnackBar();
+  //                 }
+  //               }
+  //             },
+  //             child: const Text('Yes'),
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+  // }
+
+  // void showEnvironmentDialog(BuildContext context) {
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return AlertDialog(
+  //         title: const Text('Environment Information'),
+  //         content:
+  //             const Text('Apakah terdapat environment information? Optional?'),
+  //         actions: [
+  //           TextButton(
+  //             onPressed: () async {
+  //               Navigator.of(context).pop();
+
+  //               setState(() {
+  //                 isLoading = true;
+  //               });
+
+  //               final currentStep = installationStep.isNotEmpty
+  //                   ? installationStep[currentStepNumber - 1]
+  //                   : null;
+
+  //               if (currentStep != null) {
+  //                 String? finalQmsInstallationStepId = currentStepNumber == 1
+  //                     ? initialQMSInstallationStepId
+  //                     : qmsInstallationStepId;
+
+  //                 bool result = await InstallationSource.stepInstallation(
+  //                   installationStepId: currentStep.id,
+  //                   stepNumber: currentStep.stepNumber!,
+  //                   qmsId: qmsId,
+  //                   qmsInstallationStepId:
+  //                       finalQmsInstallationStepId, // Use the appropriate ID
+  //                   typeOfInstallation: typeOfInstallationName,
+  //                   description: edtDescription.text,
+  //                   photos: documentations,
+  //                   status: 'created',
+  //                 );
+
+  //                 setState(() {
+  //                   isLoading = false;
+  //                 });
+
+  //                 if (result) {
+  //                   Navigator.pushNamed(
+  //                     context,
+  //                     AppRoute.summaryInstallation,
+  //                     arguments: {
+  //                       'typeOfInstallationName': typeOfInstallationName,
+  //                       'installationSteps': installationStep,
+  //                     },
+  //                   );
+  //                 } else {
+  //                   showErrorSnackBar();
+  //                 }
+  //               }
+  //             },
+  //             child: const Text('No'),
+  //           ),
+  //           TextButton(
+  //             onPressed: () async {
+  //               Navigator.of(context).pop();
+
+  //               setState(() {
+  //                 isLoading = true;
+  //               });
+
+  //               final currentStep = installationStep.isNotEmpty
+  //                   ? installationStep[currentStepNumber - 1]
+  //                   : null;
+
+  //               if (currentStep != null) {
+  //                 String? finalQmsInstallationStepId = currentStepNumber == 1
+  //                     ? initialQMSInstallationStepId
+  //                     : qmsInstallationStepId;
+
+  //                 bool result = await InstallationSource.stepInstallation(
+  //                   installationStepId: currentStep.id,
+  //                   stepNumber: currentStep.stepNumber!,
+  //                   qmsId: qmsId,
+  //                   qmsInstallationStepId:
+  //                       finalQmsInstallationStepId, // Use the appropriate ID
+  //                   typeOfInstallation: typeOfInstallationName,
+  //                   description: edtDescription.text,
+  //                   photos: documentations,
+  //                   status: 'created',
+  //                 );
+
+  //                 setState(() {
+  //                   isLoading = false;
+  //                 });
+
+  //                 if (result) {
+  //                   final newId =
+  //                       await InstallationSource.generateQMSInstallationStepId(
+  //                           qmsId: qmsId);
+
+  //                   if (newId != null &&
+  //                       newId['qms_installation_step_id'] != null) {
+  //                     setState(() {
+  //                       qmsInstallationStepId =
+  //                           newId['qms_installation_step_id'];
+  //                     });
+  //                   } else {
+  //                     showErrorSnackBar('Failed to generate new step ID.');
+  //                     return;
+  //                   }
+
+  //                   Navigator.pushNamed(
+  //                     context,
+  //                     AppRoute.formEnvironemntInstallation,
+  //                     arguments: {
+  //                       'typeOfInstallationName': typeOfInstallationName,
+  //                       'installationSteps': installationStep,
+  //                     },
+  //                   );
+  //                 } else {
+  //                   showErrorSnackBar();
+  //                 }
+  //               }
+  //             },
+  //             child: const Text('Yes'),
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+  // }
+
   Widget formInstallation() {
     return BlocBuilder<InstallationBloc, InstallationState>(
       builder: (context, state) {
-        if (state is InstallationLoading) {
-          isLoadingInstallationTypes = true;
-        } else if (state is InstallationTypesLoading) {
-          isLoadingInstallationTypes = true;
-          if (state.previousState is InstallationTypesLoaded) {
-            installationType = (state.previousState as InstallationTypesLoaded)
-                .installationTypes
-                .toList();
-          }
-        } else if (state is InstallationStepsLoading) {
+        if (state is InstallationStepsLoading) {
           isLoadingInstallationSteps = true;
-          if (state.previousState is InstallationTypesLoaded) {
-            installationType = (state.previousState as InstallationTypesLoaded)
-                .installationTypes
-                .toList();
-          } else if (state.previousState is InstallationStepsLoaded) {
-            installationStep = (state.previousState as InstallationStepsLoaded)
-                .installationSteps
-                .toList();
-          }
-        } else if (state is InstallationTypesLoaded) {
-          installationType = state.installationTypes.toList();
         } else if (state is InstallationStepsLoaded) {
-          installationStep = state.installationSteps;
-          totalSteps = state.installationSteps.length;
+          // Mengambil langkah instalasi setelah state dimuat
+          installationStep = state.installationSteps
+              .where((step) => step.stepNumber != 99) // Mengabaikan step 99
+              .toList();
+          totalSteps = installationStep.length;
         } else if (state is InstallationError) {
           return Center(child: Text(state.message));
         }
-
+        if (typeOfInstallationId != null && installationStep.isEmpty) {
+          context
+              .read<InstallationBloc>()
+              .add(FetchInstallationSteps(typeOfInstallationId!));
+        }
         final currentStep = installationStep.isNotEmpty
             ? installationStep[currentStepNumber -
                 1] // Show the current step based on currentStepNumber
             : InstallationStep();
-
         return Container(
           decoration: BoxDecoration(
             color: AppColor.whiteColor,
@@ -306,8 +809,7 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
                     ),
                   ),
                   Text(
-                    selectedInstallationType != null &&
-                            selectedInstallationType!.id != null
+                    typeOfInstallationId != null && typeOfInstallationId != null
                         ? 'Step Installation $currentStepNumber of $totalSteps'
                         : '',
                     style: TextStyle(
@@ -323,76 +825,49 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
               ),
               InputWidget.disable(
                 'QMS Installation Ticket Number',
-                TextEditingController(text: 'QS.INL-001-$ticketNumber'),
+                TextEditingController(text: qmsId),
               ),
               const Gap(6),
               InputWidget.disable(
                 'QMS Installation Step ID',
-                TextEditingController(text: 'QS.INL-001.001-$ticketNumber'),
+                TextEditingController(
+                  text: currentStepNumber == 1
+                      ? initialQMSInstallationStepId // Step pertama: gunakan ID dari page sebelumnya
+                      : qmsInstallationStepId, // Step selanjutnya: ID dari generate
+                ),
               ),
               const Gap(6),
-              if (currentStepNumber == 1)
-                InputWidget.dropDown2(
-                  title: 'Type of installation',
-                  hintText: 'Select Type Of Installation',
-                  value: selectedInstallationType?.typeName ??
-                      '', // Handle potential null value
-                  items: installationType
-                      .map((type) => type.typeName ?? '')
-                      .toList(),
-                  onChanged: (newValue) {
-                    setState(() {
-                      // Cari objek InstallationType berdasarkan typeName yang dipilih
-                      selectedInstallationType = installationType.firstWhere(
-                        (element) => element.typeName == newValue,
-                        orElse: () => InstallationType(
-                            id: null,
-                            typeName:
-                                null), // Hindari pengembalian null, buat objek kosongp
-                      );
-
-                      selectedInstallationStep = null;
-
-                      // Pastikan selectedInstallationType tidak null dan id tersedia
-                      if (selectedInstallationType != null &&
-                          selectedInstallationType!.id != null) {
-                        context.read<InstallationBloc>().add(
-                            FetchInstallationSteps(selectedInstallationType!
-                                .id!)); // Kirimkan id ke event
-                      } else {
-                        installationStep.clear();
-                        totalSteps = 0;
-                      }
-                    });
-                  },
-                  hintTextSearch: 'Search type of installation',
-                ),
-              if (currentStepNumber > 1)
-                InputWidget.dropDown2(
-                  title: 'Type of installation',
-                  hintText: 'Select Type Of Installation',
-                  value: selectedInstallationType?.typeName ?? '',
-                  items: installationType
-                      .map((type) => type.typeName ?? '')
-                      .toList(),
-                  onChanged:
-                      null, // Dropdown di-disable pada step setelah Step 1
-                  hintTextSearch: 'Search type of installation',
-                  isEnabled: false, // Disable the dropdown
-                ),
+              // InputWidget.disable(
+              //   'Type of installation',
+              //   TextEditingController(
+              //       text: typeOfInstallationName ?? 'Unknown'),
+              // ),
+              InputWidget.dropDown2(
+                title: 'Type of installation',
+                hintText: 'Select Type Of Installation',
+                value: typeOfInstallationName!, // Tampilkan typeName
+                // items: installationType
+                //     .map((type) => type.typeName ?? '')
+                //     .toList(),
+                onChanged:
+                    null, // Dropdown disable karena sudah ada typeOfInstallation
+                isEnabled: false, // Set dropdown sebagai disable
+                hintTextSearch: 'Search type of installation',
+              ),
               const Gap(12),
-              if (selectedInstallationType != null &&
-                  selectedInstallationType!.id != null) ...[
+              ...[
                 uploadFile(
-                    currentStep.stepDescription ?? 'No Image Uploaded',
-                    'Upload',
-                    'No Image Uploaded',
-                    currentStep.imageLength ?? 0),
+                  currentStep.stepDescription ?? 'No Image Uploaded',
+                  'Upload',
+                  'No Image Uploaded',
+                  currentStep.imageLength ?? 0,
+                ),
                 const Gap(12),
                 InputWidget.textArea(
-                  'Description',
-                  'Description',
-                  edtDescription,
+                  title: 'Description',
+                  hintText: 'Description',
+                  controller: edtDescription,
+                  focusNode: _descriptionFocusNode,
                 ),
               ],
               const Gap(24)
