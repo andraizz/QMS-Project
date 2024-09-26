@@ -217,32 +217,34 @@ class InstallationSource {
     }
   }
 
-  // Future<List<InstallationRecords>?> listGetInstallationRecords(
-  //     String qmsId) async {
-  //   try {
-  //     final response = await http.get(
-  //         Uri.parse('$_baseURL/installation-records/get-qms?qms_id=$qmsId'));
-  //     DMethod.logResponse(response);
+  Future<List<InstallationStepRecords>?> getInstallationStepRecords(
+      String qmsId) async {
+    try {
+      final response = await http.get(Uri.parse(
+          '$_baseURL/getInstallationStepRecordsByQmsId?qms_id=$qmsId'));
 
-  //     if (response.statusCode == 200) {
-  //       final List<dynamic> resBody = jsonDecode(response.body);
-  //       return resBody
-  //           .map((e) =>
-  //               InstallationRecords.fromJson(Map<String, dynamic>.from(e)))
-  //           .toList();
-  //     } else {
-  //       DMethod.log(
-  //           'Failed to load installation records get qms: ${response.statusCode}',
-  //           colorCode: 1);
-  //       return null;
-  //     }
-  //   } catch (e) {
-  //     if (e is http.ClientException) {
-  //       DMethod.log('Network error: ${e.message}', colorCode: 1);
-  //     } else {
-  //       DMethod.log('Error: ${e.toString()}', colorCode: 1);
-  //     }
-  //     return null;
-  //   }
-  // }
+      DMethod.logResponse(response);
+
+      if (response.statusCode == 200) {
+        final List<dynamic> resBody = jsonDecode(response.body);
+        return resBody
+            .map((e) =>
+                InstallationStepRecords.fromJson(Map<String, dynamic>.from(e)))
+            .toList();
+      } else {
+        DMethod.log(
+            'Failed to load Installation Step Records : ${response.statusCode}',
+            colorCode: 1);
+        return null;
+      }
+    } catch (e) {
+      if (e is http.ClientException) {
+        DMethod.log('Network error: ${e.message}', colorCode: 1);
+      } else {
+        DMethod.log('Error: ${e.toString()}', colorCode: 1);
+      }
+      return null;
+    }
+  }
+
 }

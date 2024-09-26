@@ -10,9 +10,10 @@ class DetailStepInstallationPage extends StatefulWidget {
 
 class _DetailStepInstallationPageState
     extends State<DetailStepInstallationPage> {
-  late String installationTicket;
+  late String qmsInstallationStepId;
   late String typeOfInstallation;
-  late String stepDescription;
+  late String description;
+  late List<String> photoUrls;
 
   @override
   void didChangeDependencies() {
@@ -20,9 +21,13 @@ class _DetailStepInstallationPageState
 
     final arguments =
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
-    installationTicket = arguments['installationTicket'];
+    qmsInstallationStepId = arguments['qmsInstallationStepId'];
     typeOfInstallation = arguments['typeOfInstallation'];
-    stepDescription = arguments['stepDescription'];
+    description = arguments['description'];
+    List<String> filenames = List<String>.from(arguments['photos'] ?? []);
+    photoUrls = filenames
+        .map((filename) => URLs.installationImage(filename))
+        .toList(); // Membangun URL gambar
   }
 
   @override
@@ -49,9 +54,9 @@ class _DetailStepInstallationPageState
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                         Text(
-                          installationTicket,
-                          style: const  TextStyle(
+                        Text(
+                          qmsInstallationStepId,
+                          style: const TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
                           ),
@@ -59,38 +64,21 @@ class _DetailStepInstallationPageState
                         Divider(
                           color: AppColor.divider,
                         ),
-                        ItemDescriptionDetail.primary(
-                          'Worker',
-                          'Purwodadi A',
-                        ),
-                        const Gap(12),
-                         ItemDescriptionDetail.primary(
-                          'Service Point',
-                          'New Purwodadi',
-                        ),
-                        const Gap(12),
+                        const Gap(6),
                         ItemDescriptionDetail.primary(
                           'Type of installation',
                           typeOfInstallation,
                         ),
                         const Gap(12),
                         ItemDescriptionDetail.secondary(
-                          stepDescription,
-                          [
-                            'http://192.168.11.109:8000/storage/installation/4747_Far%20ins1.png',
-                            'http://192.168.11.109:8000/storage/installation/5530_Pan%201.png',
-                            'http://192.168.11.109:8000/storage/installation/4747_Far%20ins1.png',
-                            'http://192.168.11.109:8000/storage/installation/5530_Pan%201.png',
-                            'http://192.168.11.109:8000/storage/installation/5530_Pan%201.png',
-                            'http://192.168.11.109:8000/storage/installation/5530_Pan%201.png',
-                            // 'https://infopublik.id/resources/album/bulan-september-2019/fiber_compressed.jpg',
-                          ],
+                          description,
+                          photoUrls,
                           context,
                         ),
                         const Gap(12),
                         ItemDescriptionDetail.primary(
                           'Description',
-                          stepDescription,
+                          description,
                         ),
                       ],
                     ),

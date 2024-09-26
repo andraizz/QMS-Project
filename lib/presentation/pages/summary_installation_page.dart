@@ -32,19 +32,12 @@ class _SummaryInstallationPageState extends State<SummaryInstallationPage> {
       context
           .read<InstallationRecordsBloc>()
           .add(FetchInstallationRecords(qmsId!));
+
+      context
+          .read<InstallationStepRecordsBloc>()
+          .add(FetchInstallationStepRecords(qmsId!));
     }
   }
-
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   if (qmsId != null) {
-  //     // Jika ID valid, langsung fetch langkah-langkah instalasi berdasarkan typeOfInstallationId
-  //     context
-  //         .read<InstallationRecordsBloc>()
-  //         .add(FetchInstallationRecords(qmsId!));
-  //   }
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -229,49 +222,6 @@ class _SummaryInstallationPageState extends State<SummaryInstallationPage> {
     );
   }
 
-  // static Widget ticketDMS(String title) {
-  //   return Container(
-  //     decoration: BoxDecoration(
-  //       borderRadius: BorderRadius.circular(5),
-  //       color: Colors.white,
-  //     ),
-  //     child: Padding(
-  //       padding: const EdgeInsets.symmetric(
-  //         vertical: 5,
-  //         horizontal: 12,
-  //       ),
-  //       child: Column(
-  //         crossAxisAlignment: CrossAxisAlignment.start,
-  //         children: [
-  //           Text(
-  //             title,
-  //             style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-  //           ),
-  //           Divider(
-  //             color: AppColor.divider,
-  //           ),
-  //           ItemDescriptionDetail.primary('TT Number', 'TT-24082800S009'),
-  //           const Gap(12),
-  //           ItemDescriptionDetail.primary('Service Point', 'Serpo Batam 2'),
-  //           const Gap(12),
-  //           ItemDescriptionDetail.primary('Project', 'B2JS'),
-  //           const Gap(12),
-  //           ItemDescriptionDetail.primary(
-  //               'Segment', 'TRIAS_Tanjung Bemban - Tanjung Pinggir'),
-  //           const Gap(12),
-  //           ItemDescriptionDetail.primary('Section Name',
-  //               'TRIAS_Diversity Tanjung Pinggir - Batam Center'),
-  //           const Gap(12),
-  //           ItemDescriptionDetail.primary('Worker', 'Batam 1 J'),
-  //           const Gap(12),
-  //           ItemDescriptionDetail.primary('Area', 'MS BATAM'),
-  //           const Gap(12),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
-
   Widget summaryInstallation(String title) {
     final edtQMSTicket = TextEditingController(text: qmsId);
     final typeOfInstallation =
@@ -307,14 +257,32 @@ class _SummaryInstallationPageState extends State<SummaryInstallationPage> {
               typeOfInstallation,
             ),
             const Gap(6),
-            stepInstallation(),
+            BlocBuilder<InstallationStepRecordsBloc,
+                InstallationStepRecordsState>(builder: (context, state) {
+              if (state is InstallationStepRecordsLoading) {
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              } else if (state is InstallationStepRecordsLoaded) {
+                return installationStepRecords(state.records);
+              } else if (state is InstallationStepRecordsError) {
+                return Center(
+                  child: Text('Error : ${state.message}'),
+                );
+              }
+
+              return const Center(
+                child: Text('No Data Available'),
+              );
+            }),
           ],
         ),
       ),
     );
   }
 
-  Widget stepInstallation() {
+  Widget installationStepRecords(
+      List<InstallationStepRecords> installationStepRecors) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -327,34 +295,58 @@ class _SummaryInstallationPageState extends State<SummaryInstallationPage> {
           ),
         ),
         const Gap(12),
-        ...installationSteps.asMap().entries.map((entry) {
-          int index =
-              entry.key + 1; // Menambahkan 1 untuk nomor langkah mulai dari 1
-          String stepDescription =
-              entry.value.stepDescription ?? 'Unknown Step';
+        ...installationStepRecors.map((record) {
+          int stepNumber = record.stepNumber ?? 0;
+          String stepDescription = record.stepDescription ?? 'Unknown Step';
+          String qmsInstallationStepId = record.qmsInstallationStepId ?? '';
+          String description = record.description ?? '';
+          String typeOfInstallation = record.typeOfInstallation ?? '';
+
+          List<String> photoUrls = [];
+          if (record.photos != null) {
+            photoUrls = record.photos!
+                .map((photo) =>
+                    photo.photoUrl ?? '') // Mengganti null dengan string kosong
+                .where((url) =>
+                    url.isNotEmpty) // Menghapus string kosong jika perlu
+                .toList();
+          }
+
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              itemStepInstallation('$index. $stepDescription', stepDescription),
+              itemStepInstallation(
+                descriptionStep: '$stepNumber. $stepDescription',
+                qmsInstallationStepId: qmsInstallationStepId,
+                description: description,
+                typeOfInstallation: typeOfInstallation,
+                photos: photoUrls,
+              ),
               const Gap(6),
             ],
           );
-        }),
+        })
       ],
     );
   }
 
-  Widget itemStepInstallation(String descriptionStep, String stepDescription) {
+  Widget itemStepInstallation({
+    String? descriptionStep,
+    String? qmsInstallationStepId,
+    String? description,
+    String? typeOfInstallation,
+    List<String>? photos,
+  }) {
     return GestureDetector(
       onTap: () {
         Navigator.pushNamed(
           context,
           AppRoute.detailStepInstallation,
           arguments: {
-            'installationTicket':
-                'TT-240818PL.0021-QS.IS-0001', // Ganti dengan ticket dinamis
-            'typeOfInstallation': typeOfInstallationName,
-            'stepDescription': stepDescription,
+            'qmsInstallationStepId': qmsInstallationStepId,
+            'typeOfInstallation': typeOfInstallation,
+            'description': description,
+            'photos': photos,
           },
         );
       },
@@ -365,7 +357,7 @@ class _SummaryInstallationPageState extends State<SummaryInstallationPage> {
             border: Border.all(color: Colors.black),
             borderRadius: BorderRadius.circular(10)),
         child: Text(
-          descriptionStep,
+          descriptionStep ?? '',
           style: TextStyle(
             fontSize: 10,
             fontWeight: FontWeight.w600,

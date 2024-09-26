@@ -10,3 +10,5 @@ part 'photo.dart';
 part 'ticket_by_user.dart';
 part 'ticket_assignee.dart';
 part 'ticket_detail.dart';
+part 'installation_step_records.dart';
+part 'photo_step_installations.dart';
