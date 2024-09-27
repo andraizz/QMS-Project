@@ -63,6 +63,7 @@ class InstallationSource {
     String? qmsId,
     String? qmsInstallationStepId,
     String? typeOfInstallation,
+    String? categoryOfEnvironment,
     String? description,
     List<XFile>? photos,
     String? status,
@@ -83,6 +84,7 @@ class InstallationSource {
       request.fields['qms_id'] = qmsId ?? '';
       request.fields['qms_installation_step_id'] = qmsInstallationStepId ?? '';
       request.fields['type_of_installation'] = typeOfInstallation ?? '';
+      request.fields['category_of_environment'] = categoryOfEnvironment ?? '';
       request.fields['description'] = description ?? '';
       request.fields['status'] = 'created';
 

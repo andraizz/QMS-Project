@@ -251,6 +251,57 @@ class InputWidget {
     );
   }
 
+  static Widget checkboxList({
+    String? title,
+    List<String>? items,
+    List<bool>? selectedItems,
+    ValueChanged<int>? onChanged,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title ?? '',
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const Gap(3),
+        for (int i = 0; i < items!.length; i++) ...[
+          Transform.translate(
+            offset: const Offset(-12, 0),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Checkbox(
+                  value: selectedItems![i],
+                  onChanged: (bool? value) {
+                    if (value != null) {
+                      onChanged!(i); // Mengubah nilai checkbox yang dipilih
+                    }
+                  },
+                  activeColor: AppColor.blueColor1,
+                  checkColor: Colors.white,
+                ),
+                Expanded(
+                  child: Text(
+                    items[i],
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: AppColor.defaultText,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ]
+      ],
+    );
+  }
+
   Widget uploadFile(String title, String textButton) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

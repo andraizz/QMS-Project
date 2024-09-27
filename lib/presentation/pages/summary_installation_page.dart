@@ -25,7 +25,6 @@ class _SummaryInstallationPageState extends State<SummaryInstallationPage> {
       qmsId = args['qms_id'] as String?;
       typeOfInstallationName = args['typeOfInstallationName'] as String?;
       typeOfInstallationId = args['typeOfInstallationId'] as int?;
-      installationSteps = args['installationSteps'] as List<InstallationStep>;
     }
 
     if (qmsId != null) {

@@ -22,7 +22,7 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
   List<InstallationStep> installationStep = [];
   InstallationStep? selectedInstallationStep;
 
-  int currentStepNumber = 1;
+  int currentStepNumber = 11;
   int totalSteps = 0;
 
   final FocusNode _descriptionFocusNode = FocusNode();
@@ -123,43 +123,6 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
       }
     }
   }
-  // pickImagesFromGallery() async {
-  //   // Check if Android version is 13 or higher, and request the correct permission
-  //   if (await _requestPermission(
-  //       (Platform.isAndroid && (await _isAndroid13OrAbove()))
-  //           ? Permission.photos
-  //           : Permission.storage)) {
-  //     // Picking images from the gallery
-  //     List<XFile>? results = await ImagePicker().pickMultiImage();
-  //     if (results != null && results.isNotEmpty) {
-  //       setState(() {
-  //         documentations.addAll(results);
-  //       });
-  //     }
-  //   } else {
-  //     // Show a dialog if permission is denied
-  //     if (mounted) {
-  //       showDialog(
-  //         context: context,
-  //         builder: (BuildContext context) {
-  //           return AlertDialog(
-  //             title: const Text('Akses Galeri Ditolak'),
-  //             content: const Text(
-  //                 'Akses ke galeri tidak diizinkan. Anda perlu memberikan izin untuk mengakses galeri.'),
-  //             actions: <Widget>[
-  //               TextButton(
-  //                 child: const Text('Tutup'),
-  //                 onPressed: () {
-  //                   Navigator.of(context).pop();
-  //                 },
-  //               ),
-  //             ],
-  //           );
-  //         },
-  //       );
-  //     }
-  //   }
-  // }
 
   // Function to check if the Android version is 13 or higher
   Future<bool> _isAndroid13OrAbove() async {
@@ -381,13 +344,6 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
       edtDescription.clear();
       _descriptionFocusNode.unfocus();
       documentations.clear();
-
-      // if (currentStepNumber < totalSteps) {
-      //   currentStepNumber++;
-      // } else {
-      //   showEnvironmentDialog(context);
-      // }
-
       if (currentStepNumber < totalSteps) {
         currentStepNumber++;
       }
@@ -479,8 +435,10 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
               dialogContext,
               AppRoute.formEnvironemntInstallation,
               arguments: {
+                'qms_id': qmsId,
+                'qmsInstallationStepId' : qmsInstallationStepId,
+                'typeOfInstallationId': typeOfInstallationId ?? 0,
                 'typeOfInstallationName': typeOfInstallationName,
-                'installationSteps': installationStep,
               },
             );
           } else {
@@ -495,7 +453,6 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
               'qms_id': qmsId,
               'typeOfInstallationId': typeOfInstallationId ?? 0,
               'typeOfInstallationName': typeOfInstallationName,
-              'installationSteps': installationStep,
             },
           );
         }
@@ -511,259 +468,6 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
       SnackBar(content: Text(message)),
     );
   }
-
-  // void showEnvironmentDialog(BuildContext context) {
-  //   showDialog(
-  //     context: context,
-  //     builder: (BuildContext context) {
-  //       return AlertDialog(
-  //         title: const Text('Environment Information'),
-  //         content:
-  //             const Text('Apakah terdapat environment information? Optional?'),
-  //         actions: [
-  //           TextButton(
-  //             onPressed: () async {
-  //               Navigator.of(context).pop(); // Close dialog first
-
-  //               setState(() {
-  //                 isLoading = true;
-  //               });
-
-  //               final currentStep = installationStep.isNotEmpty
-  //                   ? installationStep[currentStepNumber - 1]
-  //                   : null;
-
-  //               if (currentStep != null) {
-  //                 String? finalQmsInstallationStepId = currentStepNumber == 1
-  //                     ? initialQMSInstallationStepId
-  //                     : qmsInstallationStepId;
-
-  //                 bool result = await InstallationSource.stepInstallation(
-  //                   installationStepId: currentStep.id,
-  //                   stepNumber: currentStep.stepNumber!,
-  //                   qmsId: qmsId,
-  //                   qmsInstallationStepId: finalQmsInstallationStepId,
-  //                   typeOfInstallation: typeOfInstallationName,
-  //                   description: edtDescription.text,
-  //                   photos: documentations,
-  //                   status: 'created',
-  //                 );
-
-  //                 setState(() {
-  //                   isLoading = false;
-  //                 });
-
-  //                 if (result) {
-  //                   Navigator.pushNamed(
-  //                     context,
-  //                     AppRoute.summaryInstallation,
-  //                     arguments: {
-  //                       'typeOfInstallationName': typeOfInstallationName,
-  //                       'installationSteps': installationStep,
-  //                     },
-  //                   );
-  //                 } else {
-  //                   showErrorSnackBar();
-  //                 }
-  //               }
-  //             },
-  //             child: const Text('No'),
-  //           ),
-  //           TextButton(
-  //             onPressed: () async {
-  //               Navigator.of(context).pop(); // Close dialog first
-
-  //               setState(() {
-  //                 isLoading = true;
-  //               });
-
-  //               final currentStep = installationStep.isNotEmpty
-  //                   ? installationStep[currentStepNumber - 1]
-  //                   : null;
-
-  //               if (currentStep != null) {
-  //                 String? finalQmsInstallationStepId = currentStepNumber == 1
-  //                     ? initialQMSInstallationStepId
-  //                     : qmsInstallationStepId;
-
-  //                 bool result = await InstallationSource.stepInstallation(
-  //                   installationStepId: currentStep.id,
-  //                   stepNumber: currentStep.stepNumber!,
-  //                   qmsId: qmsId,
-  //                   qmsInstallationStepId: finalQmsInstallationStepId,
-  //                   typeOfInstallation: typeOfInstallationName,
-  //                   description: edtDescription.text,
-  //                   photos: documentations,
-  //                   status: 'created',
-  //                 );
-
-  //                 setState(() {
-  //                   isLoading = false;
-  //                 });
-
-  //                 if (result) {
-  //                   final newId =
-  //                       await InstallationSource.generateQMSInstallationStepId(
-  //                           qmsId: qmsId);
-
-  //                   if (newId != null &&
-  //                       newId['qms_installation_step_id'] != null) {
-  //                     setState(() {
-  //                       qmsInstallationStepId =
-  //                           newId['qms_installation_step_id'];
-  //                     });
-
-  //                     Navigator.pushNamed(
-  //                       context,
-  //                       AppRoute.formEnvironemntInstallation,
-  //                       arguments: {
-  //                         'typeOfInstallationName': typeOfInstallationName,
-  //                         'installationSteps': installationStep,
-  //                       },
-  //                     );
-  //                   } else {
-  //                     showErrorSnackBar('Failed to generate new step ID.');
-  //                   }
-  //                 } else {
-  //                   showErrorSnackBar();
-  //                 }
-  //               }
-  //             },
-  //             child: const Text('Yes'),
-  //           ),
-  //         ],
-  //       );
-  //     },
-  //   );
-  // }
-
-  // void showEnvironmentDialog(BuildContext context) {
-  //   showDialog(
-  //     context: context,
-  //     builder: (BuildContext context) {
-  //       return AlertDialog(
-  //         title: const Text('Environment Information'),
-  //         content:
-  //             const Text('Apakah terdapat environment information? Optional?'),
-  //         actions: [
-  //           TextButton(
-  //             onPressed: () async {
-  //               Navigator.of(context).pop();
-
-  //               setState(() {
-  //                 isLoading = true;
-  //               });
-
-  //               final currentStep = installationStep.isNotEmpty
-  //                   ? installationStep[currentStepNumber - 1]
-  //                   : null;
-
-  //               if (currentStep != null) {
-  //                 String? finalQmsInstallationStepId = currentStepNumber == 1
-  //                     ? initialQMSInstallationStepId
-  //                     : qmsInstallationStepId;
-
-  //                 bool result = await InstallationSource.stepInstallation(
-  //                   installationStepId: currentStep.id,
-  //                   stepNumber: currentStep.stepNumber!,
-  //                   qmsId: qmsId,
-  //                   qmsInstallationStepId:
-  //                       finalQmsInstallationStepId, // Use the appropriate ID
-  //                   typeOfInstallation: typeOfInstallationName,
-  //                   description: edtDescription.text,
-  //                   photos: documentations,
-  //                   status: 'created',
-  //                 );
-
-  //                 setState(() {
-  //                   isLoading = false;
-  //                 });
-
-  //                 if (result) {
-  //                   Navigator.pushNamed(
-  //                     context,
-  //                     AppRoute.summaryInstallation,
-  //                     arguments: {
-  //                       'typeOfInstallationName': typeOfInstallationName,
-  //                       'installationSteps': installationStep,
-  //                     },
-  //                   );
-  //                 } else {
-  //                   showErrorSnackBar();
-  //                 }
-  //               }
-  //             },
-  //             child: const Text('No'),
-  //           ),
-  //           TextButton(
-  //             onPressed: () async {
-  //               Navigator.of(context).pop();
-
-  //               setState(() {
-  //                 isLoading = true;
-  //               });
-
-  //               final currentStep = installationStep.isNotEmpty
-  //                   ? installationStep[currentStepNumber - 1]
-  //                   : null;
-
-  //               if (currentStep != null) {
-  //                 String? finalQmsInstallationStepId = currentStepNumber == 1
-  //                     ? initialQMSInstallationStepId
-  //                     : qmsInstallationStepId;
-
-  //                 bool result = await InstallationSource.stepInstallation(
-  //                   installationStepId: currentStep.id,
-  //                   stepNumber: currentStep.stepNumber!,
-  //                   qmsId: qmsId,
-  //                   qmsInstallationStepId:
-  //                       finalQmsInstallationStepId, // Use the appropriate ID
-  //                   typeOfInstallation: typeOfInstallationName,
-  //                   description: edtDescription.text,
-  //                   photos: documentations,
-  //                   status: 'created',
-  //                 );
-
-  //                 setState(() {
-  //                   isLoading = false;
-  //                 });
-
-  //                 if (result) {
-  //                   final newId =
-  //                       await InstallationSource.generateQMSInstallationStepId(
-  //                           qmsId: qmsId);
-
-  //                   if (newId != null &&
-  //                       newId['qms_installation_step_id'] != null) {
-  //                     setState(() {
-  //                       qmsInstallationStepId =
-  //                           newId['qms_installation_step_id'];
-  //                     });
-  //                   } else {
-  //                     showErrorSnackBar('Failed to generate new step ID.');
-  //                     return;
-  //                   }
-
-  //                   Navigator.pushNamed(
-  //                     context,
-  //                     AppRoute.formEnvironemntInstallation,
-  //                     arguments: {
-  //                       'typeOfInstallationName': typeOfInstallationName,
-  //                       'installationSteps': installationStep,
-  //                     },
-  //                   );
-  //                 } else {
-  //                   showErrorSnackBar();
-  //                 }
-  //               }
-  //             },
-  //             child: const Text('Yes'),
-  //           ),
-  //         ],
-  //       );
-  //     },
-  //   );
-  // }
 
   Widget formInstallation() {
     return BlocBuilder<InstallationBloc, InstallationState>(

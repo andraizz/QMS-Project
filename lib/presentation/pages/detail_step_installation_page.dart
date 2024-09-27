@@ -33,7 +33,7 @@ class _DetailStepInstallationPageState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBarWidget.secondary('Detail Installation', context),
+      appBar: AppBarWidget.secondary('Detail Step Installation', context),
       body: Column(
         children: [
           Expanded(
