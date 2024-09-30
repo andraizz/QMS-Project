@@ -376,9 +376,9 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
       context: dialogContext,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Environment Information'),
+          title: const Text('Environmental Information'),
           content:
-              const Text('Apakah terdapat environment information? Optional?'),
+              const Text('Apakah terdapat Environmental Information?'),
           actions: [
             TextButton(
               onPressed: () => _handleEnvironmentResponse(dialogContext, false),

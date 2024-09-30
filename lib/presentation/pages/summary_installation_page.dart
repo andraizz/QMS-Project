@@ -300,6 +300,17 @@ class _SummaryInstallationPageState extends State<SummaryInstallationPage> {
           String qmsInstallationStepId = record.qmsInstallationStepId ?? '';
           String description = record.description ?? '';
           String typeOfInstallation = record.typeOfInstallation ?? '';
+          String categoryOfEnvironment = record.categoryOfEnvironment ?? '';
+
+          Color borderColor = Colors.black;
+          String descriptionStep = '$stepNumber. $stepDescription';
+
+          // If stepNumber is 99, modify the descriptionStep and borderColor
+          if (stepNumber == 99) {
+            borderColor = Colors.red; // Change border color to red
+            descriptionStep =
+                'Environmental Information'; // Set custom description
+          }
 
           List<String> photoUrls = [];
           if (record.photos != null) {
@@ -315,11 +326,14 @@ class _SummaryInstallationPageState extends State<SummaryInstallationPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               itemStepInstallation(
-                descriptionStep: '$stepNumber. $stepDescription',
+                descriptionStep: descriptionStep,
                 qmsInstallationStepId: qmsInstallationStepId,
                 description: description,
                 typeOfInstallation: typeOfInstallation,
                 photos: photoUrls,
+                categoryOfEnvironment: categoryOfEnvironment,
+                borderColor: borderColor,
+                stepDescription: stepDescription,
               ),
               const Gap(6),
             ],
@@ -334,7 +348,10 @@ class _SummaryInstallationPageState extends State<SummaryInstallationPage> {
     String? qmsInstallationStepId,
     String? description,
     String? typeOfInstallation,
+    String? categoryOfEnvironment,
     List<String>? photos,
+    Color? borderColor,
+     String? stepDescription,
   }) {
     return GestureDetector(
       onTap: () {
@@ -343,7 +360,10 @@ class _SummaryInstallationPageState extends State<SummaryInstallationPage> {
           AppRoute.detailStepInstallation,
           arguments: {
             'qmsInstallationStepId': qmsInstallationStepId,
+            'stepDescription': stepDescription,
+            'descriptionStep': descriptionStep,
             'typeOfInstallation': typeOfInstallation,
+            'categoryOfEnvironment': categoryOfEnvironment,
             'description': description,
             'photos': photos,
           },
@@ -353,7 +373,7 @@ class _SummaryInstallationPageState extends State<SummaryInstallationPage> {
         width: double.infinity,
         padding: const EdgeInsets.fromLTRB(12, 10, 0, 10),
         decoration: BoxDecoration(
-            border: Border.all(color: Colors.black),
+            border: Border.all(color: borderColor!),
             borderRadius: BorderRadius.circular(10)),
         child: Text(
           descriptionStep ?? '',

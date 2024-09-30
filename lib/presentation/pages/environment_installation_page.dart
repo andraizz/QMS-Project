@@ -310,7 +310,7 @@ class _EnvironmentInstallationPageState
       context: context,
       builder: (BuildContext dialogContext) {
         return AlertDialog(
-          title: const Text('Form Environmental  Information'),
+          title: const Text('Environmental  Information'),
           content: const Text('Apakah data yang anda input sudah sesuai?'),
           actions: [
             TextButton(
@@ -441,7 +441,7 @@ class _EnvironmentInstallationPageState
                     ),
                   ),
                   Text(
-                    'Environment Information',
+                    'Environmental Information',
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,

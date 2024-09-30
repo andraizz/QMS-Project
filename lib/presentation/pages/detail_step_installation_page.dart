@@ -11,7 +11,9 @@ class DetailStepInstallationPage extends StatefulWidget {
 class _DetailStepInstallationPageState
     extends State<DetailStepInstallationPage> {
   late String qmsInstallationStepId;
+  late String stepDescription;
   late String typeOfInstallation;
+  late String categoryOfEnvironment;
   late String description;
   late List<String> photoUrls;
 
@@ -22,7 +24,9 @@ class _DetailStepInstallationPageState
     final arguments =
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
     qmsInstallationStepId = arguments['qmsInstallationStepId'];
+    stepDescription = arguments['stepDescription'];
     typeOfInstallation = arguments['typeOfInstallation'];
+    categoryOfEnvironment = arguments['categoryOfEnvironment'];
     description = arguments['description'];
     List<String> filenames = List<String>.from(arguments['photos'] ?? []);
     photoUrls = filenames
@@ -71,15 +75,35 @@ class _DetailStepInstallationPageState
                         ),
                         const Gap(12),
                         ItemDescriptionDetail.secondary(
-                          description,
+                          stepDescription,
                           photoUrls,
                           context,
                         ),
                         const Gap(12),
-                        ItemDescriptionDetail.primary(
-                          'Description',
-                          description,
-                        ),
+                        // ItemDescriptionDetail.primary(
+                        //   'Category Of Environment',
+                        //   categoryOfEnvironment,
+                        // ),
+                        // const Gap(12),
+                        // ItemDescriptionDetail.primary(
+                        //   'Description',
+                        //   description,
+                        // ),
+                        if (categoryOfEnvironment.isNotEmpty) ...[
+                          ItemDescriptionDetail.primary(
+                            'Category Of Environment',
+                            categoryOfEnvironment,
+                          ),
+                          const Gap(12),
+                        ],
+                        // Only display description if it's not null or empty
+                        if (description.isNotEmpty) ...[
+                          ItemDescriptionDetail.primary(
+                            'Description',
+                            description,
+                          ),
+                          const Gap(12),
+                        ],
                       ],
                     ),
                   ),
