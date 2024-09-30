@@ -76,17 +76,24 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
     }
   }
 
-  Future<void> pickImagesFromGallery() async {
+
+  Future<void> pickImagesFromGallery(InstallationStep currentStep) async {
+    // Memeriksa apakah izin sudah diberikan
     if (await _requestPermission(
         (Platform.isAndroid && (await _isAndroid13OrAbove()))
             ? Permission.photos
             : Permission.storage)) {
+      // Ambil gambar dari galeri
       List<XFile>? results = await ImagePicker().pickMultiImage();
       if (results.isNotEmpty) {
+        int remainingSlots = currentStep.imageLength! - documentations.length;
+        if (results.length > remainingSlots) {
+          results = results.take(remainingSlots).toList();
+        }
+
         List<XFile> processedFiles = [];
         for (XFile file in results) {
-          String originalName =
-              path.basename(file.path); // Ambil nama file asli
+          String originalName = path.basename(file.path);
 
           Directory appDocDir =
               await path_provider.getApplicationDocumentsDirectory();
@@ -196,17 +203,15 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
                       ? installationStep[currentStepNumber - 1]
                       : null;
 
-                  // Cek apakah jumlah gambar yang diunggah sudah sesuai dengan imageLength
-                  if (currentStep != null &&
-                      documentations.length < currentStep.imageLength!) {
+                  if (currentStep != null && documentations.isEmpty) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
+                      const SnackBar(
                         content: Text(
-                          'Please upload at least ${currentStep.imageLength} images to continue.',
+                          'Please upload at least 1 image to continue.',
                         ),
                       ),
                     );
-                    return; // Stop if image upload is not complete
+                    return;
                   }
 
                   if (currentStepNumber == totalSteps) {
@@ -436,7 +441,7 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
               AppRoute.formEnvironemntInstallation,
               arguments: {
                 'qms_id': qmsId,
-                'qmsInstallationStepId' : qmsInstallationStepId,
+                'qmsInstallationStepId': qmsInstallationStepId,
                 'typeOfInstallationId': typeOfInstallationId ?? 0,
                 'typeOfInstallationName': typeOfInstallationName,
               },
@@ -536,26 +541,17 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
                 'QMS Installation Step ID',
                 TextEditingController(
                   text: currentStepNumber == 1
-                      ? initialQMSInstallationStepId // Step pertama: gunakan ID dari page sebelumnya
-                      : qmsInstallationStepId, // Step selanjutnya: ID dari generate
+                      ? initialQMSInstallationStepId
+                      : qmsInstallationStepId,
                 ),
               ),
               const Gap(6),
-              // InputWidget.disable(
-              //   'Type of installation',
-              //   TextEditingController(
-              //       text: typeOfInstallationName ?? 'Unknown'),
-              // ),
               InputWidget.dropDown2(
                 title: 'Type of installation',
                 hintText: 'Select Type Of Installation',
-                value: typeOfInstallationName!, // Tampilkan typeName
-                // items: installationType
-                //     .map((type) => type.typeName ?? '')
-                //     .toList(),
-                onChanged:
-                    null, // Dropdown disable karena sudah ada typeOfInstallation
-                isEnabled: false, // Set dropdown sebagai disable
+                value: typeOfInstallationName!,
+                onChanged: null,
+                isEnabled: false,
                 hintTextSearch: 'Search type of installation',
               ),
               const Gap(12),
@@ -564,7 +560,7 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
                   currentStep.stepDescription ?? 'No Image Uploaded',
                   'Upload',
                   'No Image Uploaded',
-                  currentStep.imageLength ?? 0,
+                  currentStep,
                 ),
                 const Gap(12),
                 InputWidget.textArea(
@@ -582,8 +578,8 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
     );
   }
 
-  Widget uploadFile(
-      String title, String textButton, String hintUpload, int imageLength) {
+  Widget uploadFile(String title, String textButton, String hintUpload,
+      InstallationStep currentStep) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -603,7 +599,7 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               Obx(() {
-                // Jika tidak ada gambar yang dipilih, tampilkan teks 'No Image Selected'
+                // Jika documentations kosong
                 if (documentations.isEmpty) {
                   return Column(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -617,12 +613,12 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
                         ),
                       ),
                       const Gap(20),
-                      // Tampilkan tombol upload menggunakan showModalBottomSheet
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 36),
                         child: DButtonFlat(
                           onClick: () {
-                            pickImagesFromGallery();
+                            pickImagesFromGallery(
+                                currentStep); // Kirim currentStep ke sini
                           },
                           height: 40,
                           mainColor: AppColor.blueColor1,
@@ -640,24 +636,29 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
                     ],
                   );
                 } else {
-                  // Jika ada gambar yang dipilih, tampilkan dalam GridView
                   return Expanded(
                     child: GridView.builder(
                       padding: const EdgeInsets.fromLTRB(12, 12, 24, 12),
                       physics: const NeverScrollableScrollPhysics(),
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3, // Atur jumlah kolom yang diinginkan
+                        crossAxisCount: 3,
                         crossAxisSpacing: 8.0,
                         mainAxisSpacing: 8.0,
                       ),
-                      itemCount: documentations.length + 1,
+                      itemCount: documentations.length +
+                          (documentations.length <
+                                  (currentStep.imageLength ?? 0)
+                              ? 1
+                              : 0),
                       itemBuilder: (context, index) {
-                        if (index == documentations.length) {
-                          // Tombol '+' untuk menambahkan gambar
+                        if (index == documentations.length &&
+                            documentations.length <
+                                (currentStep.imageLength ?? 0)) {
                           return GestureDetector(
                             onTap: () {
-                              pickImagesFromGallery();
+                              pickImagesFromGallery(
+                                  currentStep); // Kirim currentStep ke sini
                             },
                             child: Container(
                               width: 79,
@@ -677,7 +678,6 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
                         String path = documentations[index].path;
                         return Stack(
                           children: [
-                            // Tampilkan gambar yang dipilih
                             GestureDetector(
                               onTap: () {
                                 showDialog(
@@ -729,10 +729,11 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
         ),
         const Gap(12),
         Text(
-          "Uploaded: ${documentations.length}/$imageLength", // Display the number of uploaded images
+          "Uploaded: ${documentations.length}/${currentStep.imageLength ?? 0}", // Tampilkan jumlah gambar yang diupload
           style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
         ),
       ],
     );
   }
+
 }

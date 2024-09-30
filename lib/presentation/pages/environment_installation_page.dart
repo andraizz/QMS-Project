@@ -106,17 +106,23 @@ class _EnvironmentInstallationPageState
     }
   }
 
-  Future<void> pickImagesFromGallery() async {
+  Future<void> pickImagesFromGallery(InstallationStep currentStep) async {
+    // Memeriksa apakah izin sudah diberikan
     if (await _requestPermission(
         (Platform.isAndroid && (await _isAndroid13OrAbove()))
             ? Permission.photos
             : Permission.storage)) {
+      // Ambil gambar dari galeri
       List<XFile>? results = await ImagePicker().pickMultiImage();
       if (results.isNotEmpty) {
+        int remainingSlots = currentStep.imageLength! - documentations.length;
+        if (results.length > remainingSlots) {
+          results = results.take(remainingSlots).toList();
+        }
+
         List<XFile> processedFiles = [];
         for (XFile file in results) {
-          String originalName =
-              path.basename(file.path); // Ambil nama file asli
+          String originalName = path.basename(file.path);
 
           Directory appDocDir =
               await path_provider.getApplicationDocumentsDirectory();
@@ -153,6 +159,54 @@ class _EnvironmentInstallationPageState
       }
     }
   }
+
+  // Future<void> pickImagesFromGallery() async {
+  //   if (await _requestPermission(
+  //       (Platform.isAndroid && (await _isAndroid13OrAbove()))
+  //           ? Permission.photos
+  //           : Permission.storage)) {
+  //     List<XFile>? results = await ImagePicker().pickMultiImage();
+  //     if (results.isNotEmpty) {
+  //       List<XFile> processedFiles = [];
+  //       for (XFile file in results) {
+  //         String originalName =
+  //             path.basename(file.path); // Ambil nama file asli
+
+  //         Directory appDocDir =
+  //             await path_provider.getApplicationDocumentsDirectory();
+  //         String newPath = path.join(appDocDir.path, originalName);
+
+  //         File newFile = await File(file.path).copy(newPath);
+  //         processedFiles.add(XFile(newFile.path));
+  //       }
+
+  //       setState(() {
+  //         documentations.addAll(processedFiles);
+  //       });
+  //     }
+  //   } else {
+  //     if (mounted) {
+  //       showDialog(
+  //         context: context,
+  //         builder: (BuildContext context) {
+  //           return AlertDialog(
+  //             title: const Text('Akses Galeri Ditolak'),
+  //             content: const Text(
+  //                 'Akses ke galeri tidak diizinkan. Anda perlu memberikan izin untuk mengakses galeri.'),
+  //             actions: <Widget>[
+  //               TextButton(
+  //                 child: const Text('Tutup'),
+  //                 onPressed: () {
+  //                   Navigator.of(context).pop();
+  //                 },
+  //               ),
+  //             ],
+  //           );
+  //         },
+  //       );
+  //     }
+  //   }
+  // }
 
   // Function to check if the Android version is 13 or higher
   Future<bool> _isAndroid13OrAbove() async {
@@ -221,18 +275,16 @@ class _EnvironmentInstallationPageState
             ),
             child: DButtonFlat(
               onClick: () async {
-                for (InstallationStep step in listInstallationStep) {
-                  if (documentations.length < (step.imageLength ?? 0)) {
-                    // Jika gambar kurang, tampilkan snackbar dan hentikan eksekusi
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          'Please upload at least ${step.imageLength} images for this step',
-                        ),
+                if (documentations.isEmpty) {
+                  // Jika gambar kurang, tampilkan snackbar dan hentikan eksekusi
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                        'Please upload at least 1 images for this step',
                       ),
-                    );
-                    return; // Hentikan eksekusi jika gambar kurang
-                  }
+                    ),
+                  );
+                  return; // Hentikan eksekusi jika gambar kurang
                 }
 
                 showConfirmationDialog(context);
@@ -258,8 +310,8 @@ class _EnvironmentInstallationPageState
       context: context,
       builder: (BuildContext dialogContext) {
         return AlertDialog(
-          title: const Text('Form Environment Installation'),
-          content: const Text('Apakah Anda yakin form yang diisi sudah benar?'),
+          title: const Text('Form Environmental  Information'),
+          content: const Text('Apakah data yang anda input sudah sesuai?'),
           actions: [
             TextButton(
               onPressed: () {
@@ -287,7 +339,8 @@ class _EnvironmentInstallationPageState
       isLoading = true;
     });
 
-    String categoryOfEnvironment = getSelectedCategories(environmentalCategories, selectedCategories);
+    String categoryOfEnvironment =
+        getSelectedCategories(environmentalCategories, selectedCategories);
 
     try {
       for (InstallationStep step in listInstallationStep) {
@@ -439,8 +492,7 @@ class _EnvironmentInstallationPageState
                   step.stepDescription ?? 'No Image Uploaded',
                   'Upload',
                   'No Image Uploaded',
-                  step.imageLength ??
-                      0, // Asumsikan ini adalah jumlah gambar yang diupload
+                  step, // Asumsikan ini adalah jumlah gambar yang diupload
                 ),
                 const Gap(6),
                 InputWidget.textArea(
@@ -458,8 +510,8 @@ class _EnvironmentInstallationPageState
     );
   }
 
-  Widget uploadFile(
-      String title, String textButton, String hintUpload, int imageLength) {
+  Widget uploadFile(String title, String textButton, String hintUpload,
+      InstallationStep currentStep) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -479,7 +531,7 @@ class _EnvironmentInstallationPageState
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               Obx(() {
-                // Jika tidak ada gambar yang dipilih, tampilkan teks 'No Image Selected'
+                // Jika documentations kosong
                 if (documentations.isEmpty) {
                   return Column(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -493,12 +545,12 @@ class _EnvironmentInstallationPageState
                         ),
                       ),
                       const Gap(20),
-                      // Tampilkan tombol upload menggunakan showModalBottomSheet
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 36),
                         child: DButtonFlat(
                           onClick: () {
-                            pickImagesFromGallery();
+                            pickImagesFromGallery(
+                                currentStep); // Kirim currentStep ke sini
                           },
                           height: 40,
                           mainColor: AppColor.blueColor1,
@@ -516,24 +568,29 @@ class _EnvironmentInstallationPageState
                     ],
                   );
                 } else {
-                  // Jika ada gambar yang dipilih, tampilkan dalam GridView
                   return Expanded(
                     child: GridView.builder(
                       padding: const EdgeInsets.fromLTRB(12, 12, 24, 12),
                       physics: const NeverScrollableScrollPhysics(),
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3, // Atur jumlah kolom yang diinginkan
+                        crossAxisCount: 3,
                         crossAxisSpacing: 8.0,
                         mainAxisSpacing: 8.0,
                       ),
-                      itemCount: documentations.length + 1,
+                      itemCount: documentations.length +
+                          (documentations.length <
+                                  (currentStep.imageLength ?? 0)
+                              ? 1
+                              : 0),
                       itemBuilder: (context, index) {
-                        if (index == documentations.length) {
-                          // Tombol '+' untuk menambahkan gambar
+                        if (index == documentations.length &&
+                            documentations.length <
+                                (currentStep.imageLength ?? 0)) {
                           return GestureDetector(
                             onTap: () {
-                              pickImagesFromGallery();
+                              pickImagesFromGallery(
+                                  currentStep); // Kirim currentStep ke sini
                             },
                             child: Container(
                               width: 79,
@@ -553,7 +610,6 @@ class _EnvironmentInstallationPageState
                         String path = documentations[index].path;
                         return Stack(
                           children: [
-                            // Tampilkan gambar yang dipilih
                             GestureDetector(
                               onTap: () {
                                 showDialog(
@@ -605,7 +661,7 @@ class _EnvironmentInstallationPageState
         ),
         const Gap(12),
         Text(
-          "Uploaded: ${documentations.length}/$imageLength", // Display the number of uploaded images
+          "Uploaded: ${documentations.length}/${currentStep.imageLength ?? 0}", // Tampilkan jumlah gambar yang diupload
           style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
         ),
       ],
