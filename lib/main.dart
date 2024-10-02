@@ -3,9 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:qms_application/common/common.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:qms_application/data/models/models.dart';
 import 'package:qms_application/data/source/sources.dart';
-import 'package:qms_application/presentation/bloc/category_installation/category_installation_bloc.dart';
 import 'package:qms_application/presentation/bloc/installation/installation_bloc.dart';
 import 'package:qms_application/presentation/bloc/installation_records/installation_records_bloc.dart';
 import 'package:qms_application/presentation/bloc/installation_step_records/installation_step_records_bloc.dart';
@@ -29,16 +27,11 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final categoryInstallationSource = CategoryInstallationSource();
     final installationSource = InstallationSource();
     final ticketByUserSource = TicketByUserSource();
     final ticketDetailSource = TicketDetailSource();
     return MultiBlocProvider(
       providers: [
-        BlocProvider<CategoryInstallationBloc>(
-          create: (context) =>
-              CategoryInstallationBloc(categoryInstallationSource),
-        ),
         BlocProvider<InstallationBloc>(
           create: (context) => InstallationBloc(installationSource),
         ),

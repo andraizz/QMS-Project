@@ -1,7 +1,4 @@
 part 'form_installation.dart';
-part 'category_item.dart';
-part 'category_item_old.dart';
-part 'cable_type.dart';
 part 'item.dart';
 part 'installation_type.dart';
 part 'installation_step.dart';

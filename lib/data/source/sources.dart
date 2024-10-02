@@ -7,8 +7,6 @@ import 'package:http/http.dart' as http;
 import 'package:d_method/d_method.dart';
 import 'package:path/path.dart' as path;
 
-part 'category_item_source.dart';
-part 'category_installation_source.dart';
 part 'installation_source.dart';
 part 'ticket_by_user_source.dart';
 part 'ticket_detail_source.dart';

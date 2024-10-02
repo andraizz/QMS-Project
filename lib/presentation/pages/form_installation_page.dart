@@ -22,7 +22,7 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
   List<InstallationStep> installationStep = [];
   InstallationStep? selectedInstallationStep;
 
-  int currentStepNumber = 17;
+  int currentStepNumber = 5;
   int totalSteps = 0;
 
   final FocusNode _descriptionFocusNode = FocusNode();
@@ -75,7 +75,6 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
       return status == PermissionStatus.granted;
     }
   }
-
 
   Future<void> pickImagesFromGallery(InstallationStep currentStep) async {
     // Memeriksa apakah izin sudah diberikan
@@ -203,7 +202,20 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
                       ? installationStep[currentStepNumber - 1]
                       : null;
 
-                  if (currentStep != null && documentations.isEmpty) {
+                  // if (currentStep != null && documentations.isEmpty) {
+                  //   ScaffoldMessenger.of(context).showSnackBar(
+                  //     const SnackBar(
+                  //       content: Text(
+                  //         'Please upload at least 1 image to continue.',
+                  //       ),
+                  //     ),
+                  //   );
+                  //   return;
+                  // }
+
+                  if (currentStep != null &&
+                      currentStep.isOptional == 'No' &&
+                      documentations.isEmpty) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text(
@@ -212,6 +224,16 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
                       ),
                     );
                     return;
+                  }
+
+                  if (edtDescription.text.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content:
+                            Text('Please fill in the description to continue.'),
+                      ),
+                    );
+                    return; // Jangan lanjutkan jika deskripsi kosong
                   }
 
                   if (currentStepNumber == totalSteps) {
@@ -377,8 +399,7 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Environmental Information'),
-          content:
-              const Text('Apakah terdapat Environmental Information?'),
+          content: const Text('Apakah terdapat Environmental Information?'),
           actions: [
             TextButton(
               onPressed: () => _handleEnvironmentResponse(dialogContext, false),
@@ -735,5 +756,4 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
       ],
     );
   }
-
 }
