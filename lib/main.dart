@@ -96,7 +96,11 @@ class MainApp extends StatelessWidget {
           //     );
           //   },
           AppRoute.login: (context) => const LoginPage(),
-          AppRoute.dashboard: (context) => const MainPage(),
+          AppRoute.dashboard: (context) {
+            final args = ModalRoute.of(context)?.settings.arguments as int? ??
+                0; // Default to 0 if null
+            return MainPage(initialIndex: args);
+          },
           AppRoute.listInstallation: (context) => const ListInstallationPage(),
           AppRoute.formInstallation: (context) => const FormInstallationPage(),
           AppRoute.historyInstallation: (context) =>

@@ -79,7 +79,7 @@ class _SummaryInstallationPageState extends State<SummaryInstallationPage> {
             ),
             child: DButtonFlat(
               onClick: () {
-                showConfirmationDialog(context);
+                showConfirmationDialog(context, qmsId!);
               },
               radius: 10,
               mainColor: AppColor.blueColor1,
@@ -188,7 +188,10 @@ class _SummaryInstallationPageState extends State<SummaryInstallationPage> {
     );
   }
 
-  void showConfirmationDialog(BuildContext context) {
+  void showConfirmationDialog(BuildContext context, String qmsId) {
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context);
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -199,19 +202,35 @@ class _SummaryInstallationPageState extends State<SummaryInstallationPage> {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(); // Tutup dialog
+                navigator.pop(); // Close dialog
               },
               child: const Text('Tidak'),
             ),
             TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Tutup dialog
-                setState(() {
-                  Navigator.pushNamed(
-                    context,
-                    AppRoute.dashboard,
-                  );
-                });
+              onPressed: () async {
+                navigator.pop(); // Close dialog
+
+                // Call the submission functions
+                final installationSuccess =
+                    await InstallationSource.submitInstallationRecord(
+                        qmsId: qmsId);
+                final stepSuccess =
+                    await InstallationSource.submitInstallationStepRecord(
+                        qmsId: qmsId);
+
+                if (navigator.mounted) {
+                  if (installationSuccess && stepSuccess) {
+                    navigator.pushNamed(
+                      AppRoute.dashboard,
+                      arguments: 2,
+                    );
+                  } else {
+                    scaffoldMessenger.showSnackBar(
+                      const SnackBar(
+                          content: Text('Submit gagal, silakan coba lagi.')),
+                    );
+                  }
+                }
               },
               child: const Text('Iya'),
             ),
@@ -220,6 +239,91 @@ class _SummaryInstallationPageState extends State<SummaryInstallationPage> {
       },
     );
   }
+
+  // void showConfirmationDialog(BuildContext context) {
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return AlertDialog(
+  //         title: const Text('Form Installation'),
+  //         content: const Text(
+  //             'Apakah Anda yakin summary installation form yang diisi sudah benar?'),
+  //         actions: [
+  //           TextButton(
+  //             onPressed: () {
+  //               Navigator.of(context).pop(); // Tutup dialog
+  //             },
+  //             child: const Text('Tidak'),
+  //           ),
+  //           TextButton(
+  //             onPressed: () {
+  //               Navigator.of(context).pop();
+  //               _handleFormSubmission(context);
+  //             },
+  //             child: const Text('Iya'),
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+  // }
+
+  // Future<void> _handleFormSubmission(BuildContext context) async {
+  //   try {
+  //     final installationResult =
+  //         await InstallationSource.submitInstallationRecord(qmsId: qmsId);
+  //     final stepResult =
+  //         await InstallationSource.submitInstallationStepRecord(qmsId: qmsId);
+  //     if (context.mounted) {
+  //       if (installationResult != null && stepResult != null) {
+  //         Navigator.pushNamed(context, AppRoute.historyInstallation);
+  //       } else {
+  //         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+  //             content: Text('Submit gagal, silakan coba lagi.')));
+  //       }
+  //     }
+  //   } catch (e) {
+  //     if (context.mounted) {
+  //       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+  //           content: Text('Terjadi kesalahan, coba lagi nanti.')));
+  //     }
+  //   }
+  // }
+
+  // void showConfirmationDialog(BuildContext context) {
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return AlertDialog(
+  //         title: const Text('Form Installation'),
+  //         content: const Text(
+  //             'Apakah Anda yakin summary installation form yang diisi sudah benar?'),
+  //         actions: [
+  //           TextButton(
+  //             onPressed: () {
+  //               Navigator.of(context).pop(); // Tutup dialog
+  //             },
+  //             child: const Text('Tidak'),
+  //           ),
+  //           TextButton(
+  //             onPressed: () {
+  //               Navigator.of(context).pop(); // Tutup dialog
+  //               InstallationSource.submitInstallationRecord(qmsId: qmsId);
+  //               InstallationSource.submitInstallationStepRecord(qmsId: qmsId);
+  //               setState(() {
+  //                 Navigator.pushNamed(
+  //                   context,
+  //                   AppRoute.dashboard,
+  //                 );
+  //               });
+  //             },
+  //             child: const Text('Iya'),
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+  // }
 
   Widget summaryInstallation(String title) {
     final edtQMSTicket = TextEditingController(text: qmsId);
@@ -351,7 +455,7 @@ class _SummaryInstallationPageState extends State<SummaryInstallationPage> {
     String? categoryOfEnvironment,
     List<String>? photos,
     Color? borderColor,
-     String? stepDescription,
+    String? stepDescription,
   }) {
     return GestureDetector(
       onTap: () {

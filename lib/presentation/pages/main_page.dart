@@ -1,22 +1,30 @@
 part of 'pages.dart';
 
 class MainPage extends StatefulWidget {
-  const MainPage({super.key});
+  final int initialIndex;
+  const MainPage({super.key, this.initialIndex = 0});
 
   @override
   State<MainPage> createState() => _MainPageState();
 }
 
 class _MainPageState extends State<MainPage> {
-  int _currentIndex = 0;
+  late int _currentIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget.initialIndex;
+  }
 
   final List<Widget> _tabs = [
     const DashboardPage(),
     const InspectionHistory(),
     const InstallationHistory(),
-    const Scaffold(),
-    const Scaffold()
+    const Scaffold(), // Rectification History
+    const Scaffold() // Quality Audit History
   ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -29,14 +37,13 @@ class _MainPageState extends State<MainPage> {
         type: BottomNavigationBarType.fixed,
         selectedItemColor: Colors.blue,
         unselectedItemColor: Colors.grey,
-        
         onTap: (int index) {
           setState(() {
             _currentIndex = index;
           });
         },
-        items:  [
-           _buildBottomNavigationBarItem(
+        items: [
+          _buildBottomNavigationBarItem(
             index: 0,
             label: 'Home',
             activeIconPath: 'assets/icons/ic_home_active.png',
@@ -94,7 +101,9 @@ class _MainPageState extends State<MainPage> {
               maxLines: 2,
               style: TextStyle(
                 fontSize: 8,
-                color: _currentIndex == index ? AppColor.blueColor1 : AppColor.greyColor1,
+                color: _currentIndex == index
+                    ? AppColor.blueColor1
+                    : AppColor.greyColor1,
                 fontWeight: FontWeight.w600,
               ),
               textAlign: TextAlign.center,

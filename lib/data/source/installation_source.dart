@@ -249,4 +249,53 @@ class InstallationSource {
     }
   }
 
+  static Future<bool> submitInstallationRecord({
+    required String qmsId,
+  }) async {
+    try {
+      final response = await http.patch(
+        Uri.parse('$_baseURL/installation-records/status/submitted/$qmsId'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: jsonEncode({
+          "submitted_date": DateTime.now().toIso8601String(),
+        }),
+      );
+
+      DMethod.logResponse(response);
+
+      return response.statusCode == 200; // Check for a successful status code
+    } catch (e) {
+      DMethod.log(e.toString(), colorCode: 1);
+      return false; // Return false if there is an exception
+    }
+  }
+
+  static Future<bool> submitInstallationStepRecord({
+    required String qmsId,
+  }) async {
+    try {
+      final response = await http.patch(
+        Uri.parse(
+            '$_baseURL/installation-step-records/status/submitted/$qmsId'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: jsonEncode({
+          "submitted_date": DateTime.now().toIso8601String(),
+          "status_date": DateTime.now().toIso8601String(),
+        }),
+      );
+
+      DMethod.logResponse(response);
+
+      return response.statusCode == 200; // Check for a successful status code
+    } catch (e) {
+      DMethod.log(e.toString(), colorCode: 1);
+      return false; // Return false if there is an exception
+    }
+  }
 }

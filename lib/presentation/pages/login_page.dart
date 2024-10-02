@@ -35,9 +35,13 @@ class LoginPage extends StatelessWidget {
                 const SizedBox(
                   height: 20,
                 ),
-                AppButton.primary('LOGIN', () {
-                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const MainPage()));
-                })
+                AppButton.primary(
+                    title: 'LOGIN',
+                    onClick: () {
+                      Navigator.pushReplacementNamed(
+                          context, AppRoute.dashboard,
+                          arguments: 0);
+                    })
               ],
             ),
           )

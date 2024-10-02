@@ -2,8 +2,10 @@ part of 'common.dart';
 
 //Mengatur Config atau host
 class URLs {
-  static const host = 'http://192.168.11.109:8000';
-  static String installationImage(String fileName) => '$host/storage/$fileName';
+  static const host = 'https://devqms.triasmitra.com/public';
+
+  static const hostStorage = 'https://devqms.triasmitra.com/storage';
+  static String installationImage(String fileName) => '$hostStorage/app/public/$fileName';
 }
 
 class UrlsDms {
