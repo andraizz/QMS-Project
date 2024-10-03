@@ -22,7 +22,7 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
   List<InstallationStep> installationStep = [];
   InstallationStep? selectedInstallationStep;
 
-  int currentStepNumber = 5;
+  int currentStepNumber = 17;
   int totalSteps = 0;
 
   final FocusNode _descriptionFocusNode = FocusNode();
@@ -308,7 +308,7 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
                     typeOfInstallation: typeOfInstallationName,
                     description: edtDescription.text,
                     photos: documentations,
-                    status: 'created',
+                    status: 'Created',
                   );
 
                   setState(() {
@@ -440,7 +440,7 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
         typeOfInstallation: typeOfInstallationName,
         description: edtDescription.text,
         photos: documentations,
-        status: 'created',
+        status: 'Created',
       );
 
       setState(() {

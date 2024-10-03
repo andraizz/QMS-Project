@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:qms_application/data/source/sources.dart';
 import 'package:qms_application/presentation/bloc/installation/installation_bloc.dart';
 import 'package:qms_application/presentation/bloc/installation_records/installation_records_bloc.dart';
+import 'package:qms_application/presentation/bloc/installation_records_username/installation_records_username_bloc.dart';
 import 'package:qms_application/presentation/bloc/installation_step_records/installation_step_records_bloc.dart';
 import 'package:qms_application/presentation/bloc/ticket_by_user/ticket_by_user_bloc.dart';
 import 'package:qms_application/presentation/bloc/ticket_detail/ticket_detail_bloc.dart';
@@ -49,7 +50,11 @@ class MainApp extends StatelessWidget {
         BlocProvider<InstallationStepRecordsBloc>(
           create: (context) => InstallationStepRecordsBloc(
               installationSource: installationSource),
-        )
+        ),
+        BlocProvider<InstallationRecordsUsernameBloc>(
+          create: (context) => InstallationRecordsUsernameBloc(
+              installationSource: installationSource),
+        ),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

@@ -1,12 +1,13 @@
 part of 'widgets.dart';
 
 class ItemHistory {
-  static Widget installation(
-    String idTicket,
-    String status,    
-    Color statusColor, {
+  static Widget installation({
+    String? idTicket,
+    String? status,
+    Color? statusColor,
+    Color? textColor,
     void Function()? onTap,
-    String? date,
+    DateTime? date,
     String? createdBy,
     String? ttDms,
     String? servicePoint,
@@ -29,10 +30,10 @@ class ItemHistory {
                 right: 6,
               ),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    idTicket,
+                    idTicket ?? '',
                     style: const TextStyle(
                       fontWeight: FontWeight.w600,
                       fontSize: 12,
@@ -47,22 +48,13 @@ class ItemHistory {
                         borderRadius: BorderRadius.circular(10)),
                     child: Center(
                       child: Text(
-                        status,
+                        status ?? '',
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
                           fontSize: 8,
-                          color: AppColor.whiteColor,
+                          color: textColor,
                         ),
                       ),
-                    ),
-                  ),
-                  const Spacer(),
-                  Text(
-                    'Details >',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 10,
-                      color: AppColor.defaultText,
                     ),
                   ),
                 ],
@@ -71,11 +63,12 @@ class ItemHistory {
             Divider(
               color: AppColor.divider,
             ),
-            ItemTextHistory.primary("Date", date ?? '-', 1),
+            ItemTextHistory.date(title: "Date", subTitle: date),
             ItemTextHistory.primary("Created By", createdBy ?? '-', 1),
             ItemTextHistory.primary("TT DMS", ttDms ?? '-', 1),
             ItemTextHistory.primary("Service Point", servicePoint ?? '-', 1),
-            ItemTextHistory.primary("Section Name", sectionName ?? '-', 2, width: 150),
+            ItemTextHistory.primary("Section Name", sectionName ?? '-', 2,
+                width: 150),
             const Gap(12)
           ],
         ),

@@ -19,4 +19,6 @@ class AppColor {
   static Color whiteColor = const Color(0xffFFFFFF);
   static Color disable = const Color(0xffEFEFEF);
   static Color divider = const Color(0xffEFEFEF);
+  static Color rejectedColor = const Color(0xffEB4D4B);
+  static Color closedToBeRectifiedColor = const Color(0xffDFE6E9);
 }

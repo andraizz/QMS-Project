@@ -210,6 +210,8 @@ class _SummaryInstallationPageState extends State<SummaryInstallationPage> {
               onPressed: () async {
                 navigator.pop(); // Close dialog
 
+                showLoadingDialog(context);
+
                 // Call the submission functions
                 final installationSuccess =
                     await InstallationSource.submitInstallationRecord(
@@ -217,6 +219,11 @@ class _SummaryInstallationPageState extends State<SummaryInstallationPage> {
                 final stepSuccess =
                     await InstallationSource.submitInstallationStepRecord(
                         qmsId: qmsId);
+
+                // Close loading dialog
+                if (navigator.canPop()) {
+                  navigator.pop(); // Close loading dialog
+                }
 
                 if (navigator.mounted) {
                   if (installationSuccess && stepSuccess) {
@@ -240,90 +247,17 @@ class _SummaryInstallationPageState extends State<SummaryInstallationPage> {
     );
   }
 
-  // void showConfirmationDialog(BuildContext context) {
-  //   showDialog(
-  //     context: context,
-  //     builder: (BuildContext context) {
-  //       return AlertDialog(
-  //         title: const Text('Form Installation'),
-  //         content: const Text(
-  //             'Apakah Anda yakin summary installation form yang diisi sudah benar?'),
-  //         actions: [
-  //           TextButton(
-  //             onPressed: () {
-  //               Navigator.of(context).pop(); // Tutup dialog
-  //             },
-  //             child: const Text('Tidak'),
-  //           ),
-  //           TextButton(
-  //             onPressed: () {
-  //               Navigator.of(context).pop();
-  //               _handleFormSubmission(context);
-  //             },
-  //             child: const Text('Iya'),
-  //           ),
-  //         ],
-  //       );
-  //     },
-  //   );
-  // }
-
-  // Future<void> _handleFormSubmission(BuildContext context) async {
-  //   try {
-  //     final installationResult =
-  //         await InstallationSource.submitInstallationRecord(qmsId: qmsId);
-  //     final stepResult =
-  //         await InstallationSource.submitInstallationStepRecord(qmsId: qmsId);
-  //     if (context.mounted) {
-  //       if (installationResult != null && stepResult != null) {
-  //         Navigator.pushNamed(context, AppRoute.historyInstallation);
-  //       } else {
-  //         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-  //             content: Text('Submit gagal, silakan coba lagi.')));
-  //       }
-  //     }
-  //   } catch (e) {
-  //     if (context.mounted) {
-  //       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-  //           content: Text('Terjadi kesalahan, coba lagi nanti.')));
-  //     }
-  //   }
-  // }
-
-  // void showConfirmationDialog(BuildContext context) {
-  //   showDialog(
-  //     context: context,
-  //     builder: (BuildContext context) {
-  //       return AlertDialog(
-  //         title: const Text('Form Installation'),
-  //         content: const Text(
-  //             'Apakah Anda yakin summary installation form yang diisi sudah benar?'),
-  //         actions: [
-  //           TextButton(
-  //             onPressed: () {
-  //               Navigator.of(context).pop(); // Tutup dialog
-  //             },
-  //             child: const Text('Tidak'),
-  //           ),
-  //           TextButton(
-  //             onPressed: () {
-  //               Navigator.of(context).pop(); // Tutup dialog
-  //               InstallationSource.submitInstallationRecord(qmsId: qmsId);
-  //               InstallationSource.submitInstallationStepRecord(qmsId: qmsId);
-  //               setState(() {
-  //                 Navigator.pushNamed(
-  //                   context,
-  //                   AppRoute.dashboard,
-  //                 );
-  //               });
-  //             },
-  //             child: const Text('Iya'),
-  //           ),
-  //         ],
-  //       );
-  //     },
-  //   );
-  // }
+  void showLoadingDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Prevent dialog from being dismissed
+      builder: (BuildContext context) {
+        return const Center(
+          child: CircularProgressIndicator(),
+        );
+      },
+    );
+  }
 
   Widget summaryInstallation(String title) {
     final edtQMSTicket = TextEditingController(text: qmsId);

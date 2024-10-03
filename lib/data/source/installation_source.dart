@@ -298,4 +298,34 @@ class InstallationSource {
       return false; // Return false if there is an exception
     }
   }
+
+  Future<List<InstallationRecords>?> getInstallationRecordByUsername(
+      String username) async {
+    try {
+      final response = await http.get(Uri.parse(
+          '$_baseURL/installation-records/username?username=$username'));
+
+      DMethod.logResponse(response);
+
+      if (response.statusCode == 200) {
+        final List<dynamic> resBody = jsonDecode(response.body);
+        return resBody
+            .map((e) =>
+                InstallationRecords.fromJson(Map<String, dynamic>.from(e)))
+            .toList();
+      } else {
+        DMethod.log(
+            'Failed to load Installation Step Records : ${response.statusCode}',
+            colorCode: 1);
+        return null;
+      }
+    } catch (e) {
+      if (e is http.ClientException) {
+        DMethod.log('Network error: ${e.message}', colorCode: 1);
+      } else {
+        DMethod.log('Error: ${e.toString()}', colorCode: 1);
+      }
+      return null;
+    }
+  }
 }

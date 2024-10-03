@@ -33,4 +33,34 @@ class ItemTextHistory {
       ),
     );
   }
+
+  static Widget date({String? title, DateTime? subTitle, double? width}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 8,
+        vertical: 4,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            title ?? '',
+            style: TextStyle(
+              fontWeight: FontWeight.w500,
+              color: AppColor.greyColor2,
+            ),
+          ),
+          Text(
+            DateFormat('dd MMMM yyyy').format(subTitle!),
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+              color: AppColor.defaultText,
+            ),
+            textAlign: TextAlign.right,
+          )
+        ],
+      ),
+    );
+  }
 }

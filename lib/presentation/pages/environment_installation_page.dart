@@ -353,7 +353,7 @@ class _EnvironmentInstallationPageState
           categoryOfEnvironment: categoryOfEnvironment,
           description: edtDescription.text,
           photos: documentations,
-          status: 'created',
+          status: 'Created',
         );
 
         if (!result) {
