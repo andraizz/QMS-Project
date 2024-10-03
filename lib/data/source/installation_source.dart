@@ -149,7 +149,7 @@ class InstallationSource {
           "latitude": latitude,
           "longitude": longitude,
           "type_of_installation": typeOfInstallation,
-          "status": "created",
+          "status": "Created",
         }),
       );
 

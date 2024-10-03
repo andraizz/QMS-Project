@@ -22,7 +22,7 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
   List<InstallationStep> installationStep = [];
   InstallationStep? selectedInstallationStep;
 
-  int currentStepNumber = 1;
+  int currentStepNumber = 17;
   int totalSteps = 0;
 
   final FocusNode _descriptionFocusNode = FocusNode();
@@ -457,7 +457,7 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
               qmsInstallationStepId = newId['qms_installation_step_id'];
             });
 
-            Navigator.pushNamed(
+            Navigator.pushReplacementNamed(
               dialogContext,
               AppRoute.formEnvironemntInstallation,
               arguments: {
@@ -472,7 +472,7 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
                 dialogContext, 'Failed to generate new step ID.');
           }
         } else {
-          Navigator.pushNamed(
+          Navigator.pushReplacementNamed(
             dialogContext,
             AppRoute.summaryInstallation,
             arguments: {

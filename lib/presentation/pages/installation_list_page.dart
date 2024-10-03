@@ -145,7 +145,7 @@ class _ListInstallationPageState extends State<ListInstallationPage>
                             servicePoint: ticket.servicePointName!,
                             onClick: () {
                               if (ticket.ticketNumber != null) {
-                                Navigator.pushNamed(
+                                Navigator.pushReplacementNamed(
                                   context,
                                   AppRoute.detailDMSTicket,
                                   arguments: {
@@ -184,7 +184,7 @@ class _ListInstallationPageState extends State<ListInstallationPage>
                             servicePoint: ticket.servicePointName!,
                             onClick: () {
                               if (ticket.ticketNumber != null) {
-                                Navigator.pushNamed(
+                                Navigator.pushReplacementNamed(
                                   context,
                                   AppRoute.detailDMSTicket,
                                   arguments: {
