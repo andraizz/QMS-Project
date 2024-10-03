@@ -10,6 +10,31 @@ class DetailHistoryInstallationPage extends StatefulWidget {
 
 class _DetailHistoryInstallationPageState
     extends State<DetailHistoryInstallationPage> {
+  String? qmsId;
+  String? typeOfInstallationName;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    final args =
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    if (args != null) {
+      qmsId = args['qms_id'] as String?;
+      typeOfInstallationName = args['typeOfInstallationName'] as String?;
+    }
+
+    if (qmsId != null) {
+      context
+          .read<InstallationRecordsBloc>()
+          .add(FetchInstallationRecords(qmsId!));
+
+      context
+          .read<InstallationStepRecordsBloc>()
+          .add(FetchInstallationStepRecords(qmsId!));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -21,11 +46,11 @@ class _DetailHistoryInstallationPageState
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
               physics: const BouncingScrollPhysics(),
               children: [
-                ticketDMS('Detail Ticket DMS'),
+                ticketDMS(context),
                 const Gap(24),
-                installation('Installation'),
+                summaryInstallation('Installation'),
                 const Gap(24),
-                opsTeamReview('Ops Team Review'),
+                // opsTeamReview('Ops Team Review'),
               ],
             ),
           )
@@ -34,7 +59,28 @@ class _DetailHistoryInstallationPageState
     );
   }
 
-  static Widget ticketDMS(String title) {
+  Widget ticketDMS(BuildContext context) {
+    return BlocBuilder<InstallationRecordsBloc, InstallationRecordsState>(
+        builder: (context, state) {
+      if (state is InstallationRecordsLoading) {
+        return const Center(
+          child: CircularProgressIndicator(),
+        );
+      } else if (state is InstallationRecordsLoaded) {
+        return _buildTicketDMSContent(state.record);
+      } else if (state is InstallationRecordsError) {
+        return Center(
+          child: Text(state.message),
+        );
+      }
+
+      return const Center(
+        child: Text('No Data Available'),
+      );
+    });
+  }
+
+  Widget _buildTicketDMSContent(InstallationRecords record) {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(5),
@@ -48,28 +94,52 @@ class _DetailHistoryInstallationPageState
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              title,
-              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+            const Text(
+              'Detail Ticket DMS',
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
             ),
             Divider(
               color: AppColor.divider,
             ),
-            ItemDescriptionDetail.primary('TT Number', 'TT-24082800S009'),
+            ItemDescriptionDetail.primary2(
+              title: 'TT Number',
+              data: "TT-${record.dmsId}",
+            ),
             const Gap(12),
-            ItemDescriptionDetail.primary('Service Point', 'Serpo Batam 2'),
+            ItemDescriptionDetail.primary2(
+              title: 'Service Point',
+              data: record.servicePoint,
+            ),
             const Gap(12),
-            ItemDescriptionDetail.primary('Project', 'B2JS'),
+            ItemDescriptionDetail.primary2(
+              title: 'Project',
+              data: record.project,
+            ),
             const Gap(12),
-            ItemDescriptionDetail.primary(
-                'Segment', 'TRIAS_Tanjung Bemban - Tanjung Pinggir'),
+            ItemDescriptionDetail.primary2(
+              title: 'Segment',
+              data: record.segment,
+            ),
             const Gap(12),
-            ItemDescriptionDetail.primary('Section Name',
-                'TRIAS_Diversity Tanjung Pinggir - Batam Center'),
+            ItemDescriptionDetail.primary2(
+              title: 'Section Name',
+              data: record.sectionName,
+            ),
             const Gap(12),
-            ItemDescriptionDetail.primary('Worker', 'Harizaldy'),
+            ItemDescriptionDetail.primary2(
+              title: 'Area',
+              data: record.area,
+            ),
             const Gap(12),
-            ItemDescriptionDetail.primary('Area', 'MS BATAM'),
+            ItemDescriptionDetail.primary2(
+              title: 'Latitude',
+              data: record.latitude.toString(),
+            ),
+            const Gap(12),
+            ItemDescriptionDetail.primary2(
+              title: 'Longitude',
+              data: record.longitude.toString(),
+            ),
             const Gap(12),
           ],
         ),
@@ -77,7 +147,11 @@ class _DetailHistoryInstallationPageState
     );
   }
 
-  Widget installation(String title) {
+  Widget summaryInstallation(String title) {
+    final edtQMSTicket = TextEditingController(text: qmsId);
+    final typeOfInstallation =
+        TextEditingController(text: typeOfInstallationName);
+
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(5),
@@ -98,35 +172,142 @@ class _DetailHistoryInstallationPageState
             Divider(
               color: AppColor.divider,
             ),
-            ItemDescriptionDetail.primary(
-                'Type of cable/enviroment installation', 'KT'),
-            const Gap(12),
-            ItemDescriptionDetail.primary('Category of installation', 'Kabel'),
-            const Gap(12),
-            ItemDescriptionDetail.primary('Category of installation Details',
-                'Spare kabel di closure pada kabel eksisting lebih dari 3m'),
-            const Gap(12),
-            ItemDescriptionDetail.primary('description',
-                'Spare Kabel di Pasag Pada Section Tanjung Emban'),
-            const Gap(12),
-            ItemDescriptionDetail.primary('latitude', '-6.225678'),
-            const Gap(12),
-            ItemDescriptionDetail.primary('longitude', '106.873981'),
-            const Gap(12),
-            ItemDescriptionDetail.secondary(
-                'Documentation/Photo',
-                [
-                  'https://infopublik.id/resources/album/bulan-september-2019/fiber_compressed.jpg',
-                  'https://static.promediateknologi.id/crop/0x0:0x0/750x500/webp/photo/radarjember/2023/06/FT-KOTA-penanganan-kabel-ruwet-di-Denpasar-1.jpg',
-                  'https://infopublik.id/resources/album/bulan-september-2019/fiber_compressed.jpg',
-                  'https://infopublik.id/resources/album/bulan-september-2019/fiber_compressed.jpg',
-                  'https://infopublik.id/resources/album/bulan-september-2019/fiber_compressed.jpg',
-                  'https://infopublik.id/resources/album/bulan-september-2019/fiber_compressed.jpg',
-                  // 'https://infopublik.id/resources/album/bulan-september-2019/fiber_compressed.jpg',
-                ],
-                context),
-            const Gap(12),
+            InputWidget.disable(
+              'QMS Installation Ticket Number',
+              edtQMSTicket,
+            ),
+            const Gap(6),
+            InputWidget.disable(
+              'Type of installation',
+              typeOfInstallation,
+            ),
+            const Gap(6),
+            BlocBuilder<InstallationStepRecordsBloc,
+                InstallationStepRecordsState>(builder: (context, state) {
+              if (state is InstallationStepRecordsLoading) {
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              } else if (state is InstallationStepRecordsLoaded) {
+                return installationStepRecords(state.records);
+              } else if (state is InstallationStepRecordsError) {
+                return Center(
+                  child: Text('Error : ${state.message}'),
+                );
+              }
+
+              return const Center(
+                child: Text('No Data Available'),
+              );
+            }),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget installationStepRecords(
+      List<InstallationStepRecords> installationStepRecors) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Step Installation',
+          style: TextStyle(
+            fontWeight: FontWeight.w500,
+            color: AppColor.greyColor3,
+            fontSize: 10,
+          ),
+        ),
+        const Gap(12),
+        ...installationStepRecors.map((record) {
+          int stepNumber = record.stepNumber ?? 0;
+          String stepDescription = record.stepDescription ?? 'Unknown Step';
+          String qmsInstallationStepId = record.qmsInstallationStepId ?? '';
+          String description = record.description ?? '';
+          String typeOfInstallation = record.typeOfInstallation ?? '';
+          String categoryOfEnvironment = record.categoryOfEnvironment ?? '';
+
+          Color borderColor = Colors.black;
+          String descriptionStep = '$stepNumber. $stepDescription';
+
+          // If stepNumber is 99, modify the descriptionStep and borderColor
+          if (stepNumber == 99) {
+            borderColor = Colors.red; // Change border color to red
+            descriptionStep =
+                'Environmental Information'; // Set custom description
+          }
+
+          List<String> photoUrls = [];
+          if (record.photos != null) {
+            photoUrls = record.photos!
+                .map((photo) =>
+                    photo.photoUrl ?? '') // Mengganti null dengan string kosong
+                .where((url) =>
+                    url.isNotEmpty) // Menghapus string kosong jika perlu
+                .toList();
+          }
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              itemStepInstallation(
+                descriptionStep: descriptionStep,
+                qmsInstallationStepId: qmsInstallationStepId,
+                description: description,
+                typeOfInstallation: typeOfInstallation,
+                photos: photoUrls,
+                categoryOfEnvironment: categoryOfEnvironment,
+                borderColor: borderColor,
+                stepDescription: stepDescription,
+              ),
+              const Gap(6),
+            ],
+          );
+        })
+      ],
+    );
+  }
+
+  Widget itemStepInstallation({
+    String? descriptionStep,
+    String? qmsInstallationStepId,
+    String? description,
+    String? typeOfInstallation,
+    String? categoryOfEnvironment,
+    List<String>? photos,
+    Color? borderColor,
+    String? stepDescription,
+  }) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.pushNamed(
+          context,
+          AppRoute.detailStepInstallation,
+          arguments: {
+            'qmsInstallationStepId': qmsInstallationStepId,
+            'stepDescription': stepDescription,
+            'descriptionStep': descriptionStep,
+            'typeOfInstallation': typeOfInstallation,
+            'categoryOfEnvironment': categoryOfEnvironment,
+            'description': description,
+            'photos': photos,
+          },
+        );
+      },
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.fromLTRB(12, 10, 0, 10),
+        decoration: BoxDecoration(
+            border: Border.all(color: borderColor!),
+            borderRadius: BorderRadius.circular(10)),
+        child: Text(
+          descriptionStep ?? '',
+          style: TextStyle(
+            fontSize: 10,
+            fontWeight: FontWeight.w600,
+            color: AppColor.defaultText,
+          ),
         ),
       ),
     );

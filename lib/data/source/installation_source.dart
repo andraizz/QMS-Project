@@ -313,6 +313,8 @@ class InstallationSource {
             .map((e) =>
                 InstallationRecords.fromJson(Map<String, dynamic>.from(e)))
             .toList();
+      }else if(response.statusCode == 404) {
+        throw Exception("Installation History Empty");
       } else {
         DMethod.log(
             'Failed to load Installation Step Records : ${response.statusCode}',

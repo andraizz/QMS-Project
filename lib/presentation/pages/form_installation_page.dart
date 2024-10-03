@@ -22,7 +22,7 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
   List<InstallationStep> installationStep = [];
   InstallationStep? selectedInstallationStep;
 
-  int currentStepNumber = 17;
+  int currentStepNumber = 1;
   int totalSteps = 0;
 
   final FocusNode _descriptionFocusNode = FocusNode();

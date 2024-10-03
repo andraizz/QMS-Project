@@ -11,9 +11,6 @@ class SummaryInstallationPage extends StatefulWidget {
 class _SummaryInstallationPageState extends State<SummaryInstallationPage> {
   String? qmsId;
   String? typeOfInstallationName;
-  int? typeOfInstallationId;
-  // late InstallationType? selectedInstallationType;
-  late List<InstallationStep> installationSteps;
 
   @override
   void didChangeDependencies() {
@@ -24,7 +21,6 @@ class _SummaryInstallationPageState extends State<SummaryInstallationPage> {
     if (args != null) {
       qmsId = args['qms_id'] as String?;
       typeOfInstallationName = args['typeOfInstallationName'] as String?;
-      typeOfInstallationId = args['typeOfInstallationId'] as int?;
     }
 
     if (qmsId != null) {
@@ -51,7 +47,7 @@ class _SummaryInstallationPageState extends State<SummaryInstallationPage> {
               children: [
                 ticketDMS(
                   context,
-                  'Detail Ticket DMS $typeOfInstallationName',
+                  'Detail Ticket DMS',
                 ),
                 const Gap(24),
                 summaryInstallation('Summary Installation'),
@@ -106,8 +102,7 @@ class _SummaryInstallationPageState extends State<SummaryInstallationPage> {
           child: CircularProgressIndicator(),
         );
       } else if (state is InstallationRecordsLoaded) {
-        // Mengirimkan objek tunggal ke _buildTicketDMSContent
-        return _buildTicketDMSContent(state.record, typeOfInstallationName);
+        return _buildTicketDMSContent(state.record);
       } else if (state is InstallationRecordsError) {
         return Center(
           child: Text(state.message),
@@ -121,7 +116,7 @@ class _SummaryInstallationPageState extends State<SummaryInstallationPage> {
   }
 
   Widget _buildTicketDMSContent(
-      InstallationRecords record, String? typeOfInstallationName) {
+      InstallationRecords record) {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(5),
@@ -135,9 +130,9 @@ class _SummaryInstallationPageState extends State<SummaryInstallationPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Detail Ticket DMS $typeOfInstallationName',
-              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+            const Text(
+              'Detail Ticket DMS',
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
             ),
             Divider(
               color: AppColor.divider,

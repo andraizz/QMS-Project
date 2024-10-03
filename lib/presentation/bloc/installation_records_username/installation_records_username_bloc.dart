@@ -24,11 +24,11 @@ class InstallationRecordsUsernameBloc extends Bloc<
       final installationRecordsUsername = await installationSource
           .getInstallationRecordByUsername(event.username);
 
-      if (installationRecordsUsername != null) {
+      if (installationRecordsUsername != null && installationRecordsUsername.isNotEmpty) {
         emit(InstallationRecordsUsernameLoaded(installationRecordsUsername));
       } else {
         emit(InstallationRecordsUsernameError(
-            'Failed to get installation record by username'));
+            'Installation History Empty'));
       }
     } catch (e) {
       emit(InstallationRecordsUsernameError(e.toString()));

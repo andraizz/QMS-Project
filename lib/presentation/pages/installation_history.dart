@@ -65,7 +65,13 @@ class _InstallationHistoryState extends State<InstallationHistory> {
                             statusColor: _getStatusColor(record.status),
                             onTap: () {
                               Navigator.pushNamed(
-                                  context, AppRoute.detailHistoryInstallation);
+                                context,
+                                AppRoute.detailHistoryInstallation,
+                                arguments: {
+                                  'qms_id': record.qmsId,
+                                  'typeOfInstallationName': record.typeOfInstallation,
+                                }
+                              );
                             },
                             date: record
                                 .createdAt, // Assuming `record.date` is a DateTime
