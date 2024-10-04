@@ -1,6 +1,5 @@
 // import 'dart:developer' as developer;
 import 'dart:io';
-
 import 'package:camera/camera.dart';
 import 'package:d_button/d_button.dart';
 import 'package:device_info_plus/device_info_plus.dart';
@@ -12,7 +11,6 @@ import 'package:gap/gap.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 // import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
 import 'package:qms_application/common/common.dart';
 import 'package:d_input/d_input.dart';
 import 'package:qms_application/data/models/models.dart';

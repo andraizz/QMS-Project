@@ -22,7 +22,7 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
   List<InstallationStep> installationStep = [];
   InstallationStep? selectedInstallationStep;
 
-  int currentStepNumber = 17;
+  int currentStepNumber = 1;
   int totalSteps = 0;
 
   final FocusNode _descriptionFocusNode = FocusNode();
@@ -146,115 +146,151 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBarWidget.secondary('Detail', context),
-      body: Stack(
-        children: [
-          Column(
-            children: [
-              Expanded(
-                child: ListView(
-                  controller: _scrollController,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
-                  physics: const BouncingScrollPhysics(),
-                  children: [
-                    const Gap(6),
-                    formInstallation(),
-                  ],
-                ),
-              )
+  Future<void> _onWillPop(bool didPop) async {
+    if (didPop) {
+      return;
+    }
+    final bool shouldPop = await showDialog<bool>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Are you sure?'),
+            content: const Text('Do you want to close this page?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('No'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text('Yes'),
+              ),
             ],
           ),
-          if (isLoading)
-            Container(
-              color: Colors.black.withOpacity(0.5),
-              child: const Center(
-                child: CircularProgressIndicator(),
-              ),
-            )
-        ],
-      ),
-      bottomNavigationBar: Container(
-        height: 50,
-        decoration: BoxDecoration(
-          color: AppColor.whiteColor,
-          borderRadius: BorderRadius.circular(10),
-          boxShadow: const [
-            BoxShadow(
-                offset: Offset(0, 3),
-                blurRadius: 10,
-                blurStyle: BlurStyle.outer)
+        ) ??
+        false;
+
+    if (shouldPop) {
+      Navigator.of(context).pop();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return PopScope(
+      onPopInvoked: _onWillPop,
+      canPop: false,
+      child: Scaffold(
+        appBar: AppBarWidget.cantBack(
+          'Detail',
+          context,
+          onBackPressed: () => _onWillPop(false),
+        ),
+        body: Stack(
+          children: [
+            Column(
+              children: [
+                Expanded(
+                  child: ListView(
+                    controller: _scrollController,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 24),
+                    physics: const BouncingScrollPhysics(),
+                    children: [
+                      const Gap(6),
+                      formInstallation(),
+                    ],
+                  ),
+                )
+              ],
+            ),
+            if (isLoading)
+              Container(
+                color: Colors.black.withOpacity(0.5),
+                child: const Center(
+                  child: CircularProgressIndicator(),
+                ),
+              )
           ],
         ),
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 50,
-              vertical: 5,
-            ),
-            child: DButtonFlat(
-              onClick: () {
-                setState(() {
-                  final currentStep = installationStep.isNotEmpty
-                      ? installationStep[currentStepNumber - 1]
-                      : null;
+        bottomNavigationBar: Container(
+          height: 50,
+          decoration: BoxDecoration(
+            color: AppColor.whiteColor,
+            borderRadius: BorderRadius.circular(10),
+            boxShadow: const [
+              BoxShadow(
+                  offset: Offset(0, 3),
+                  blurRadius: 10,
+                  blurStyle: BlurStyle.outer)
+            ],
+          ),
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 50,
+                vertical: 5,
+              ),
+              child: DButtonFlat(
+                onClick: () {
+                  setState(() {
+                    final currentStep = installationStep.isNotEmpty
+                        ? installationStep[currentStepNumber - 1]
+                        : null;
 
-                  // if (currentStep != null && documentations.isEmpty) {
-                  //   ScaffoldMessenger.of(context).showSnackBar(
-                  //     const SnackBar(
-                  //       content: Text(
-                  //         'Please upload at least 1 image to continue.',
-                  //       ),
-                  //     ),
-                  //   );
-                  //   return;
-                  // }
+                    // if (currentStep != null && documentations.isEmpty) {
+                    //   ScaffoldMessenger.of(context).showSnackBar(
+                    //     const SnackBar(
+                    //       content: Text(
+                    //         'Please upload at least 1 image to continue.',
+                    //       ),
+                    //     ),
+                    //   );
+                    //   return;
+                    // }
 
-                  if (currentStep != null &&
-                      currentStep.isOptional == 'No' &&
-                      documentations.isEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text(
-                          'Please upload at least 1 image to continue.',
+                    if (currentStep != null &&
+                        currentStep.isOptional == 'No' &&
+                        documentations.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            'Please upload at least 1 image to continue.',
+                          ),
                         ),
-                      ),
-                    );
-                    return;
-                  }
+                      );
+                      return;
+                    }
 
-                  if (edtDescription.text.isEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content:
-                            Text('Please fill in the description to continue.'),
-                      ),
-                    );
-                    return; // Jangan lanjutkan jika deskripsi kosong
-                  }
+                    if (edtDescription.text.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                              'Please fill in the description to continue.'),
+                        ),
+                      );
+                      return; // Jangan lanjutkan jika deskripsi kosong
+                    }
 
-                  if (currentStepNumber == totalSteps) {
-                    showEnvironmentDialog(context);
-                  } else {
-                    showConfirmationDialog(context);
-                  }
-                });
-              },
-              radius: 10,
-              mainColor: AppColor.blueColor1,
-              child: Text(
-                currentStepNumber < totalSteps
-                    ? 'Next'
-                    : (currentStepNumber == totalSteps)
-                        ? 'Finish'
-                        : 'Next',
-                style: TextStyle(
-                  color: AppColor.whiteColor,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
+                    if (currentStepNumber == totalSteps) {
+                      showEnvironmentDialog(context);
+                    } else {
+                      showConfirmationDialog(context);
+                    }
+                  });
+                },
+                radius: 10,
+                mainColor: AppColor.blueColor1,
+                child: Text(
+                  currentStepNumber < totalSteps
+                      ? 'Next'
+                      : (currentStepNumber == totalSteps)
+                          ? 'Finish'
+                          : 'Next',
+                  style: TextStyle(
+                    color: AppColor.whiteColor,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ),

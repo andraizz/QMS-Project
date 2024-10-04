@@ -69,26 +69,6 @@ class _EnvironmentInstallationPageState
       }
     });
   }
-  // @override
-  // void didChangeDependencies() {
-  //   super.didChangeDependencies();
-
-  //   final args = ModalRoute.of(context)?.settings.arguments as Map?;
-
-  //   if (args != null) {
-  //     qmsId = args['qms_id'] as String?;
-  //     qmsInstallationStepId = args['qmsInstallationStepId'] as String?;
-  //     typeOfInstallationId = args['typeOfInstallationId'] as int?;
-  //     typeOfInstallationName = args['typeOfInstallationName'] as String?;
-  //   }
-
-  //   if (typeOfInstallationId != null &&
-  //       ModalRoute.of(context)?.isActive == true) {
-  //     context
-  //         .read<InstallationBloc>()
-  //         .add(FetchInstallationSteps(typeOfInstallationId!));
-  //   }
-  // }
 
   @override
   void dispose() {
@@ -107,7 +87,6 @@ class _EnvironmentInstallationPageState
   }
 
   Future<void> pickImagesFromGallery(InstallationStep currentStep) async {
-    // Memeriksa apakah izin sudah diberikan
     if (await _requestPermission(
         (Platform.isAndroid && (await _isAndroid13OrAbove()))
             ? Permission.photos
@@ -160,54 +139,6 @@ class _EnvironmentInstallationPageState
     }
   }
 
-  // Future<void> pickImagesFromGallery() async {
-  //   if (await _requestPermission(
-  //       (Platform.isAndroid && (await _isAndroid13OrAbove()))
-  //           ? Permission.photos
-  //           : Permission.storage)) {
-  //     List<XFile>? results = await ImagePicker().pickMultiImage();
-  //     if (results.isNotEmpty) {
-  //       List<XFile> processedFiles = [];
-  //       for (XFile file in results) {
-  //         String originalName =
-  //             path.basename(file.path); // Ambil nama file asli
-
-  //         Directory appDocDir =
-  //             await path_provider.getApplicationDocumentsDirectory();
-  //         String newPath = path.join(appDocDir.path, originalName);
-
-  //         File newFile = await File(file.path).copy(newPath);
-  //         processedFiles.add(XFile(newFile.path));
-  //       }
-
-  //       setState(() {
-  //         documentations.addAll(processedFiles);
-  //       });
-  //     }
-  //   } else {
-  //     if (mounted) {
-  //       showDialog(
-  //         context: context,
-  //         builder: (BuildContext context) {
-  //           return AlertDialog(
-  //             title: const Text('Akses Galeri Ditolak'),
-  //             content: const Text(
-  //                 'Akses ke galeri tidak diizinkan. Anda perlu memberikan izin untuk mengakses galeri.'),
-  //             actions: <Widget>[
-  //               TextButton(
-  //                 child: const Text('Tutup'),
-  //                 onPressed: () {
-  //                   Navigator.of(context).pop();
-  //                 },
-  //               ),
-  //             ],
-  //           );
-  //         },
-  //       );
-  //     }
-  //   }
-  // }
-
   // Function to check if the Android version is 13 or higher
   Future<bool> _isAndroid13OrAbove() async {
     if (Platform.isAndroid) {
@@ -224,79 +155,115 @@ class _EnvironmentInstallationPageState
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBarWidget.secondary('Detail', context),
-      body: Stack(
-        children: [
-          Column(
-            children: [
-              Expanded(
-                child: ListView(
-                  controller: _scrollController,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
-                  physics: const BouncingScrollPhysics(),
-                  children: [
-                    const Gap(6),
-                    formEnvironmentInstallations(),
-                  ],
-                ),
-              )
+  Future<void> _onWillPop(bool didPop) async {
+    if (didPop) {
+      return;
+    }
+    final bool shouldPop = await showDialog<bool>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Are you sure?'),
+            content: const Text('Do you want to close this page?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('No'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text('Yes'),
+              ),
             ],
           ),
-          if (isLoading)
-            Container(
-              color: Colors.black.withOpacity(0.5),
-              child: const Center(
-                child: CircularProgressIndicator(),
-              ),
-            )
-        ],
-      ),
-      bottomNavigationBar: Container(
-        height: 50,
-        decoration: BoxDecoration(
-            color: AppColor.whiteColor,
-            borderRadius: BorderRadius.circular(10),
-            boxShadow: const [
-              BoxShadow(
-                offset: Offset(0, 3),
-                blurRadius: 10,
-                blurStyle: BlurStyle.outer,
-              )
-            ]),
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 50,
-              vertical: 5,
-            ),
-            child: DButtonFlat(
-              onClick: () async {
-                if (documentations.isEmpty) {
-                  // Jika gambar kurang, tampilkan snackbar dan hentikan eksekusi
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text(
-                        'Please upload at least 1 images for this step',
-                      ),
-                    ),
-                  );
-                  return; // Hentikan eksekusi jika gambar kurang
-                }
+        ) ??
+        false;
 
-                showConfirmationDialog(context);
-              },
-              radius: 10,
-              mainColor: AppColor.blueColor1,
-              child: Text(
-                'Finish',
-                style: TextStyle(
-                    color: AppColor.whiteColor,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600),
+    if (shouldPop) {
+      Navigator.of(context).pop();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return PopScope(
+      onPopInvoked: _onWillPop,
+      canPop: false,
+      child: Scaffold(
+        appBar: AppBarWidget.cantBack(
+          'Detail',
+          context,
+          onBackPressed: () => _onWillPop(false),
+        ),
+        body: Stack(
+          children: [
+            Column(
+              children: [
+                Expanded(
+                  child: ListView(
+                    controller: _scrollController,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 24),
+                    physics: const BouncingScrollPhysics(),
+                    children: [
+                      const Gap(6),
+                      formEnvironmentInstallations(),
+                    ],
+                  ),
+                )
+              ],
+            ),
+            if (isLoading)
+              Container(
+                color: Colors.black.withOpacity(0.5),
+                child: const Center(
+                  child: CircularProgressIndicator(),
+                ),
+              )
+          ],
+        ),
+        bottomNavigationBar: Container(
+          height: 50,
+          decoration: BoxDecoration(
+              color: AppColor.whiteColor,
+              borderRadius: BorderRadius.circular(10),
+              boxShadow: const [
+                BoxShadow(
+                  offset: Offset(0, 3),
+                  blurRadius: 10,
+                  blurStyle: BlurStyle.outer,
+                )
+              ]),
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 50,
+                vertical: 5,
+              ),
+              child: DButtonFlat(
+                onClick: () async {
+                  if (documentations.isEmpty) {
+                    // Jika gambar kurang, tampilkan snackbar dan hentikan eksekusi
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          'Please upload at least 1 images for this step',
+                        ),
+                      ),
+                    );
+                    return; // Hentikan eksekusi jika gambar kurang
+                  }
+
+                  showConfirmationDialog(context);
+                },
+                radius: 10,
+                mainColor: AppColor.blueColor1,
+                child: Text(
+                  'Finish',
+                  style: TextStyle(
+                      color: AppColor.whiteColor,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600),
+                ),
               ),
             ),
           ),
@@ -365,7 +332,7 @@ class _EnvironmentInstallationPageState
       }
 
       if (mounted) {
-        await Navigator.pushNamed(
+        await Navigator.pushReplacementNamed(
           context,
           AppRoute.summaryInstallation,
           arguments: {

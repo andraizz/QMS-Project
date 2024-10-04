@@ -34,57 +34,94 @@ class _SummaryInstallationPageState extends State<SummaryInstallationPage> {
     }
   }
 
+  Future<void> _onWillPop(bool didPop) async {
+    if (didPop) {
+      return;
+    }
+    final bool shouldPop = await showDialog<bool>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Are you sure?'),
+            content: const Text('Do you want to close this page?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('No'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text('Yes'),
+              ),
+            ],
+          ),
+        ) ??
+        false;
+
+    if (shouldPop) {
+      Navigator.of(context).pop();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBarWidget.secondary('Summary Installation', context),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
-              physics: const BouncingScrollPhysics(),
-              children: [
-                ticketDMS(
-                  context,
-                  'Detail Ticket DMS',
-                ),
-                const Gap(24),
-                summaryInstallation('Summary Installation'),
-              ],
-            ),
-          )
-        ],
-      ),
-      bottomNavigationBar: Container(
-        height: 50,
-        decoration: BoxDecoration(
-            color: AppColor.whiteColor,
-            borderRadius: BorderRadius.circular(10),
-            boxShadow: const [
-              BoxShadow(
-                  offset: Offset(0, 3),
-                  blurRadius: 10,
-                  blurStyle: BlurStyle.outer)
-            ]),
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 50,
-              vertical: 5,
-            ),
-            child: DButtonFlat(
-              onClick: () {
-                showConfirmationDialog(context, qmsId!);
-              },
-              radius: 10,
-              mainColor: AppColor.blueColor1,
-              child: Text(
-                'Submit',
-                style: TextStyle(
-                  color: AppColor.whiteColor,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
+    return PopScope(
+      onPopInvoked: _onWillPop,
+      canPop: false,
+      child: Scaffold(
+        appBar: AppBarWidget.cantBack(
+          'Summary Installation',
+          context,
+          onBackPressed: () => _onWillPop(false)
+        ),
+        body: Column(
+          children: [
+            Expanded(
+              child: ListView(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
+                physics: const BouncingScrollPhysics(),
+                children: [
+                  ticketDMS(
+                    context,
+                    'Detail Ticket DMS',
+                  ),
+                  const Gap(24),
+                  summaryInstallation('Summary Installation'),
+                ],
+              ),
+            )
+          ],
+        ),
+        bottomNavigationBar: Container(
+          height: 50,
+          decoration: BoxDecoration(
+              color: AppColor.whiteColor,
+              borderRadius: BorderRadius.circular(10),
+              boxShadow: const [
+                BoxShadow(
+                    offset: Offset(0, 3),
+                    blurRadius: 10,
+                    blurStyle: BlurStyle.outer)
+              ]),
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 50,
+                vertical: 5,
+              ),
+              child: DButtonFlat(
+                onClick: () {
+                  showConfirmationDialog(context, qmsId!);
+                },
+                radius: 10,
+                mainColor: AppColor.blueColor1,
+                child: Text(
+                  'Submit',
+                  style: TextStyle(
+                    color: AppColor.whiteColor,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ),
@@ -115,8 +152,7 @@ class _SummaryInstallationPageState extends State<SummaryInstallationPage> {
     });
   }
 
-  Widget _buildTicketDMSContent(
-      InstallationRecords record) {
+  Widget _buildTicketDMSContent(InstallationRecords record) {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(5),

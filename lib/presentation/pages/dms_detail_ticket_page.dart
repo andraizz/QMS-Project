@@ -60,22 +60,56 @@ class _DMSDetailTicketState extends State<DMSDetailTicket> {
     }
   }
 
+  Future<void> _onWillPop(bool didPop) async {
+    if (didPop) {
+      return;
+    }
+    final bool shouldPop = await showDialog<bool>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Are you sure?'),
+            content: const Text('Do you want to close this page?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('No'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const  Text('Yes'),
+              ),
+            ],
+          ),
+        ) ??
+        false;
+
+    if (shouldPop) {
+      Navigator.of(context).pop();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBarWidget.secondary('Detail', context),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
-              physics: const BouncingScrollPhysics(),
-              children: [
-                contentTicketDMS(),
-              ],
-            ),
-          )
-        ],
+    return PopScope(
+      onPopInvoked: _onWillPop,
+      canPop: false,
+      child: Scaffold(
+        appBar: AppBarWidget.cantBack('Detail', context,
+            onBackPressed: () => _onWillPop(false)),
+        body: Column(
+          children: [
+            Expanded(
+              child: ListView(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
+                physics: const BouncingScrollPhysics(),
+                children: [
+                  contentTicketDMS(),
+                ],
+              ),
+            )
+          ],
+        ),
       ),
     );
   }
@@ -202,8 +236,10 @@ class _DMSDetailTicketState extends State<DMSDetailTicket> {
                           'ticketNumber': ticketNumber!,
                           'qms_id': qmsId,
                           'qms_installation_step_id': qmsInstallationStepId,
-                          'typeOfInstallationId': selectedInstallationType?.id ?? 0,
-                          'typeOfInstallationName': selectedInstallationType?.typeName ?? ''
+                          'typeOfInstallationId':
+                              selectedInstallationType?.id ?? 0,
+                          'typeOfInstallationName':
+                              selectedInstallationType?.typeName ?? ''
                         },
                       );
                     } else {
