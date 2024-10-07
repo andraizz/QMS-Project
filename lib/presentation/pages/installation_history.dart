@@ -14,7 +14,7 @@ class _InstallationHistoryState extends State<InstallationHistory> {
     // Fetch records when the page is first loaded
     context
         .read<InstallationRecordsUsernameBloc>()
-        .add(FetchInstallationRecordsUsername('spvcentral.1'));
+        .add(FetchInstallationRecordsUsername('spveast.1'));
   }
 
   @override

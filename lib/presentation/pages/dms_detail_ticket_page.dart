@@ -76,7 +76,7 @@ class _DMSDetailTicketState extends State<DMSDetailTicket> {
               ),
               TextButton(
                 onPressed: () => Navigator.of(context).pop(true),
-                child: const  Text('Yes'),
+                child: const Text('Yes'),
               ),
             ],
           ),
@@ -131,6 +131,7 @@ class _DMSDetailTicketState extends State<DMSDetailTicket> {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Text(
                 'TT-$ticketNumber',
@@ -179,6 +180,8 @@ class _DMSDetailTicketState extends State<DMSDetailTicket> {
                 TextEditingController(text: ticketDetails.longitude.toString()),
               ),
               const Gap(6),
+              // imsInformation(),
+              // const Gap(6),
               InputWidget.dropDown2(
                 title: 'Type of installation',
                 hintText: 'Select Type Of Installation',
@@ -201,7 +204,7 @@ class _DMSDetailTicketState extends State<DMSDetailTicket> {
               DButtonBorder(
                 onClick: () async {
                   final response = await InstallationSource.installationRecords(
-                    username: 'spvcentral.1',
+                    username: 'spveast.1',
                     dmsId: ticketNumber,
                     servicePoint: servicePointName,
                     project: ticketDetails.projectName,
@@ -285,5 +288,52 @@ class _DMSDetailTicketState extends State<DMSDetailTicket> {
         );
       }
     });
+  }
+
+  Widget imsInformation() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        const Text(
+          'IMS Information',
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 6,
+            vertical: 16,
+          ),
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: Colors.black,
+              width: 2,
+            ),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ItemDescriptionDetail.primary(
+                'IMS Ticket Number',
+                '240926PMINTHQB2JS.VSAR0137',
+              ),
+              const Gap(6),
+              ItemDescriptionDetail.primary(
+                'IMS Close Date',
+                '27 September 2024',
+              ),
+              const Gap(6),
+              ItemDescriptionDetail.imsMaterialName(
+                  title: 'Material Name & Quantity',
+                  data: 'Tali Tambang Kecil 6 Mm',
+                  data2: '(8.00)')
+            ],
+          ),
+        )
+      ],
+    );
   }
 }

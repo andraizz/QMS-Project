@@ -6,7 +6,7 @@ class TicketByUserSource {
   Future<List<TicketByUser>?> listTicketByUserCM() async {
     try {
       final uri =
-          Uri.parse('$_baseURL/getTicketByUser?param1=spvcentral.1&param2=2');
+          Uri.parse('$_baseURL/getTicketByUser?param1=spveast.1&param2=2');
       final response = await http.get(uri, headers: {
         'Authorization': 'Bearer xzvOowuH6nFdXJH2dz8ZxHX2hWSR7skvbnVzdQ=='
       });
@@ -47,7 +47,7 @@ class TicketByUserSource {
   Future<List<TicketByUser>?> listTicketByUserPM() async {
     try {
       final uri =
-          Uri.parse('$_baseURL/getTicketByUser?param1=spvcentral.1&param2=3');
+          Uri.parse('$_baseURL/getTicketByUser?param1=spveast.1&param2=3');
       final response = await http.get(uri, headers: {
         'Authorization': 'Bearer xzvOowuH6nFdXJH2dz8ZxHX2hWSR7skvbnVzdQ=='
       });

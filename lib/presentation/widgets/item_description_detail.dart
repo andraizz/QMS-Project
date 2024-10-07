@@ -51,6 +51,51 @@ class ItemDescriptionDetail {
     );
   }
 
+  static Widget imsMaterialName({String? title, String? data, String? data2}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title!,
+          style: TextStyle(
+            fontWeight: FontWeight.w500,
+            color: AppColor.greyColor3,
+            fontSize: 10,
+          ),
+        ),
+        const Gap(3),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              data!,
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                color: AppColor.defaultText,
+                fontSize: 12,
+              ),
+            ),
+            Text(
+              '->',
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                color: AppColor.defaultText,
+                fontSize: 12,
+              ),
+            ),
+             Text(
+              data2!,
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                color: AppColor.defaultText,
+                fontSize: 12,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
 
   static Widget secondary(
       String title, List<String> imageUrls, BuildContext context) {
@@ -193,9 +238,8 @@ class ItemDescriptionDetail {
           backgroundColor: Colors.black,
           appBar: AppBar(
             backgroundColor: Colors.transparent,
-            elevation: 0, 
-            iconTheme: const IconThemeData(
-                color: Colors.white), 
+            elevation: 0,
+            iconTheme: const IconThemeData(color: Colors.white),
           ),
           body: Center(
             child: InteractiveViewer(
@@ -216,41 +260,4 @@ class ItemDescriptionDetail {
       ),
     );
   }
-
-  // static void _showAllImagesDialog(BuildContext context, List<String> allImages) {
-  //   showDialog(
-  //     context: context,
-  //     builder: (BuildContext context) {
-  //       return Dialog(
-  //         child: Container(
-  //           padding: const EdgeInsets.all(16.0),
-  //           child: Column(
-  //             mainAxisSize: MainAxisSize.min,
-  //             crossAxisAlignment: CrossAxisAlignment.start,
-  //             children: [
-  //               const Text(
-  //                 'All Images',
-  //                 style: TextStyle(
-  //                   fontSize: 18,
-  //                   fontWeight: FontWeight.bold,
-  //                 ),
-  //               ),
-  //               const SizedBox(height: 16),
-  //               Wrap(
-  //                 children: allImages.map((imageUrl) => _buildImageDescription(imageUrl)).toList(),
-  //               ),
-  //               const SizedBox(height: 16),
-  //               ElevatedButton(
-  //                 onPressed: () {
-  //                   Navigator.of(context).pop();
-  //                 },
-  //                 child: const Text('Close'),
-  //               ),
-  //             ],
-  //           ),
-  //         ),
-  //       );
-  //     },
-  //   );
-  // }
 }

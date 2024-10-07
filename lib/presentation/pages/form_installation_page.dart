@@ -22,7 +22,7 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
   List<InstallationStep> installationStep = [];
   InstallationStep? selectedInstallationStep;
 
-  int currentStepNumber = 17;
+  int currentStepNumber = 1;
   int totalSteps = 0;
 
   final FocusNode _descriptionFocusNode = FocusNode();
@@ -47,9 +47,7 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
   @override
   void initState() {
     super.initState();
-    // Mengirim event untuk memulai pengambilan data dari CategoryInstallationBloc untuk Cable Types
     if (typeOfInstallationId != null) {
-      // Jika ID valid, langsung fetch langkah-langkah instalasi berdasarkan typeOfInstallationId
       context
           .read<InstallationBloc>()
           .add(FetchInstallationSteps(typeOfInstallationId!));

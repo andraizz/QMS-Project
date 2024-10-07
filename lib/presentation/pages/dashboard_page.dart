@@ -20,7 +20,7 @@ class _DashboardPageState extends State<DashboardPage> {
     context.read<TicketByUserBloc>().add(FetchTicketByUserPM());
     context
         .read<InstallationRecordsUsernameBloc>()
-        .add(FetchInstallationRecordsUsername('spvcentral.1'));
+        .add(FetchInstallationRecordsUsername('spveast.1'));
   }
 
   @override
@@ -69,7 +69,7 @@ class _DashboardPageState extends State<DashboardPage> {
 
   Widget welcomeCard() {
     return Container(
-      height: 100,
+      height: 80,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(10),
@@ -98,8 +98,8 @@ class _DashboardPageState extends State<DashboardPage> {
                   children: [
                     buildInfoRow(
                         'assets/icons/ic_nama.png', 'Xaviera Ysabella'),
-                    buildInfoRow(
-                        'assets/icons/ic_position.png', 'Jointer SP Batam'),
+                    // buildInfoRow(
+                    //     'assets/icons/ic_position.png', 'Jointer SP Batam'),
                     buildInfoRow(
                         'assets/icons/ic_servicepoint.png', 'SP Batam'),
                   ],
