@@ -1,4 +1,4 @@
-part of 'sources.dart';
+part of '../sources.dart';
 
 class TicketByUserSource {
   static const _baseURL = '${UrlsDms.host}/PatroliApi';

@@ -1,15 +1,14 @@
-part of 'pages.dart';
+part of '../pages.dart';
 
-class DetailHistoryInstallationPage extends StatefulWidget {
-  const DetailHistoryInstallationPage({super.key});
+class SummaryInstallationPage extends StatefulWidget {
+  const SummaryInstallationPage({super.key});
 
   @override
-  State<DetailHistoryInstallationPage> createState() =>
-      _DetailHistoryInstallationPageState();
+  State<SummaryInstallationPage> createState() =>
+      _SummaryInstallationPageState();
 }
 
-class _DetailHistoryInstallationPageState
-    extends State<DetailHistoryInstallationPage> {
+class _SummaryInstallationPageState extends State<SummaryInstallationPage> {
   String? qmsId;
   String? typeOfInstallationName;
 
@@ -35,31 +34,104 @@ class _DetailHistoryInstallationPageState
     }
   }
 
+  Future<void> _onWillPop(bool didPop) async {
+    if (didPop) {
+      return;
+    }
+    final bool shouldPop = await showDialog<bool>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Are you sure?'),
+            content: const Text('Do you want to close this page?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('No'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text('Yes'),
+              ),
+            ],
+          ),
+        ) ??
+        false;
+
+    if (shouldPop) {
+      Navigator.of(context).pop();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBarWidget.secondary('Installation', context),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
-              physics: const BouncingScrollPhysics(),
-              children: [
-                ticketDMS(context),
-                const Gap(24),
-                summaryInstallation('Installation'),
-                const Gap(24),
-                // opsTeamReview('Ops Team Review'),
-              ],
+    return PopScope(
+      onPopInvoked: _onWillPop,
+      canPop: false,
+      child: Scaffold(
+        appBar: AppBarWidget.cantBack(
+          'Summary Installation',
+          context,
+          onBackPressed: () => _onWillPop(false)
+        ),
+        body: Column(
+          children: [
+            Expanded(
+              child: ListView(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
+                physics: const BouncingScrollPhysics(),
+                children: [
+                  ticketDMS(
+                    context,
+                    'Detail Ticket DMS',
+                  ),
+                  const Gap(24),
+                  summaryInstallation('Summary Installation'),
+                ],
+              ),
+            )
+          ],
+        ),
+        bottomNavigationBar: Container(
+          height: 50,
+          decoration: BoxDecoration(
+              color: AppColor.whiteColor,
+              borderRadius: BorderRadius.circular(10),
+              boxShadow: const [
+                BoxShadow(
+                    offset: Offset(0, 3),
+                    blurRadius: 10,
+                    blurStyle: BlurStyle.outer)
+              ]),
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 50,
+                vertical: 5,
+              ),
+              child: DButtonFlat(
+                onClick: () {
+                  showConfirmationDialog(context, qmsId!);
+                },
+                radius: 10,
+                mainColor: AppColor.blueColor1,
+                child: Text(
+                  'Submit',
+                  style: TextStyle(
+                    color: AppColor.whiteColor,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
             ),
-          )
-        ],
+          ),
+        ),
       ),
     );
   }
 
-  Widget ticketDMS(BuildContext context) {
+  Widget ticketDMS(BuildContext context, String title) {
     return BlocBuilder<InstallationRecordsBloc, InstallationRecordsState>(
         builder: (context, state) {
       if (state is InstallationRecordsLoading) {
@@ -144,6 +216,77 @@ class _DetailHistoryInstallationPageState
           ],
         ),
       ),
+    );
+  }
+
+  void showConfirmationDialog(BuildContext context, String qmsId) {
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context);
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Form Installation'),
+          content: const Text(
+              'Apakah Anda yakin summary installation form yang diisi sudah benar?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                navigator.pop(); // Close dialog
+              },
+              child: const Text('Tidak'),
+            ),
+            TextButton(
+              onPressed: () async {
+                navigator.pop(); // Close dialog
+
+                showLoadingDialog(context);
+
+                // Call the submission functions
+                final installationSuccess =
+                    await InstallationSource.submitInstallationRecord(
+                        qmsId: qmsId);
+                final stepSuccess =
+                    await InstallationSource.submitInstallationStepRecord(
+                        qmsId: qmsId);
+
+                // Close loading dialog
+                if (navigator.canPop()) {
+                  navigator.pop(); // Close loading dialog
+                }
+
+                if (navigator.mounted) {
+                  if (installationSuccess && stepSuccess) {
+                    navigator.pushNamed(
+                      AppRoute.dashboard,
+                      arguments: 2,
+                    );
+                  } else {
+                    scaffoldMessenger.showSnackBar(
+                      const SnackBar(
+                          content: Text('Submit gagal, silakan coba lagi.')),
+                    );
+                  }
+                }
+              },
+              child: const Text('Iya'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void showLoadingDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Prevent dialog from being dismissed
+      builder: (BuildContext context) {
+        return const Center(
+          child: CircularProgressIndicator(),
+        );
+      },
     );
   }
 
@@ -308,42 +451,6 @@ class _DetailHistoryInstallationPageState
             fontWeight: FontWeight.w600,
             color: AppColor.defaultText,
           ),
-        ),
-      ),
-    );
-  }
-
-  static Widget opsTeamReview(String title) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(5),
-        color: Colors.white,
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          vertical: 5,
-          horizontal: 12,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-            ),
-            Divider(
-              color: AppColor.divider,
-            ),
-            ItemDescriptionDetail.primary(
-                'Installation Report Status', 'Rejected'),
-            const Gap(12),
-            ItemDescriptionDetail.primary(
-                'Installation Report Remark', 'Foto Panoramtik Tidak Ada'),
-            const Gap(12),
-            ItemDescriptionDetail.primary(
-                'Installation Review Result', 'Improper'),
-            const Gap(12),
-          ],
         ),
       ),
     );

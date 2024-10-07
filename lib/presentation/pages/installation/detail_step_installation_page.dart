@@ -1,4 +1,4 @@
-part of 'pages.dart';
+part of '../pages.dart';
 
 class DetailStepInstallationPage extends StatefulWidget {
   const DetailStepInstallationPage({super.key});

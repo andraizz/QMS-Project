@@ -1,4 +1,4 @@
-part of 'sources.dart';
+part of '../sources.dart';
 
 class InstallationSource {
   static const _baseURL = '${URLs.host}/api';

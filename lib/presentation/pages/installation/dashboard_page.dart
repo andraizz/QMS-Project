@@ -1,4 +1,4 @@
-part of 'pages.dart';
+part of '../pages.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});

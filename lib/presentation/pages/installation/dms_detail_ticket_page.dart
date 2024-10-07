@@ -1,4 +1,4 @@
-part of 'pages.dart';
+part of '../pages.dart';
 
 class DMSDetailTicket extends StatefulWidget {
   const DMSDetailTicket({super.key});
