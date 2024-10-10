@@ -23,10 +23,9 @@ class TicketByUserBloc extends Bloc<TicketByUserEvent, TicketByUserState> {
   ) async {
     emit(TicketLoading());
     try {
-      final tickets = await ticketSource.listTicketByUserCM();
+      final tickets = await ticketSource.listTicketByUserCM(event.username);
       if (tickets != null) {
         _cmTickets = tickets;
-        // Optionally emit combined state here if details are available
         emit(TicketByUserLoaded(
           cmTickets: _cmTickets,
           pmTickets: _pmTickets,
@@ -45,7 +44,7 @@ class TicketByUserBloc extends Bloc<TicketByUserEvent, TicketByUserState> {
   ) async {
     emit(TicketLoading());
     try {
-      final tickets = await ticketSource.listTicketByUserPM();
+      final tickets = await ticketSource.listTicketByUserPM(event.username);
       if (tickets != null) {
         _pmTickets = tickets;
         // Optionally emit combined state here if details are available

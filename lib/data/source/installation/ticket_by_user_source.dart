@@ -3,10 +3,10 @@ part of '../sources.dart';
 class TicketByUserSource {
   static const _baseURL = '${UrlsDms.host}/PatroliApi';
 
-  Future<List<TicketByUser>?> listTicketByUserCM() async {
+  Future<List<TicketByUser>?> listTicketByUserCM(String username) async {
     try {
       final uri =
-          Uri.parse('$_baseURL/getTicketByUser?param1=spveast.1&param2=2');
+          Uri.parse('$_baseURL/getTicketByUser?param1=$username&param2=2');
       final response = await http.get(uri, headers: {
         'Authorization': 'Bearer xzvOowuH6nFdXJH2dz8ZxHX2hWSR7skvbnVzdQ=='
       });
@@ -44,10 +44,10 @@ class TicketByUserSource {
     }
   }
 
-  Future<List<TicketByUser>?> listTicketByUserPM() async {
+  Future<List<TicketByUser>?> listTicketByUserPM(String username) async {
     try {
       final uri =
-          Uri.parse('$_baseURL/getTicketByUser?param1=spveast.1&param2=3');
+          Uri.parse('$_baseURL/getTicketByUser?param1=$username&param2=3');
       final response = await http.get(uri, headers: {
         'Authorization': 'Bearer xzvOowuH6nFdXJH2dz8ZxHX2hWSR7skvbnVzdQ=='
       });

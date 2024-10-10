@@ -40,7 +40,7 @@ class ItemDescriptionDetail {
         ),
         const Gap(3),
         Text(
-          data!,
+          data ?? '',
           style: TextStyle(
             fontWeight: FontWeight.w600,
             color: AppColor.defaultText,

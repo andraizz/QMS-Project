@@ -1,7 +1,7 @@
 part of 'widgets.dart';
 
 class AppBarWidget {
-  static PreferredSizeWidget primary() {
+  static PreferredSizeWidget primary(BuildContext context){
     return PreferredSize(
       preferredSize: const Size.fromHeight(56.0),
       child: Container(
@@ -30,10 +30,15 @@ class AppBarWidget {
             const SizedBox(
               width: 24,
             ),
-            Image.asset(
-              'assets/icons/ic_user.png',
-              width: 24,
-              height: 24,
+            GestureDetector(
+              onTap: () {
+                Navigator.pushNamed(context, AppRoute.logout);
+              },
+              child: Image.asset(
+                'assets/icons/ic_user.png',
+                width: 24,
+                height: 24,
+              ),
             ),
             const SizedBox(
               width: 20,
@@ -99,7 +104,8 @@ class AppBarWidget {
     );
   }
 
-  static PreferredSizeWidget cantBack(String title, BuildContext context, {required VoidCallback onBackPressed}) {
+  static PreferredSizeWidget cantBack(String title, BuildContext context,
+      {required VoidCallback onBackPressed}) {
     return PreferredSize(
       preferredSize: const Size.fromHeight(60.0),
       child: Container(

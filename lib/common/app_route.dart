@@ -2,6 +2,7 @@ part of 'common.dart';
 
 class AppRoute {
   static const login = '/login';
+  static const logout = '/logout';
   static const dashboard = '/';
   //
   static const listInstallation = '/list/installations';

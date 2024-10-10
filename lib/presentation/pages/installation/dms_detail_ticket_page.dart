@@ -15,9 +15,21 @@ class _DMSDetailTicketState extends State<DMSDetailTicket> {
   InstallationType? selectedInstallationType;
   bool isLoading = true;
   String? errorMessage;
+  String? username;
 
   @override
   void initState() {
+    User user = context.read<UserCubit>().state;
+    final userId = user.userId;
+
+    context.read<UserDataCubit>().fetchUserData(userId!).then((_) {
+      setState(() {
+        username = context.read<UserDataCubit>().state?.username ?? '';
+      });
+      context
+          .read<InstallationRecordsUsernameBloc>()
+          .add(FetchInstallationRecordsUsername(username!));
+    });
     super.initState();
     fetchInstallationTypes();
   }
@@ -204,7 +216,7 @@ class _DMSDetailTicketState extends State<DMSDetailTicket> {
               DButtonBorder(
                 onClick: () async {
                   final response = await InstallationSource.installationRecords(
-                    username: 'spveast.1',
+                    username: username,
                     dmsId: ticketNumber,
                     servicePoint: servicePointName,
                     project: ticketDetails.projectName,

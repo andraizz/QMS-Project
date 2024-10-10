@@ -8,13 +8,19 @@ class InstallationHistory extends StatefulWidget {
 }
 
 class _InstallationHistoryState extends State<InstallationHistory> {
+  late User user;
   @override
   void initState() {
     super.initState();
-    // Fetch records when the page is first loaded
-    context
-        .read<InstallationRecordsUsernameBloc>()
-        .add(FetchInstallationRecordsUsername('spveast.1'));
+    final userId = context.read<UserCubit>().state.userId ?? 0;
+
+    context.read<UserDataCubit>().fetchUserData(userId).then((_) {
+      final username = context.read<UserDataCubit>().state?.username ?? '';
+
+      context
+          .read<InstallationRecordsUsernameBloc>()
+          .add(FetchInstallationRecordsUsername(username));
+    });
   }
 
   @override
@@ -65,13 +71,12 @@ class _InstallationHistoryState extends State<InstallationHistory> {
                             statusColor: _getStatusColor(record.status),
                             onTap: () {
                               Navigator.pushNamed(
-                                context,
-                                AppRoute.detailHistoryInstallation,
-                                arguments: {
-                                  'qms_id': record.qmsId,
-                                  'typeOfInstallationName': record.typeOfInstallation,
-                                }
-                              );
+                                  context, AppRoute.detailHistoryInstallation,
+                                  arguments: {
+                                    'qms_id': record.qmsId,
+                                    'typeOfInstallationName':
+                                        record.typeOfInstallation,
+                                  });
                             },
                             date: record
                                 .createdAt, // Assuming `record.date` is a DateTime

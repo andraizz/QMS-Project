@@ -201,8 +201,12 @@ class InstallationSource {
         // Parse respons menjadi Map
         final resBody = jsonDecode(response.body) as Map<String, dynamic>;
 
+        // Akses installation_record dari resBody
+        final installationRecordData =
+            resBody['installation_record'] as Map<String, dynamic>;
+
         // Buat instance dari InstallationRecords menggunakan fromJson
-        return InstallationRecords.fromJson(resBody);
+        return InstallationRecords.fromJson(installationRecordData);
       } else {
         DMethod.log(
             'Failed to load installation record get qms: ${response.statusCode}',
@@ -313,7 +317,7 @@ class InstallationSource {
             .map((e) =>
                 InstallationRecords.fromJson(Map<String, dynamic>.from(e)))
             .toList();
-      }else if(response.statusCode == 404) {
+      } else if (response.statusCode == 404) {
         throw Exception("Installation History Empty");
       } else {
         DMethod.log(

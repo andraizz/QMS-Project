@@ -10,3 +10,4 @@ import 'package:path/path.dart' as path;
 part 'installation/installation_source.dart';
 part 'installation/ticket_by_user_source.dart';
 part 'installation/ticket_detail_source.dart';
+part 'user_source.dart';

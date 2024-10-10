@@ -3,6 +3,22 @@ part of 'pages.dart';
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
 
+  login(String username, String password, BuildContext context) {
+    UserSource.login(username, password).then((result) {
+      if (result == null) {
+        AppInfo.failed(context, 'Login Failed');
+      } else {
+        AppInfo.sucess(context, 'Login Success');
+        DSession.setUser(result.toJson());
+        Navigator.pushNamed(
+          context,
+          AppRoute.dashboard,
+          arguments: 0,
+        );
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final edtUsername = TextEditingController();
@@ -36,12 +52,11 @@ class LoginPage extends StatelessWidget {
                   height: 20,
                 ),
                 AppButton.primary(
-                    title: 'LOGIN',
-                    onClick: () {
-                      Navigator.pushReplacementNamed(
-                          context, AppRoute.dashboard,
-                          arguments: 0);
-                    })
+                  title: 'LOGIN',
+                  onClick: () {
+                    login(edtUsername.text, edtPassword.text, context);
+                  },
+                )
               ],
             ),
           )

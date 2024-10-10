@@ -3,16 +3,21 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:qms_application/common/common.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:qms_application/data/models/models.dart';
 import 'package:qms_application/data/source/sources.dart';
 import 'package:qms_application/presentation/bloc/installation/installation_bloc.dart';
 import 'package:qms_application/presentation/bloc/installation_records/installation_records_bloc.dart';
 import 'package:qms_application/presentation/bloc/installation_records_username/installation_records_username_bloc.dart';
 import 'package:qms_application/presentation/bloc/installation_step_records/installation_step_records_bloc.dart';
+import 'package:qms_application/presentation/bloc/login_cubit/login_cubit.dart';
 import 'package:qms_application/presentation/bloc/ticket_by_user/ticket_by_user_bloc.dart';
 import 'package:qms_application/presentation/bloc/ticket_detail/ticket_detail_bloc.dart';
+import 'package:qms_application/presentation/bloc/user/user_cubit.dart';
+import 'package:qms_application/presentation/bloc/user_data/user_data_cubit.dart';
 // import 'package:qms_application/presentation/bloc/ticket_detail/ticket_detail_bloc.dart';
 // import 'package:d_session/d_session.dart';
 import 'package:qms_application/presentation/pages/pages.dart';
+import 'package:d_session/d_session.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,8 +36,12 @@ class MainApp extends StatelessWidget {
     final installationSource = InstallationSource();
     final ticketByUserSource = TicketByUserSource();
     final ticketDetailSource = TicketDetailSource();
+    final userSource = UserSource();
     return MultiBlocProvider(
       providers: [
+        BlocProvider(create: (context) => UserCubit()),
+        BlocProvider(create: (context) => UserDataCubit(userSource)),
+        BlocProvider(create: (context) => LoginCubit()),
         BlocProvider<InstallationBloc>(
           create: (context) => InstallationBloc(installationSource),
         ),
@@ -82,8 +91,22 @@ class MainApp extends StatelessWidget {
               surfaceTintColor: Colors.white,
               backgroundColor: Colors.white,
             )),
-        initialRoute: AppRoute.login,
+        initialRoute: AppRoute.dashboard,
         routes: {
+          AppRoute.dashboard: (context) {
+            return FutureBuilder(
+              future: DSession.getUser(),
+              builder: (context, snapshot) {
+                if (snapshot.data == null) return const LoginPage();
+                User user = User.fromJson(Map.from(snapshot.data!));
+                context.read<UserCubit>().update(user);
+                final args =
+                    ModalRoute.of(context)?.settings.arguments as int? ?? 0;
+                if (user.roleId == 3) return MainPage(initialIndex: args);
+                return MainPage(initialIndex: args);
+              },
+            );
+          },
           // AppRoute.dashboard: (context) {
           //     return FutureBuilder(
           //       future: DSession.getUser(),
@@ -94,11 +117,12 @@ class MainApp extends StatelessWidget {
           //     );
           //   },
           AppRoute.login: (context) => const LoginPage(),
-          AppRoute.dashboard: (context) {
-            final args = ModalRoute.of(context)?.settings.arguments as int? ??
-                0; // Default to 0 if null
-            return MainPage(initialIndex: args);
-          },
+          AppRoute.logout : (context) => const LogOutPage(),
+          // AppRoute.dashboard: (context) {
+          //   final args = ModalRoute.of(context)?.settings.arguments as int? ??
+          //       0; // Default to 0 if null
+          //   return MainPage(initialIndex: args);
+          // },
           AppRoute.listInstallation: (context) => const ListInstallationPage(),
           AppRoute.formInstallation: (context) => const FormInstallationPage(),
           AppRoute.historyInstallation: (context) =>
