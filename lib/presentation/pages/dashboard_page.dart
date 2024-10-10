@@ -1,4 +1,4 @@
-part of '../pages.dart';
+part of 'pages.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -14,9 +14,8 @@ class _DashboardPageState extends State<DashboardPage> {
 
   bool navigateToInstallation = false;
 
-  @override
-  void initState() {
-    final userId = context.read<UserCubit>().state.userId ?? 0;
+  refresh() {
+    final userId = user.userId ?? 0;
     // Panggil UserDataCubit untuk fetch user data berdasarkan userId
     context.read<UserDataCubit>().fetchUserData(userId).then((_) {
       final username = context.read<UserDataCubit>().state?.username ?? '';
@@ -29,6 +28,12 @@ class _DashboardPageState extends State<DashboardPage> {
       context.read<TicketByUserBloc>().add(FetchTicketByUserPM(username));
     });
 
+  }
+
+  @override
+  void initState() {
+    user = context.read<UserCubit>().state;
+    refresh();
     super.initState();
   }
 
@@ -38,16 +43,19 @@ class _DashboardPageState extends State<DashboardPage> {
     String formattedDate = DateFormat('EEEE \nd MMMM yyyy').format(now);
 
     return Scaffold(
-      body: ListView(
-        physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.all(24),
-        children: [
-          welcomeCard(formattedDate: formattedDate),
-          const Gap(36),
-          buildQmsModule(),
-          const Gap(36),
-          buildProgressQmsTicket(),
-        ],
+      body: RefreshIndicator(
+        onRefresh: () async => refresh(),
+        child: ListView(
+          physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.all(24),
+          children: [
+            welcomeCard(formattedDate: formattedDate),
+            const Gap(36),
+            buildQmsModule(),
+            const Gap(36),
+            buildProgressQmsTicket(),
+          ],
+        ),
       ),
     );
   }

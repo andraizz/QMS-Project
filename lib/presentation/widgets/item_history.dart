@@ -12,6 +12,7 @@ class ItemHistory {
     String? ttDms,
     String? servicePoint,
     String? sectionName,
+    double? widthStatus,
   }) {
     return GestureDetector(
       onTap: onTap,
@@ -42,7 +43,7 @@ class ItemHistory {
                   const Gap(3),
                   Container(
                     height: 15,
-                    width: 70,
+                    width: widthStatus,
                     decoration: BoxDecoration(
                         color: statusColor,
                         borderRadius: BorderRadius.circular(10)),

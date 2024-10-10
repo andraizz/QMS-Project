@@ -9,10 +9,9 @@ class InstallationHistory extends StatefulWidget {
 
 class _InstallationHistoryState extends State<InstallationHistory> {
   late User user;
-  @override
-  void initState() {
-    super.initState();
-    final userId = context.read<UserCubit>().state.userId ?? 0;
+
+  refresh() {
+    final userId = user.userId ?? 0;
 
     context.read<UserDataCubit>().fetchUserData(userId).then((_) {
       final username = context.read<UserDataCubit>().state?.username ?? '';
@@ -21,6 +20,13 @@ class _InstallationHistoryState extends State<InstallationHistory> {
           .read<InstallationRecordsUsernameBloc>()
           .add(FetchInstallationRecordsUsername(username));
     });
+  }
+
+  @override
+  void initState() {
+    user = context.read<UserCubit>().state;
+    refresh();
+    super.initState();
   }
 
   @override
@@ -51,44 +57,47 @@ class _InstallationHistoryState extends State<InstallationHistory> {
                   return const Center(child: CircularProgressIndicator());
                 } else if (state is InstallationRecordsUsernameLoaded) {
                   final records = state.records;
-
-                  return ListView.builder(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 6,
+                  return RefreshIndicator(
+                    onRefresh: () async => refresh(),
+                    child: ListView.builder(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 6,
+                      ),
+                      physics: const BouncingScrollPhysics(),
+                      itemCount: records.length,
+                      itemBuilder: (context, index) {
+                        final record = records[index];
+                    
+                        return Column(
+                          children: [
+                            ItemHistory.installation(
+                              idTicket: record.qmsId,
+                              status: record.status,
+                              textColor: _getTextStatusColor(record.status),
+                              statusColor: _getStatusColor(record.status),
+                              widthStatus: _getWidthStatus(record.status),
+                              onTap: () {
+                                Navigator.pushNamed(
+                                    context, AppRoute.detailHistoryInstallation,
+                                    arguments: {
+                                      'qms_id': record.qmsId,
+                                      'typeOfInstallationName':
+                                          record.typeOfInstallation,
+                                    });
+                              },
+                              date: record
+                                  .createdAt, // Assuming `record.date` is a DateTime
+                              createdBy: record.username,
+                              ttDms: "TT-${record.dmsId}",
+                              servicePoint: record.servicePoint,
+                              sectionName: record.sectionName,
+                            ),
+                            const SizedBox(height: 12),
+                          ],
+                        );
+                      },
                     ),
-                    physics: const BouncingScrollPhysics(),
-                    itemCount: records.length,
-                    itemBuilder: (context, index) {
-                      final record = records[index];
-
-                      return Column(
-                        children: [
-                          ItemHistory.installation(
-                            idTicket: record.qmsId,
-                            status: record.status,
-                            textColor: _getTextStatusColor(record.status),
-                            statusColor: _getStatusColor(record.status),
-                            onTap: () {
-                              Navigator.pushNamed(
-                                  context, AppRoute.detailHistoryInstallation,
-                                  arguments: {
-                                    'qms_id': record.qmsId,
-                                    'typeOfInstallationName':
-                                        record.typeOfInstallation,
-                                  });
-                            },
-                            date: record
-                                .createdAt, // Assuming `record.date` is a DateTime
-                            createdBy: record.username,
-                            ttDms: "TT-${record.dmsId}",
-                            servicePoint: record.servicePoint,
-                            sectionName: record.sectionName,
-                          ),
-                          const SizedBox(height: 12),
-                        ],
-                      );
-                    },
                   );
                 } else if (state is InstallationRecordsUsernameError) {
                   return Center(child: Text(state.message));
@@ -115,7 +124,7 @@ class _InstallationHistoryState extends State<InstallationHistory> {
         return AppColor.rejectedColor;
       case 'Closed':
         return AppColor.greyColor1;
-      case 'Closed to be Rectified':
+      case 'Closed to be rectified':
         return AppColor.closedToBeRectifiedColor;
       default:
         return AppColor.greyColor1;
@@ -130,10 +139,25 @@ class _InstallationHistoryState extends State<InstallationHistory> {
       case 'Rejected':
       case 'Closed':
         return AppColor.whiteColor;
-      case 'Closed to be Rectified':
+      case 'Closed to be rectified':
         return AppColor.rejectedColor;
       default:
         return AppColor.greyColor1;
+    }
+  }
+
+  double _getWidthStatus(String? status) {
+    switch (status) {
+      case 'Created':
+      case 'Submitted':
+      case 'OnReview':
+      case 'Rejected':
+      case 'Closed':
+        return 70;
+      case 'Closed to be rectified':
+        return 100;
+      default:
+        return 0;
     }
   }
 }

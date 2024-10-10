@@ -1,4 +1,5 @@
 // import 'dart:developer' as developer;
+import 'dart:ffi';
 import 'dart:io';
 // import 'package:camera/camera.dart';
 import 'package:d_button/d_button.dart';
@@ -37,7 +38,7 @@ import 'package:path_provider/path_provider.dart' as path_provider;
 // import 'package:extended_image/extended_image.dart';
 
 part 'login_page.dart';
-part 'installation/dashboard_page.dart';
+part 'dashboard_page.dart';
 part 'main_page.dart';
 part 'installation/installation_history.dart';
 part 'inspection/inspection_history.dart';
