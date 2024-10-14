@@ -38,34 +38,6 @@ class UserSource {
     }
   }
 
-  Future<UserData?> getUsers(int userId) async {
-    try {
-      final uri = Uri.parse('$_baseURL/getUsers?param1=$userId');
-      final response = await http.get(uri, headers: {
-        'Authorization': 'Bearer xzvOowuH6nFdXJH2dz8ZxHX2hWSR7skvbnVzdQ=='
-      });
-
-      DMethod.logResponse(response);
-
-      if (response.statusCode == 200) {
-        final jsonResponse = jsonDecode(response.body);
-        if (jsonResponse['result'] == 'ok') {
-          // Assuming data is a list of users
-          final data = jsonResponse['data'][0]; // Get first user from the list
-          return UserData.fromJson(data);
-        }
-      }
-    } catch (e) {
-      if (e is http.ClientException) {
-        DMethod.log('Network error: ${e.message}', colorCode: 1);
-      } else {
-        DMethod.log('Error: ${e.toString()}', colorCode: 1);
-      }
-      return null;
-    }
-    return null;
-  }
-
   Future<bool> logout(int userId) async {
     try {
       final response = await http.post(

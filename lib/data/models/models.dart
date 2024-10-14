@@ -8,4 +8,3 @@ part 'installation/ticket_detail.dart';
 part 'installation/installation_step_records.dart';
 part 'installation/photo_step_installations.dart';
 part 'user.dart';
-part 'user_data.dart';
