@@ -16,22 +16,21 @@ class _DMSDetailTicketState extends State<DMSDetailTicket> {
   bool isLoading = true;
   String? errorMessage;
   String? username;
+  late User user;
+
+  refresh() {
+    context
+        .read<InstallationRecordsUsernameBloc>()
+        .add(FetchInstallationRecordsUsername(user.username!));
+  }
 
   @override
   void initState() {
-    User user = context.read<UserCubit>().state;
-    final userId = user.userId;
-
-    context.read<UserDataCubit>().fetchUserData(userId!).then((_) {
-      setState(() {
-        username = context.read<UserDataCubit>().state?.username ?? '';
-      });
-      context
-          .read<InstallationRecordsUsernameBloc>()
-          .add(FetchInstallationRecordsUsername(username!));
-    });
-    super.initState();
+    user = context.read<UserCubit>().state;
+    username = user.username;
+    refresh();
     fetchInstallationTypes();
+    super.initState();
   }
 
   Future<void> fetchInstallationTypes() async {

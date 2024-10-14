@@ -1,28 +1,48 @@
 part of 'models.dart';
 
 class User {
-  final int? userId;
-  final int? roleId;
-  final String? roleName;
-  final String? fullName;
+  final String? atasanName;
+  final String? nama;
+  final String? username;
+  final String? phone;
+  final String? spv;
+  final int? idUser;
+  final String? jabatan;
+  final String? email;
+  final String? serpo;
 
   User({
-    this.userId,
-    this.roleId,
-    this.roleName,
-    this.fullName,
+    this.atasanName,
+    this.nama,
+    this.username,
+    this.phone,
+    this.spv,
+    this.idUser,
+    this.jabatan,
+    this.email,
+    this.serpo,
   });
 
   factory User.fromJson(Map<String, dynamic> json) => User(
-        userId: json["user_id"],
-        roleId: json["role_id"],
-        roleName: json["role_name"],
-        fullName: json["fullname"],
+        atasanName: json['atasan_1_name'],
+        nama: json["nama"],
+        username: json["username"],
+        phone: json["phone"],
+        spv: json["spv"],
+        idUser: json["id_user"],
+        jabatan: json["jabatan"],
+        email: json["email"],
+        serpo: json["serpo"],
       );
   Map<String, dynamic> toJson() => {
-        "user_id": userId,
-        "role_id": roleId,
-        "role_name": roleName,
-        "fullname": fullName,
+        "atasan_1_name": atasanName,
+        "nama": nama,
+        "username": username,
+        "phone": phone,
+        "spv": spv,
+        "id_user": idUser,
+        "jabatan": jabatan,
+        "email": email,
+        "serpo": serpo,
       };
 }

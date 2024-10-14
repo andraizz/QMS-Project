@@ -15,17 +15,11 @@ class _DashboardPageState extends State<DashboardPage> {
   bool navigateToInstallation = false;
 
   refresh() async {
-    final userId = user.userId ?? 0;
-    context.read<UserDataCubit>().fetchUserData(userId).then((_) {
-      final username = context.read<UserDataCubit>().state?.username ?? '';
-
-      context
-          .read<InstallationRecordsUsernameBloc>()
-          .add(FetchInstallationRecordsUsername(username));
-
-      context.read<TicketByUserBloc>().add(FetchTicketByUserCM(username));
-      context.read<TicketByUserBloc>().add(FetchTicketByUserPM(username));
-    });
+    context
+        .read<InstallationRecordsUsernameBloc>()
+        .add(FetchInstallationRecordsUsername(user.username!));
+    context.read<TicketByUserBloc>().add(FetchTicketByUserCM(user.username!));
+    context.read<TicketByUserBloc>().add(FetchTicketByUserPM(user.username!));
   }
 
   @override
@@ -98,7 +92,7 @@ class _DashboardPageState extends State<DashboardPage> {
                         BlocBuilder<UserCubit, User>(
                           builder: (context, state) {
                             return Text(
-                              state.fullName ?? '',
+                              state.nama ?? '',
                               style: const TextStyle(
                                 overflow: TextOverflow.ellipsis,
                                 fontSize: 10,
@@ -120,7 +114,7 @@ class _DashboardPageState extends State<DashboardPage> {
                         BlocBuilder<UserCubit, User>(
                           builder: (context, state) {
                             return Text(
-                              state.roleName.toString(),
+                              state.jabatan.toString(),
                               style: const TextStyle(
                                 overflow: TextOverflow.ellipsis,
                                 fontSize: 10,
@@ -132,38 +126,6 @@ class _DashboardPageState extends State<DashboardPage> {
                       ],
                     ),
                     const Gap(6),
-                    Row(
-                      children: [
-                        Image.asset(
-                          'assets/icons/ic_position.png',
-                          width: 16,
-                          height: 16,
-                        ),
-                        const SizedBox(width: 6),
-                        BlocBuilder<UserDataCubit, UserData?>(
-                          builder: (context, userDataState) {
-                            if (userDataState == null) {
-                              return const Text(
-                                'Loading...',
-                                style: TextStyle(
-                                  overflow: TextOverflow.ellipsis,
-                                  fontSize: 10,
-                                ),
-                              );
-                            }
-
-                            return Text(
-                              userDataState.username ?? 'Username',
-                              style: const TextStyle(
-                                overflow: TextOverflow.ellipsis,
-                                fontSize: 10,
-                              ),
-                            );
-                          },
-                        ),
-                        const SizedBox(width: 12),
-                      ],
-                    ),
                   ],
                 ),
                 Padding(
@@ -183,14 +145,13 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   Widget buildQmsModule() {
-    return BlocBuilder<UserDataCubit, UserData?>(
-      builder: (context, userDataState) {
-        if (userDataState == null) {
+    return BlocBuilder<UserCubit, User?>(
+      builder: (context, user) {
+        if (user == null) {
           return const Center(
               child: CircularProgressIndicator()); // Show loading state
         }
-
-        final String username = userDataState.username ?? '';
+        final String jabatan = user.jabatan ?? '';
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -218,9 +179,8 @@ class _DashboardPageState extends State<DashboardPage> {
                   status: 'Inspection',
                   total: 0,
                   onTap: () {
-                    final normalizedUsername = username.toLowerCase();
-                    if (normalizedUsername.endsWith('.a') ||
-                        normalizedUsername.endsWith('.c')) {
+                    if (jabatan == 'Patroli SIM A' ||
+                        jabatan == 'Patroli SIM C') {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -279,8 +239,7 @@ class _DashboardPageState extends State<DashboardPage> {
                           status: 'Installation',
                           total: totalTicketsInstallation,
                           onTap: () {
-                            final RegExp regex = RegExp(r'spv');
-                            if (regex.hasMatch(username)) {
+                            if (jabatan == 'SPV') {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -306,10 +265,9 @@ class _DashboardPageState extends State<DashboardPage> {
                   status: 'Rectification',
                   total: 0,
                   onTap: () {
-                    final normalizedUsername = username.toLowerCase();
-                    if (normalizedUsername.endsWith('.j') ||
-                        normalizedUsername.endsWith('.a') ||
-                        normalizedUsername.endsWith('.c')) {
+                    if (jabatan == 'Jointer' ||
+                        jabatan == 'Patroli SIM A' ||
+                        jabatan == 'Patroli SIM C') {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -326,8 +284,7 @@ class _DashboardPageState extends State<DashboardPage> {
                   status: 'Quality Audit',
                   total: 0,
                   onTap: () {
-                    final normalizedUsername = username.toLowerCase();
-                    if (normalizedUsername.startsWith('op')) {
+                    if (jabatan == 'Optimation') {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -346,176 +303,6 @@ class _DashboardPageState extends State<DashboardPage> {
       },
     );
   }
-
-  // Widget buildQmsModule() {
-  //   final String username = context.read<UserDataCubit>().state?.username ?? '';
-
-  //   return Column(
-  //     crossAxisAlignment: CrossAxisAlignment.start,
-  //     children: [
-  //       const Text(
-  //         'Module',
-  //         style: TextStyle(
-  //           fontSize: 20,
-  //           color: Colors.black,
-  //           fontWeight: FontWeight.w600,
-  //         ),
-  //       ),
-  //       const Gap(20),
-  //       GridView.count(
-  //         padding: const EdgeInsets.all(0),
-  //         physics: const NeverScrollableScrollPhysics(),
-  //         shrinkWrap: true,
-  //         crossAxisCount: 2,
-  //         childAspectRatio: 1.5,
-  //         mainAxisSpacing: 16,
-  //         crossAxisSpacing: 16,
-  //         children: [
-  //           buildItemModuleMenu(
-  //             asset: 'assets/images/inspection_bg.png',
-  //             status: username.toLowerCase(),
-  //             total: 0,
-  //             onTap: () {
-  //               final normalizedUsername = username.toLowerCase();
-  //               if (normalizedUsername.endsWith('.a') ||
-  //                   normalizedUsername.endsWith('.c')) {
-  //                 Navigator.push(
-  //                   context,
-  //                   MaterialPageRoute(
-  //                     builder: (context) => const ListInspection(),
-  //                   ),
-  //                 );
-  //               } else {
-  //                 _showAccessDeniedDialog(context, 'Inspection');
-  //               }
-  //             },
-  //           ),
-  //           // BlocBuilders specifically for Installation module
-  //           BlocBuilder<TicketByUserBloc, TicketByUserState>(
-  //             builder: (context, ticketState) {
-  //               return BlocBuilder<InstallationRecordsUsernameBloc,
-  //                   InstallationRecordsUsernameState>(
-  //                 builder: (context, installationState) {
-  //                   int cmCount = 0;
-  //                   int pmCount = 0;
-  //                   int totalTicketsInstallation = 0;
-
-  //                   List<TicketByUser> filteredCmTickets = [];
-  //                   List<TicketByUser> filteredPmTickets = [];
-
-  //                   // Check if the state from TicketByUserBloc is loaded
-  //                   if (ticketState is TicketByUserLoaded) {
-  //                     List<TicketByUser> cmTickets = ticketState.cmTickets;
-  //                     List<TicketByUser> pmTickets = ticketState.pmTickets;
-
-  //                     // Check if InstallationRecordsUsernameState is loaded or empty
-  //                     if (installationState
-  //                             is InstallationRecordsUsernameLoaded &&
-  //                         installationState.records.isNotEmpty) {
-  //                       final installedTicketNumbers = installationState.records
-  //                           .map((record) => record.dmsId)
-  //                           .toSet();
-
-  //                       // Filter out CM and PM tickets that already exist in installation records
-  //                       filteredCmTickets = cmTickets
-  //                           .where((ticket) => !installedTicketNumbers
-  //                               .contains(ticket.ticketNumber))
-  //                           .toList();
-
-  //                       filteredPmTickets = pmTickets
-  //                           .where((ticket) => !installedTicketNumbers
-  //                               .contains(ticket.ticketNumber))
-  //                           .toList();
-  //                     } else {
-  //                       filteredCmTickets = cmTickets;
-  //                       filteredPmTickets = pmTickets;
-  //                     }
-
-  //                     cmCount = filteredCmTickets.length;
-  //                     pmCount = filteredPmTickets.length;
-  //                     totalTicketsInstallation = cmCount + pmCount;
-  //                   }
-
-  //                   return buildItemModuleMenu(
-  //                     asset: 'assets/images/installation_bg.png',
-  //                     status: 'Installation',
-  //                     total: totalTicketsInstallation,
-  //                     onTap: () {
-  //                       final RegExp regex = RegExp(r'spv');
-  //                       if (regex.hasMatch(username)) {
-  //                         Navigator.push(
-  //                           context,
-  //                           MaterialPageRoute(
-  //                             builder: (context) => ListInstallationPage(
-  //                               cmCount: filteredCmTickets.length,
-  //                               pmCount: filteredPmTickets.length,
-  //                               ticketByUserCM: filteredCmTickets,
-  //                               ticketByUserPM: filteredPmTickets,
-  //                             ),
-  //                           ),
-  //                         );
-  //                       } else {
-  //                         _showAccessDeniedDialog(context, 'Installation');
-  //                       }
-  //                     },
-  //                   );
-  //                 },
-  //               );
-  //             },
-  //           ),
-  //           buildItemModuleMenu(
-  //             asset: 'assets/images/rectification_bg.png',
-  //             status: 'Rectification',
-  //             total: 0,
-  //             onTap: () {
-  //               final normalizedUsername = username.toLowerCase();
-  //               if (normalizedUsername.endsWith('.j') ||
-  //                   normalizedUsername.endsWith('.a') ||
-  //                   normalizedUsername.endsWith('.c')) {
-  //                 Navigator.push(
-  //                   context,
-  //                   MaterialPageRoute(
-  //                     builder: (context) => const ListRectification(),
-  //                   ),
-  //                 );
-  //               } else {
-  //                 _showAccessDeniedDialog(context, 'Rectification');
-  //               }
-  //             },
-  //           ),
-  //           buildItemModuleMenu(
-  //             asset: 'assets/images/qualityaudit_bg.png',
-  //             status: 'Quality Audit',
-  //             total: 0,
-  //             onTap: () {
-  //               final normalizedUsername = username.toLowerCase();
-  //               if (normalizedUsername.startsWith('op')) {
-  //                 Navigator.push(
-  //                   context,
-  //                   MaterialPageRoute(
-  //                     builder: (context) => const ListQualityAudit(),
-  //                   ),
-  //                 );
-  //               } else {
-  //                 _showAccessDeniedDialog(context, 'Quality Audit');
-  //               }
-  //               // if (username.contains('op')) {
-  //               //   Navigator.push(
-  //               //     context,
-  //               //     MaterialPageRoute(
-  //               //       builder: (context) => const ListQualityAudit(),
-  //               //     ),
-  //               //   );
-  //               // } else {
-  //               //   _showAccessDeniedDialog(context, 'Quality Audit');
-  //               // }
-  //             },
-  //           ),
-  //         ],
-  //       ),
-  //     ],
-  //   );
-  // }
 
   void _showAccessDeniedDialog(BuildContext context, String moduleName) {
     showDialog(
@@ -536,165 +323,6 @@ class _DashboardPageState extends State<DashboardPage> {
       },
     );
   }
-
-  //   Widget buildQmsModule() {
-  //   final String username = context.read<UserDataCubit>().state?.username ?? '';
-
-  //   return Column(
-  //     crossAxisAlignment: CrossAxisAlignment.start,
-  //     children: [
-  //       const Text(
-  //         'Module',
-  //         style: TextStyle(
-  //           fontSize: 20,
-  //           color: Colors.black,
-  //           fontWeight: FontWeight.w600,
-  //         ),
-  //       ),
-  //       const Gap(20),
-  //       GridView.count(
-  //         padding: const EdgeInsets.all(0),
-  //         physics: const NeverScrollableScrollPhysics(),
-  //         shrinkWrap: true,
-  //         crossAxisCount: 2,
-  //         childAspectRatio: 1.5,
-  //         mainAxisSpacing: 16,
-  //         crossAxisSpacing: 16,
-  //         children: [
-  //           buildItemModuleMenu(
-  //             asset: 'assets/images/inspection_bg.png',
-  //             status: 'Inspection',
-  //             total: 1,
-  //             onTap: () {
-  //               if (username.contains('.a') || username.contains('.c')) {
-  //                 Navigator.push(
-  //                   context,
-  //                   MaterialPageRoute(
-  //                     builder: (context) => const DashboardPage(),
-  //                   ),
-  //                 );
-  //               } else {
-  //                 _showAccessDeniedDialog(context, 'Inspection');
-  //               }
-  //             },
-  //           ),
-  //           // BlocBuilders specifically for Installation module
-  //           BlocBuilder<TicketByUserBloc, TicketByUserState>(
-  //             builder: (context, ticketState) {
-  //               return BlocBuilder<InstallationRecordsUsernameBloc,
-  //                   InstallationRecordsUsernameState>(
-  //                 builder: (context, installationState) {
-  //                   int cmCount = 0;
-  //                   int pmCount = 0;
-  //                   int totalTicketsInstallation = 0;
-
-  //                   List<TicketByUser> filteredCmTickets = [];
-  //                   List<TicketByUser> filteredPmTickets = [];
-
-  //                   // Check if the state from TicketByUserBloc is loaded
-  //                   if (ticketState is TicketByUserLoaded) {
-  //                     List<TicketByUser> cmTickets = ticketState.cmTickets;
-  //                     List<TicketByUser> pmTickets = ticketState.pmTickets;
-
-  //                     // Check if InstallationRecordsUsernameState is loaded or empty
-  //                     if (installationState
-  //                             is InstallationRecordsUsernameLoaded &&
-  //                         installationState.records.isNotEmpty) {
-  //                       final installedTicketNumbers = installationState.records
-  //                           .map((record) => record.dmsId)
-  //                           .toSet();
-
-  //                       // Filter out CM and PM tickets that already exist in installation records
-  //                       filteredCmTickets = cmTickets
-  //                           .where((ticket) => !installedTicketNumbers
-  //                               .contains(ticket.ticketNumber))
-  //                           .toList();
-
-  //                       filteredPmTickets = pmTickets
-  //                           .where((ticket) => !installedTicketNumbers
-  //                               .contains(ticket.ticketNumber))
-  //                           .toList();
-  //                     } else {
-  //                       filteredCmTickets = cmTickets;
-  //                       filteredPmTickets = pmTickets;
-  //                     }
-
-  //                     cmCount = filteredCmTickets.length;
-  //                     pmCount = filteredPmTickets.length;
-  //                     totalTicketsInstallation = cmCount + pmCount;
-  //                   }
-
-  //                   return buildItemModuleMenu(
-  //                     asset: 'assets/images/installation_bg.png',
-  //                     status: 'Installation',
-  //                     total: totalTicketsInstallation,
-  //                     onTap: () {
-  //                       if (totalTicketsInstallation > 0) {
-  //                         Navigator.push(
-  //                           context,
-  //                           MaterialPageRoute(
-  //                             builder: (context) => ListInstallationPage(
-  //                               cmCount: filteredCmTickets.length,
-  //                               pmCount: filteredPmTickets.length,
-  //                               ticketByUserCM: filteredCmTickets,
-  //                               ticketByUserPM: filteredPmTickets,
-  //                             ),
-  //                           ),
-  //                         );
-
-  //                         setState(() {
-  //                           navigateToInstallation = false;
-  //                         });
-  //                       } else {
-  //                         Navigator.push(
-  //                           context,
-  //                           MaterialPageRoute(
-  //                             builder: (context) => ListInstallationPage(
-  //                               cmCount: filteredCmTickets.length,
-  //                               pmCount: filteredPmTickets.length,
-  //                               ticketByUserCM: filteredCmTickets,
-  //                               ticketByUserPM: filteredPmTickets,
-  //                             ),
-  //                           ),
-  //                         );
-  //                       }
-  //                     },
-  //                   );
-  //                 },
-  //               );
-  //             },
-  //           ),
-  //           buildItemModuleMenu(
-  //             asset: 'assets/images/rectification_bg.png',
-  //             status: 'Rectification',
-  //             total: 1,
-  //             onTap: () {
-  //               Navigator.push(
-  //                 context,
-  //                 MaterialPageRoute(
-  //                   builder: (context) => const ListRectification(),
-  //                 ),
-  //               );
-  //             },
-  //           ),
-  //           buildItemModuleMenu(
-  //             asset: 'assets/images/qualityaudit_bg.png',
-  //             status: 'Quality Audit',
-  //             total: 1,
-  //             onTap: () {
-  //               Navigator.push(
-  //                 context,
-  //                 MaterialPageRoute(
-  //                   builder: (context) => const ListQualityAudit(),
-  //                 ),
-  //               );
-  //             },
-  //           ),
-  //         ],
-  //       ),
-  //     ],
-  //   );
-  // }
 
   Widget buildProgressQmsTicket() {
     return Column(

@@ -11,15 +11,9 @@ class _InstallationHistoryState extends State<InstallationHistory> {
   late User user;
 
   refresh() {
-    final userId = user.userId ?? 0;
-
-    context.read<UserDataCubit>().fetchUserData(userId).then((_) {
-      final username = context.read<UserDataCubit>().state?.username ?? '';
-
-      context
-          .read<InstallationRecordsUsernameBloc>()
-          .add(FetchInstallationRecordsUsername(username));
-    });
+    context
+        .read<InstallationRecordsUsernameBloc>()
+        .add(FetchInstallationRecordsUsername(user.username ?? ''));
   }
 
   @override
@@ -68,7 +62,7 @@ class _InstallationHistoryState extends State<InstallationHistory> {
                       itemCount: records.length,
                       itemBuilder: (context, index) {
                         final record = records[index];
-                    
+
                         return Column(
                           children: [
                             ItemHistory.installation(

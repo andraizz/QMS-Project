@@ -15,7 +15,7 @@ class _LogOutPageState extends State<LogOutPage> {
   @override
   void initState() {
     user = context.read<UserCubit>().state;
-    userId = user.userId;
+    // userId = user.userId;
     super.initState();
   }
 
@@ -28,8 +28,8 @@ class _LogOutPageState extends State<LogOutPage> {
             if(yes ?? false) {
               DSession.removeUser();
               context.read<UserCubit>().update(User());
-              context.read<UserDataCubit>().clearUserData();
-              context.read<LogoutCubit>().fetchUserLogout(userId!);
+              // context.read<UserDataCubit>().clearUserData();
+              // context.read<LogoutCubit>().fetchUserLogout(userId!);
               Navigator.pushNamedAndRemoveUntil(context, AppRoute.login, (route) => route.settings.name == AppRoute.dashboard);
             }
           });

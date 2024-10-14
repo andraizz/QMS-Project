@@ -1,7 +1,7 @@
 part of 'sources.dart';
 
 class UserSource {
-  static const _baseURL = '${UrlsDms.host}/PatroliApi';
+  static const _baseURL = '${URLs.host}/api';
 
   static Future<User?> login(String username, String password) async {
     try {
@@ -10,22 +10,25 @@ class UserSource {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
           'Accept': 'application/json',
-          'Authorization': 'Bearer xzvOowuH6nFdXJH2dz8ZxHX2hWSR7skvbnVzdQ==',
+          // 'Authorization': 'Bearer xzvOowuH6nFdXJH2dz8ZxHX2hWSR7skvbnVzdQ==',
         },
-        body: {'user': username, 'password': password},
+        body: {'username': username, 'password': password},
       );
       DMethod.logResponse(response);
 
       if (response.statusCode == 200) {
         Map<String, dynamic> resBody = jsonDecode(response.body);
 
-        if (resBody['result'] == 'nok' && resBody['data'].isEmpty) {
-          DMethod.log(resBody['message'], colorCode: 1);
-          return null; // Return null if login fails
+        // Cek jika result == 'ok' tetapi data kosong
+        if (resBody['result'] == 'ok' && resBody['data'].isEmpty) {
+          DMethod.log("Login gagal: ${resBody['message']}", colorCode: 1);
+          return null; // Login gagal meskipun result 'ok'
         }
 
+        // Cek jika login berhasil
         if (resBody['result'] == 'ok' && resBody['data'].isNotEmpty) {
-          return User.fromJson(Map.from(resBody['data'][0]));
+          return User.fromJson(
+              Map.from(resBody['data'][0])); // Ambil data user pertama
         }
       }
       return null;
