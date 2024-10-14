@@ -10,6 +10,7 @@ import 'package:qms_application/presentation/bloc/installation_records/installat
 import 'package:qms_application/presentation/bloc/installation_records_username/installation_records_username_bloc.dart';
 import 'package:qms_application/presentation/bloc/installation_step_records/installation_step_records_bloc.dart';
 import 'package:qms_application/presentation/bloc/login_cubit/login_cubit.dart';
+import 'package:qms_application/presentation/bloc/logout/logout_cubit.dart';
 import 'package:qms_application/presentation/bloc/ticket_by_user/ticket_by_user_bloc.dart';
 import 'package:qms_application/presentation/bloc/ticket_detail/ticket_detail_bloc.dart';
 import 'package:qms_application/presentation/bloc/user/user_cubit.dart';
@@ -41,6 +42,7 @@ class MainApp extends StatelessWidget {
       providers: [
         BlocProvider(create: (context) => UserCubit()),
         BlocProvider(create: (context) => UserDataCubit(userSource)),
+        BlocProvider(create: (context) => LogoutCubit(userSource)),
         BlocProvider(create: (context) => LoginCubit()),
         BlocProvider<InstallationBloc>(
           create: (context) => InstallationBloc(installationSource),

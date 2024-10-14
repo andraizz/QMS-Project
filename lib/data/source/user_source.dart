@@ -12,10 +12,7 @@ class UserSource {
           'Accept': 'application/json',
           'Authorization': 'Bearer xzvOowuH6nFdXJH2dz8ZxHX2hWSR7skvbnVzdQ==',
         },
-        body: {
-          'user': username,
-          'password': password
-        },
+        body: {'user': username, 'password': password},
       );
       DMethod.logResponse(response);
 
@@ -38,7 +35,7 @@ class UserSource {
     }
   }
 
-  Future<UserData?> getUsers(int userId) async{
+  Future<UserData?> getUsers(int userId) async {
     try {
       final uri = Uri.parse('$_baseURL/getUsers?param1=$userId');
       final response = await http.get(uri, headers: {
@@ -55,10 +52,8 @@ class UserSource {
           return UserData.fromJson(data);
         }
       }
-    }
-
-    catch(e) {
-       if (e is http.ClientException) {
+    } catch (e) {
+      if (e is http.ClientException) {
         DMethod.log('Network error: ${e.message}', colorCode: 1);
       } else {
         DMethod.log('Error: ${e.toString()}', colorCode: 1);
@@ -66,5 +61,38 @@ class UserSource {
       return null;
     }
     return null;
+  }
+
+  Future<bool> logout(int userId) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$_baseURL/logout'),
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Accept': 'application/json',
+          'Authorization': 'Bearer xzvOowuH6nFdXJH2dz8ZxHX2hWSR7skvbnVzdQ==',
+        },
+        body: {
+          'user': userId.toString(), // Ensure the userId is sent as a string
+        },
+      );
+      DMethod.logResponse(response);
+
+      if (response.statusCode == 200) {
+        Map<String, dynamic> resBody = jsonDecode(response.body);
+        if (resBody['result'] == 'ok') {
+          DMethod.log(resBody['message'] ?? 'Logout successful', colorCode: 2);
+          return true;
+        }
+
+        DMethod.log(resBody['message'] ?? 'Logout failed', colorCode: 1);
+        return false;
+      }
+
+      return false; // Return false if status code is not 200
+    } catch (e) {
+      DMethod.log(e.toString(), colorCode: 1);
+      return false; // Return false in case of an error
+    }
   }
 }

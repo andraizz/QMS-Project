@@ -14,9 +14,8 @@ class _DashboardPageState extends State<DashboardPage> {
 
   bool navigateToInstallation = false;
 
-  refresh() {
+  refresh() async {
     final userId = user.userId ?? 0;
-    // Panggil UserDataCubit untuk fetch user data berdasarkan userId
     context.read<UserDataCubit>().fetchUserData(userId).then((_) {
       final username = context.read<UserDataCubit>().state?.username ?? '';
 
@@ -27,7 +26,6 @@ class _DashboardPageState extends State<DashboardPage> {
       context.read<TicketByUserBloc>().add(FetchTicketByUserCM(username));
       context.read<TicketByUserBloc>().add(FetchTicketByUserPM(username));
     });
-
   }
 
   @override
@@ -62,7 +60,7 @@ class _DashboardPageState extends State<DashboardPage> {
 
   Widget welcomeCard({String? formattedDate}) {
     return Container(
-      height: 80,
+      height: 100,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(10),
@@ -133,39 +131,39 @@ class _DashboardPageState extends State<DashboardPage> {
                         const SizedBox(width: 12),
                       ],
                     ),
-                    // const Gap(6),
-                    // Row(
-                    //   children: [
-                    //     Image.asset(
-                    //       'assets/icons/ic_position.png',
-                    //       width: 16,
-                    //       height: 16,
-                    //     ),
-                    //     const SizedBox(width: 6),
-                    //     BlocBuilder<UserDataCubit, UserData?>(
-                    //       builder: (context, userDataState) {
-                    //         if (userDataState == null) {
-                    //           return const Text(
-                    //             'Loading...',
-                    //             style: TextStyle(
-                    //               overflow: TextOverflow.ellipsis,
-                    //               fontSize: 10,
-                    //             ),
-                    //           );
-                    //         }
+                    const Gap(6),
+                    Row(
+                      children: [
+                        Image.asset(
+                          'assets/icons/ic_position.png',
+                          width: 16,
+                          height: 16,
+                        ),
+                        const SizedBox(width: 6),
+                        BlocBuilder<UserDataCubit, UserData?>(
+                          builder: (context, userDataState) {
+                            if (userDataState == null) {
+                              return const Text(
+                                'Loading...',
+                                style: TextStyle(
+                                  overflow: TextOverflow.ellipsis,
+                                  fontSize: 10,
+                                ),
+                              );
+                            }
 
-                    //         return Text(
-                    //           userDataState.username ?? 'Username',
-                    //           style: const TextStyle(
-                    //             overflow: TextOverflow.ellipsis,
-                    //             fontSize: 10,
-                    //           ),
-                    //         );
-                    //       },
-                    //     ),
-                    //     const SizedBox(width: 12),
-                    //   ],
-                    // ),
+                            return Text(
+                              userDataState.username ?? 'Username',
+                              style: const TextStyle(
+                                overflow: TextOverflow.ellipsis,
+                                fontSize: 10,
+                              ),
+                            );
+                          },
+                        ),
+                        const SizedBox(width: 12),
+                      ],
+                    ),
                   ],
                 ),
                 Padding(
@@ -185,159 +183,173 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   Widget buildQmsModule() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Module',
-          style: TextStyle(
-            fontSize: 20,
-            color: Colors.black,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        const Gap(20),
-        GridView.count(
-          padding: const EdgeInsets.all(0),
-          physics: const NeverScrollableScrollPhysics(),
-          shrinkWrap: true,
-          crossAxisCount: 2,
-          childAspectRatio: 1.5,
-          mainAxisSpacing: 16,
-          crossAxisSpacing: 16,
+    return BlocBuilder<UserDataCubit, UserData?>(
+      builder: (context, userDataState) {
+        if (userDataState == null) {
+          return const Center(
+              child: CircularProgressIndicator()); // Show loading state
+        }
+
+        final String username = userDataState.username ?? '';
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            buildItemModuleMenu(
-              asset: 'assets/images/inspection_bg.png',
-              status: 'Inspection',
-              total: 1,
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const DashboardPage(),
-                  ),
-                );
-              },
+            const Text(
+              'Module',
+              style: TextStyle(
+                fontSize: 20,
+                color: Colors.black,
+                fontWeight: FontWeight.w600,
+              ),
             ),
-            // BlocBuilders specifically for Installation module
-            BlocBuilder<TicketByUserBloc, TicketByUserState>(
-              builder: (context, ticketState) {
-                return BlocBuilder<InstallationRecordsUsernameBloc,
-                    InstallationRecordsUsernameState>(
-                  builder: (context, installationState) {
-                    int cmCount = 0;
-                    int pmCount = 0;
-                    int totalTicketsInstallation = 0;
-
-                    List<TicketByUser> filteredCmTickets = [];
-                    List<TicketByUser> filteredPmTickets = [];
-
-                    // Check if the state from TicketByUserBloc is loaded
-                    if (ticketState is TicketByUserLoaded) {
-                      List<TicketByUser> cmTickets = ticketState.cmTickets;
-                      List<TicketByUser> pmTickets = ticketState.pmTickets;
-
-                      // Check if InstallationRecordsUsernameState is loaded or empty
-                      if (installationState
-                              is InstallationRecordsUsernameLoaded &&
-                          installationState.records.isNotEmpty) {
-                        final installedTicketNumbers = installationState.records
-                            .map((record) => record.dmsId)
-                            .toSet();
-
-                        // Filter out CM and PM tickets that already exist in installation records
-                        filteredCmTickets = cmTickets
-                            .where((ticket) => !installedTicketNumbers
-                                .contains(ticket.ticketNumber))
-                            .toList();
-
-                        filteredPmTickets = pmTickets
-                            .where((ticket) => !installedTicketNumbers
-                                .contains(ticket.ticketNumber))
-                            .toList();
-                      } else {
-                        filteredCmTickets = cmTickets;
-                        filteredPmTickets = pmTickets;
-                      }
-
-                      cmCount = filteredCmTickets.length;
-                      pmCount = filteredPmTickets.length;
-                      totalTicketsInstallation = cmCount + pmCount;
+            const Gap(20),
+            GridView.count(
+              padding: const EdgeInsets.all(0),
+              physics: const NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              crossAxisCount: 2,
+              childAspectRatio: 1.5,
+              mainAxisSpacing: 16,
+              crossAxisSpacing: 16,
+              children: [
+                buildItemModuleMenu(
+                  asset: 'assets/images/inspection_bg.png',
+                  status: 'Inspection',
+                  total: 0,
+                  onTap: () {
+                    final normalizedUsername = username.toLowerCase();
+                    if (normalizedUsername.endsWith('.a') ||
+                        normalizedUsername.endsWith('.c')) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ListInspection(),
+                        ),
+                      );
+                    } else {
+                      _showAccessDeniedDialog(context, 'Inspection');
                     }
+                  },
+                ),
+                BlocBuilder<TicketByUserBloc, TicketByUserState>(
+                  builder: (context, ticketState) {
+                    return BlocBuilder<InstallationRecordsUsernameBloc,
+                        InstallationRecordsUsernameState>(
+                      builder: (context, installationState) {
+                        int cmCount = 0;
+                        int pmCount = 0;
+                        int totalTicketsInstallation = 0;
 
-                    return buildItemModuleMenu(
-                      asset: 'assets/images/installation_bg.png',
-                      status: 'Installation',
-                      total: totalTicketsInstallation,
-                      onTap: () {
-                        if (totalTicketsInstallation > 0) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ListInstallationPage(
-                                cmCount: filteredCmTickets.length,
-                                pmCount: filteredPmTickets.length,
-                                ticketByUserCM: filteredCmTickets,
-                                ticketByUserPM: filteredPmTickets,
-                              ),
-                            ),
-                          );
+                        List<TicketByUser> filteredCmTickets = [];
+                        List<TicketByUser> filteredPmTickets = [];
 
-                          setState(() {
-                            navigateToInstallation = false;
-                          });
-                        } else {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ListInstallationPage(
-                                cmCount: filteredCmTickets.length,
-                                pmCount: filteredPmTickets.length,
-                                ticketByUserCM: filteredCmTickets,
-                                ticketByUserPM: filteredPmTickets,
-                              ),
-                            ),
-                          );
+                        if (ticketState is TicketByUserLoaded) {
+                          List<TicketByUser> cmTickets = ticketState.cmTickets;
+                          List<TicketByUser> pmTickets = ticketState.pmTickets;
+
+                          if (installationState
+                                  is InstallationRecordsUsernameLoaded &&
+                              installationState.records.isNotEmpty) {
+                            final installedTicketNumbers = installationState
+                                .records
+                                .map((record) => record.dmsId)
+                                .toSet();
+
+                            filteredCmTickets = cmTickets
+                                .where((ticket) => !installedTicketNumbers
+                                    .contains(ticket.ticketNumber))
+                                .toList();
+                            filteredPmTickets = pmTickets
+                                .where((ticket) => !installedTicketNumbers
+                                    .contains(ticket.ticketNumber))
+                                .toList();
+                          } else {
+                            filteredCmTickets = cmTickets;
+                            filteredPmTickets = pmTickets;
+                          }
+
+                          cmCount = filteredCmTickets.length;
+                          pmCount = filteredPmTickets.length;
+                          totalTicketsInstallation = cmCount + pmCount;
                         }
+
+                        return buildItemModuleMenu(
+                          asset: 'assets/images/installation_bg.png',
+                          status: 'Installation',
+                          total: totalTicketsInstallation,
+                          onTap: () {
+                            final RegExp regex = RegExp(r'spv');
+                            if (regex.hasMatch(username)) {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ListInstallationPage(
+                                    cmCount: filteredCmTickets.length,
+                                    pmCount: filteredPmTickets.length,
+                                    ticketByUserCM: filteredCmTickets,
+                                    ticketByUserPM: filteredPmTickets,
+                                  ),
+                                ),
+                              );
+                            } else {
+                              _showAccessDeniedDialog(context, 'Installation');
+                            }
+                          },
+                        );
                       },
                     );
                   },
-                );
-              },
-            ),
-            buildItemModuleMenu(
-              asset: 'assets/images/rectification_bg.png',
-              status: 'Rectification',
-              total: 1,
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const DashboardPage(),
-                  ),
-                );
-              },
-            ),
-            buildItemModuleMenu(
-              asset: 'assets/images/qualityaudit_bg.png',
-              status: 'Quality Audit',
-              total: 1,
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const DashboardPage(),
-                  ),
-                );
-              },
+                ),
+                buildItemModuleMenu(
+                  asset: 'assets/images/rectification_bg.png',
+                  status: 'Rectification',
+                  total: 0,
+                  onTap: () {
+                    final normalizedUsername = username.toLowerCase();
+                    if (normalizedUsername.endsWith('.j') ||
+                        normalizedUsername.endsWith('.a') ||
+                        normalizedUsername.endsWith('.c')) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ListRectification(),
+                        ),
+                      );
+                    } else {
+                      _showAccessDeniedDialog(context, 'Rectification');
+                    }
+                  },
+                ),
+                buildItemModuleMenu(
+                  asset: 'assets/images/qualityaudit_bg.png',
+                  status: 'Quality Audit',
+                  total: 0,
+                  onTap: () {
+                    final normalizedUsername = username.toLowerCase();
+                    if (normalizedUsername.startsWith('op')) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ListQualityAudit(),
+                        ),
+                      );
+                    } else {
+                      _showAccessDeniedDialog(context, 'Quality Audit');
+                    }
+                  },
+                ),
+              ],
             ),
           ],
-        ),
-      ],
+        );
+      },
     );
   }
 
   // Widget buildQmsModule() {
+  //   final String username = context.read<UserDataCubit>().state?.username ?? '';
+
   //   return Column(
   //     crossAxisAlignment: CrossAxisAlignment.start,
   //     children: [
@@ -350,82 +362,274 @@ class _DashboardPageState extends State<DashboardPage> {
   //         ),
   //       ),
   //       const Gap(20),
-  //       BlocBuilder<TicketByUserBloc, TicketByUserState>(
-  //         builder: (context, ticketState) {
-  //           return BlocBuilder<InstallationRecordsUsernameBloc,
-  //               InstallationRecordsUsernameState>(
-  //             builder: (context, installationState) {
-  //               int cmCount = 0;
-  //               int pmCount = 0;
-  //               int totalTicketsInstallation = 0;
-
-  //               List<TicketByUser> filteredCmTickets = [];
-  //               List<TicketByUser> filteredPmTickets = [];
-
-  //               // Check if the state from TicketByUserBloc is loaded
-  //               if (ticketState is TicketByUserLoaded) {
-  //                 // Initialize ticket lists
-  //                 List<TicketByUser> cmTickets = ticketState.cmTickets;
-  //                 List<TicketByUser> pmTickets = ticketState.pmTickets;
-
-  //                 // Check if InstallationRecordsUsernameState is loaded or empty
-  //                 if (installationState is InstallationRecordsUsernameLoaded &&
-  //                     installationState.records.isNotEmpty) {
-  //                   final installedTicketNumbers = installationState.records
-  //                       .map((record) => record.dmsId)
-  //                       .toSet();
-
-  //                   // Filter out CM and PM tickets that already exist in installation records
-  //                   filteredCmTickets = cmTickets
-  //                       .where((ticket) => !installedTicketNumbers
-  //                           .contains(ticket.ticketNumber))
-  //                       .toList();
-
-  //                   filteredPmTickets = pmTickets
-  //                       .where((ticket) => !installedTicketNumbers
-  //                           .contains(ticket.ticketNumber))
-  //                       .toList();
-  //                 } else {
-  //                   // If no installation records exist, use all tickets
-  //                   filteredCmTickets = cmTickets;
-  //                   filteredPmTickets = pmTickets;
-  //                 }
-
-  //                 // Update counts based on filtered tickets
-  //                 cmCount = filteredCmTickets.length;
-  //                 pmCount = filteredPmTickets.length;
-  //                 totalTicketsInstallation = cmCount + pmCount;
-  //               }
-
-  //               return GridView.count(
-  //                 padding: const EdgeInsets.all(0),
-  //                 physics: const NeverScrollableScrollPhysics(),
-  //                 shrinkWrap: true,
-  //                 crossAxisCount: 2,
-  //                 childAspectRatio: 1.5,
-  //                 mainAxisSpacing: 16,
-  //                 crossAxisSpacing: 16,
-  //                 children: [
-  //                   buildItemModuleMenu(
-  //                     asset: 'assets/images/inspection_bg.png',
-  //                     status: 'Inspection',
-  //                     total: 1,
-  //                     onTap: () {
-  //                       Navigator.push(
-  //                         context,
-  //                         MaterialPageRoute(
-  //                           builder: (context) => const DashboardPage(),
-  //                         ),
-  //                       );
-  //                     },
+  //       GridView.count(
+  //         padding: const EdgeInsets.all(0),
+  //         physics: const NeverScrollableScrollPhysics(),
+  //         shrinkWrap: true,
+  //         crossAxisCount: 2,
+  //         childAspectRatio: 1.5,
+  //         mainAxisSpacing: 16,
+  //         crossAxisSpacing: 16,
+  //         children: [
+  //           buildItemModuleMenu(
+  //             asset: 'assets/images/inspection_bg.png',
+  //             status: username.toLowerCase(),
+  //             total: 0,
+  //             onTap: () {
+  //               final normalizedUsername = username.toLowerCase();
+  //               if (normalizedUsername.endsWith('.a') ||
+  //                   normalizedUsername.endsWith('.c')) {
+  //                 Navigator.push(
+  //                   context,
+  //                   MaterialPageRoute(
+  //                     builder: (context) => const ListInspection(),
   //                   ),
-  //                   buildItemModuleMenu(
+  //                 );
+  //               } else {
+  //                 _showAccessDeniedDialog(context, 'Inspection');
+  //               }
+  //             },
+  //           ),
+  //           // BlocBuilders specifically for Installation module
+  //           BlocBuilder<TicketByUserBloc, TicketByUserState>(
+  //             builder: (context, ticketState) {
+  //               return BlocBuilder<InstallationRecordsUsernameBloc,
+  //                   InstallationRecordsUsernameState>(
+  //                 builder: (context, installationState) {
+  //                   int cmCount = 0;
+  //                   int pmCount = 0;
+  //                   int totalTicketsInstallation = 0;
+
+  //                   List<TicketByUser> filteredCmTickets = [];
+  //                   List<TicketByUser> filteredPmTickets = [];
+
+  //                   // Check if the state from TicketByUserBloc is loaded
+  //                   if (ticketState is TicketByUserLoaded) {
+  //                     List<TicketByUser> cmTickets = ticketState.cmTickets;
+  //                     List<TicketByUser> pmTickets = ticketState.pmTickets;
+
+  //                     // Check if InstallationRecordsUsernameState is loaded or empty
+  //                     if (installationState
+  //                             is InstallationRecordsUsernameLoaded &&
+  //                         installationState.records.isNotEmpty) {
+  //                       final installedTicketNumbers = installationState.records
+  //                           .map((record) => record.dmsId)
+  //                           .toSet();
+
+  //                       // Filter out CM and PM tickets that already exist in installation records
+  //                       filteredCmTickets = cmTickets
+  //                           .where((ticket) => !installedTicketNumbers
+  //                               .contains(ticket.ticketNumber))
+  //                           .toList();
+
+  //                       filteredPmTickets = pmTickets
+  //                           .where((ticket) => !installedTicketNumbers
+  //                               .contains(ticket.ticketNumber))
+  //                           .toList();
+  //                     } else {
+  //                       filteredCmTickets = cmTickets;
+  //                       filteredPmTickets = pmTickets;
+  //                     }
+
+  //                     cmCount = filteredCmTickets.length;
+  //                     pmCount = filteredPmTickets.length;
+  //                     totalTicketsInstallation = cmCount + pmCount;
+  //                   }
+
+  //                   return buildItemModuleMenu(
+  //                     asset: 'assets/images/installation_bg.png',
+  //                     status: 'Installation',
+  //                     total: totalTicketsInstallation,
+  //                     onTap: () {
+  //                       final RegExp regex = RegExp(r'spv');
+  //                       if (regex.hasMatch(username)) {
+  //                         Navigator.push(
+  //                           context,
+  //                           MaterialPageRoute(
+  //                             builder: (context) => ListInstallationPage(
+  //                               cmCount: filteredCmTickets.length,
+  //                               pmCount: filteredPmTickets.length,
+  //                               ticketByUserCM: filteredCmTickets,
+  //                               ticketByUserPM: filteredPmTickets,
+  //                             ),
+  //                           ),
+  //                         );
+  //                       } else {
+  //                         _showAccessDeniedDialog(context, 'Installation');
+  //                       }
+  //                     },
+  //                   );
+  //                 },
+  //               );
+  //             },
+  //           ),
+  //           buildItemModuleMenu(
+  //             asset: 'assets/images/rectification_bg.png',
+  //             status: 'Rectification',
+  //             total: 0,
+  //             onTap: () {
+  //               final normalizedUsername = username.toLowerCase();
+  //               if (normalizedUsername.endsWith('.j') ||
+  //                   normalizedUsername.endsWith('.a') ||
+  //                   normalizedUsername.endsWith('.c')) {
+  //                 Navigator.push(
+  //                   context,
+  //                   MaterialPageRoute(
+  //                     builder: (context) => const ListRectification(),
+  //                   ),
+  //                 );
+  //               } else {
+  //                 _showAccessDeniedDialog(context, 'Rectification');
+  //               }
+  //             },
+  //           ),
+  //           buildItemModuleMenu(
+  //             asset: 'assets/images/qualityaudit_bg.png',
+  //             status: 'Quality Audit',
+  //             total: 0,
+  //             onTap: () {
+  //               final normalizedUsername = username.toLowerCase();
+  //               if (normalizedUsername.startsWith('op')) {
+  //                 Navigator.push(
+  //                   context,
+  //                   MaterialPageRoute(
+  //                     builder: (context) => const ListQualityAudit(),
+  //                   ),
+  //                 );
+  //               } else {
+  //                 _showAccessDeniedDialog(context, 'Quality Audit');
+  //               }
+  //               // if (username.contains('op')) {
+  //               //   Navigator.push(
+  //               //     context,
+  //               //     MaterialPageRoute(
+  //               //       builder: (context) => const ListQualityAudit(),
+  //               //     ),
+  //               //   );
+  //               // } else {
+  //               //   _showAccessDeniedDialog(context, 'Quality Audit');
+  //               // }
+  //             },
+  //           ),
+  //         ],
+  //       ),
+  //     ],
+  //   );
+  // }
+
+  void _showAccessDeniedDialog(BuildContext context, String moduleName) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Access Denied'),
+          content: Text('You do not have access to the $moduleName module.'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  //   Widget buildQmsModule() {
+  //   final String username = context.read<UserDataCubit>().state?.username ?? '';
+
+  //   return Column(
+  //     crossAxisAlignment: CrossAxisAlignment.start,
+  //     children: [
+  //       const Text(
+  //         'Module',
+  //         style: TextStyle(
+  //           fontSize: 20,
+  //           color: Colors.black,
+  //           fontWeight: FontWeight.w600,
+  //         ),
+  //       ),
+  //       const Gap(20),
+  //       GridView.count(
+  //         padding: const EdgeInsets.all(0),
+  //         physics: const NeverScrollableScrollPhysics(),
+  //         shrinkWrap: true,
+  //         crossAxisCount: 2,
+  //         childAspectRatio: 1.5,
+  //         mainAxisSpacing: 16,
+  //         crossAxisSpacing: 16,
+  //         children: [
+  //           buildItemModuleMenu(
+  //             asset: 'assets/images/inspection_bg.png',
+  //             status: 'Inspection',
+  //             total: 1,
+  //             onTap: () {
+  //               if (username.contains('.a') || username.contains('.c')) {
+  //                 Navigator.push(
+  //                   context,
+  //                   MaterialPageRoute(
+  //                     builder: (context) => const DashboardPage(),
+  //                   ),
+  //                 );
+  //               } else {
+  //                 _showAccessDeniedDialog(context, 'Inspection');
+  //               }
+  //             },
+  //           ),
+  //           // BlocBuilders specifically for Installation module
+  //           BlocBuilder<TicketByUserBloc, TicketByUserState>(
+  //             builder: (context, ticketState) {
+  //               return BlocBuilder<InstallationRecordsUsernameBloc,
+  //                   InstallationRecordsUsernameState>(
+  //                 builder: (context, installationState) {
+  //                   int cmCount = 0;
+  //                   int pmCount = 0;
+  //                   int totalTicketsInstallation = 0;
+
+  //                   List<TicketByUser> filteredCmTickets = [];
+  //                   List<TicketByUser> filteredPmTickets = [];
+
+  //                   // Check if the state from TicketByUserBloc is loaded
+  //                   if (ticketState is TicketByUserLoaded) {
+  //                     List<TicketByUser> cmTickets = ticketState.cmTickets;
+  //                     List<TicketByUser> pmTickets = ticketState.pmTickets;
+
+  //                     // Check if InstallationRecordsUsernameState is loaded or empty
+  //                     if (installationState
+  //                             is InstallationRecordsUsernameLoaded &&
+  //                         installationState.records.isNotEmpty) {
+  //                       final installedTicketNumbers = installationState.records
+  //                           .map((record) => record.dmsId)
+  //                           .toSet();
+
+  //                       // Filter out CM and PM tickets that already exist in installation records
+  //                       filteredCmTickets = cmTickets
+  //                           .where((ticket) => !installedTicketNumbers
+  //                               .contains(ticket.ticketNumber))
+  //                           .toList();
+
+  //                       filteredPmTickets = pmTickets
+  //                           .where((ticket) => !installedTicketNumbers
+  //                               .contains(ticket.ticketNumber))
+  //                           .toList();
+  //                     } else {
+  //                       filteredCmTickets = cmTickets;
+  //                       filteredPmTickets = pmTickets;
+  //                     }
+
+  //                     cmCount = filteredCmTickets.length;
+  //                     pmCount = filteredPmTickets.length;
+  //                     totalTicketsInstallation = cmCount + pmCount;
+  //                   }
+
+  //                   return buildItemModuleMenu(
   //                     asset: 'assets/images/installation_bg.png',
   //                     status: 'Installation',
   //                     total: totalTicketsInstallation,
   //                     onTap: () {
   //                       if (totalTicketsInstallation > 0) {
-  //                         // Use filtered tickets for the navigation
   //                         Navigator.push(
   //                           context,
   //                           MaterialPageRoute(
@@ -438,53 +642,55 @@ class _DashboardPageState extends State<DashboardPage> {
   //                           ),
   //                         );
 
-  //                         // Reset navigation flag if required
   //                         setState(() {
   //                           navigateToInstallation = false;
   //                         });
   //                       } else {
-  //                         // Show a message if no tickets are available after filtering
-  //                         ScaffoldMessenger.of(context).showSnackBar(
-  //                           const SnackBar(
-  //                             content: Text(
-  //                               'No tickets available for installation.',
+  //                         Navigator.push(
+  //                           context,
+  //                           MaterialPageRoute(
+  //                             builder: (context) => ListInstallationPage(
+  //                               cmCount: filteredCmTickets.length,
+  //                               pmCount: filteredPmTickets.length,
+  //                               ticketByUserCM: filteredCmTickets,
+  //                               ticketByUserPM: filteredPmTickets,
   //                             ),
   //                           ),
   //                         );
   //                       }
   //                     },
-  //                   ),
-  //                   buildItemModuleMenu(
-  //                     asset: 'assets/images/rectification_bg.png',
-  //                     status: 'Rectification',
-  //                     total: 1,
-  //                     onTap: () {
-  //                       Navigator.push(
-  //                         context,
-  //                         MaterialPageRoute(
-  //                           builder: (context) => const DashboardPage(),
-  //                         ),
-  //                       );
-  //                     },
-  //                   ),
-  //                   buildItemModuleMenu(
-  //                     asset: 'assets/images/qualityaudit_bg.png',
-  //                     status: 'Quality Audit',
-  //                     total: 1,
-  //                     onTap: () {
-  //                       Navigator.push(
-  //                         context,
-  //                         MaterialPageRoute(
-  //                           builder: (context) => const DashboardPage(),
-  //                         ),
-  //                       );
-  //                     },
-  //                   ),
-  //                 ],
+  //                   );
+  //                 },
   //               );
   //             },
-  //           );
-  //         },
+  //           ),
+  //           buildItemModuleMenu(
+  //             asset: 'assets/images/rectification_bg.png',
+  //             status: 'Rectification',
+  //             total: 1,
+  //             onTap: () {
+  //               Navigator.push(
+  //                 context,
+  //                 MaterialPageRoute(
+  //                   builder: (context) => const ListRectification(),
+  //                 ),
+  //               );
+  //             },
+  //           ),
+  //           buildItemModuleMenu(
+  //             asset: 'assets/images/qualityaudit_bg.png',
+  //             status: 'Quality Audit',
+  //             total: 1,
+  //             onTap: () {
+  //               Navigator.push(
+  //                 context,
+  //                 MaterialPageRoute(
+  //                   builder: (context) => const ListQualityAudit(),
+  //                 ),
+  //               );
+  //             },
+  //           ),
+  //         ],
   //       ),
   //     ],
   //   );

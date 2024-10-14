@@ -24,6 +24,7 @@ import 'package:qms_application/presentation/bloc/installation/installation_bloc
 import 'package:qms_application/presentation/bloc/installation_records/installation_records_bloc.dart';
 import 'package:qms_application/presentation/bloc/installation_records_username/installation_records_username_bloc.dart';
 import 'package:qms_application/presentation/bloc/installation_step_records/installation_step_records_bloc.dart';
+import 'package:qms_application/presentation/bloc/logout/logout_cubit.dart';
 import 'package:qms_application/presentation/bloc/ticket_by_user/ticket_by_user_bloc.dart';
 import 'package:qms_application/presentation/bloc/ticket_detail/ticket_detail_bloc.dart';
 import 'package:qms_application/presentation/bloc/user/user_cubit.dart';
@@ -49,4 +50,7 @@ part 'installation/summary_installation_page.dart';
 part 'installation/detail_step_installation_page.dart';
 part 'installation/dms_detail_ticket_page.dart';
 part 'installation/environment_installation_page.dart';
+part 'inspection/list_inspection.dart';
+part 'quality_audit/list_quality_audit.dart';
+part 'rectification/list_rectification.dart';
 part 'logout_page.dart';

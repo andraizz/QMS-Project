@@ -1,7 +1,23 @@
 part of 'pages.dart';
 
-class LogOutPage extends StatelessWidget {
+class LogOutPage extends StatefulWidget {
+  
   const LogOutPage({super.key});
+
+  @override
+  State<LogOutPage> createState() => _LogOutPageState();
+}
+
+class _LogOutPageState extends State<LogOutPage> {
+  late User user;
+  late int? userId;
+
+  @override
+  void initState() {
+    user = context.read<UserCubit>().state;
+    userId = user.userId;
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -12,6 +28,8 @@ class LogOutPage extends StatelessWidget {
             if(yes ?? false) {
               DSession.removeUser();
               context.read<UserCubit>().update(User());
+              context.read<UserDataCubit>().clearUserData();
+              context.read<LogoutCubit>().fetchUserLogout(userId!);
               Navigator.pushNamedAndRemoveUntil(context, AppRoute.login, (route) => route.settings.name == AppRoute.dashboard);
             }
           });
@@ -19,7 +37,6 @@ class LogOutPage extends StatelessWidget {
       ),
     );
   }
-
 
   Widget buildItemMenu(IconData icon, String title, [VoidCallback? onTap]) {
     return GestureDetector(
