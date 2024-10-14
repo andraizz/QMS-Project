@@ -235,16 +235,6 @@ class _FormInstallationPageState extends State<FormInstallationPage> {
                         ? installationStep[currentStepNumber - 1]
                         : null;
 
-                    // if (currentStep != null && documentations.isEmpty) {
-                    //   ScaffoldMessenger.of(context).showSnackBar(
-                    //     const SnackBar(
-                    //       content: Text(
-                    //         'Please upload at least 1 image to continue.',
-                    //       ),
-                    //     ),
-                    //   );
-                    //   return;
-                    // }
 
                     if (currentStep != null &&
                         currentStep.isOptional == 'No' &&

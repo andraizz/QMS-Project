@@ -127,6 +127,7 @@ class MainApp extends StatelessWidget {
           // },
           AppRoute.listInstallation: (context) => const ListInstallationPage(),
           AppRoute.formInstallation: (context) => const FormInstallationPage(),
+          AppRoute.formAllStepInstallation: (context) => const FormAllStepInstallation(),
           AppRoute.historyInstallation: (context) =>
               const InstallationHistory(),
           AppRoute.detailHistoryInstallation: (context) =>

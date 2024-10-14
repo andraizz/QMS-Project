@@ -17,3 +17,4 @@ part 'item_history.dart';
 part 'item_text_history.dart';
 part 'item_description_detail.dart';
 part 'failed_ui.dart';
+part 'item_step_installation.dart';

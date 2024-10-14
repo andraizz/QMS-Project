@@ -44,6 +44,7 @@ part 'main_page.dart';
 part 'installation/installation_history.dart';
 part 'inspection/inspection_history.dart';
 part 'installation/installation_list_page.dart';
+part 'installation/form_all_step_installation.dart';
 part 'installation/form_installation_page.dart';
 part 'installation/detail_history_installation_page.dart';
 part 'installation/summary_installation_page.dart';

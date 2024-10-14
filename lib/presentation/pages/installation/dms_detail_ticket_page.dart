@@ -246,7 +246,7 @@ class _DMSDetailTicketState extends State<DMSDetailTicket> {
                       // Navigasi ke formInstallation dengan qms_id dan qms_installation_step_id
                       Navigator.pushReplacementNamed(
                         context,
-                        AppRoute.formInstallation,
+                        AppRoute.formAllStepInstallation,
                         arguments: {
                           'ticketNumber': ticketNumber!,
                           'qms_id': qmsId,
