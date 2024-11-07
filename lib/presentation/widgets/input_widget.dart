@@ -116,8 +116,52 @@ class InputWidget {
     );
   }
 
-  static Widget dropDown(String title, String hintText, String? value,
-      List<String> items, void Function(String?)? onChanged) {
+  static Widget textArea2(
+      String title, String hintText, TextEditingController controller) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+        ),
+        const Gap(3),
+        SizedBox(
+          height: 100,
+          child: TextFormField(
+            controller: controller,
+            maxLines: 4,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: AppColor.defaultText,
+            ),
+            decoration: InputDecoration(
+              hintText: hintText,
+              filled: true,
+              fillColor: AppColor.whiteColor,
+              border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(5),
+                  borderSide: BorderSide(color: AppColor.defaultText)),
+              focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: AppColor.defaultText)),
+              enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: AppColor.defaultText)),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  static Widget dropDown(
+    String title,
+    String hintText,
+    String? value,
+    List<String> items,
+    void Function(String?)? onChanged,
+    String hintTextSearch,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -128,40 +172,72 @@ class InputWidget {
         const Gap(3),
         SizedBox(
           height: 50,
-          child: DropdownButtonFormField(
-            value: value,
-            hint: Text(
-              hintText,
-              style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  color: AppColor.greyColor2),
-            ),
-            decoration: InputDecoration(
-              filled: true,
-              fillColor: AppColor.disable,
-              border: OutlineInputBorder(
+          child: DropdownSearch<String>(
+            selectedItem: value,
+            items: items,
+            dropdownDecoratorProps: DropDownDecoratorProps(
+              dropdownSearchDecoration: InputDecoration(
+                filled: true,
+                fillColor: AppColor.whiteColor,
+                border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(5),
-                  borderSide: BorderSide(color: AppColor.disable)),
-              focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: AppColor.defaultText)),
-              enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: AppColor.disable)),
+                  borderSide: BorderSide(color: AppColor.defaultText),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: AppColor.defaultText),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: AppColor.defaultText),
+                ),
+              ),
             ),
-            items: items.map((String item) {
-              return DropdownMenuItem<String>(
-                value: item,
-                child: Text(
-                  item,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: AppColor.greyColor2,
+            onChanged: onChanged,
+            popupProps: PopupProps.dialog(
+              dialogProps: DialogProps(
+                backgroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                elevation: 8,
+              ),
+              showSearchBox: true,
+              searchFieldProps: TextFieldProps(
+                decoration: InputDecoration(
+                  border: const OutlineInputBorder(),
+                  hintText: hintTextSearch,
+                  filled: true,
+                  fillColor: AppColor.disable,
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: AppColor.defaultText),
                   ),
                 ),
-              );
-            }).toList(),
-            onChanged: onChanged,
+              ),
+              itemBuilder: (context, item, isSelected) {
+                return Column(
+                  children: [
+                    ListTile(
+                      title: Text(item),
+                      onTap: () {
+                        onChanged?.call(item);
+                        Navigator.pop(context);
+                      },
+                    ),
+                    if (item != items.last)
+                      Divider(
+                        color: AppColor.greyColor1,
+                      ),
+                  ],
+                );
+              },
+            ),
+            dropdownBuilder: (context, selectedItem) => Text(
+              selectedItem ?? hintText,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: AppColor.defaultText,
+              ),
+            ),
           ),
         ),
       ],

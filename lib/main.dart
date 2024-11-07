@@ -18,6 +18,7 @@ import 'package:qms_application/presentation/bloc/user/user_cubit.dart';
 // import 'package:d_session/d_session.dart';
 import 'package:qms_application/presentation/pages/pages.dart';
 import 'package:d_session/d_session.dart';
+// import 'package:qms_application/services/api_services.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -107,25 +108,14 @@ class MainApp extends StatelessWidget {
               },
             );
           },
-          // AppRoute.dashboard: (context) {
-          //     return FutureBuilder(
-          //       future: DSession.getUser(),
-          //       builder: (context, snapshot) {
-          //         if (snapshot.data == null) return const LoginPage(); //Login
-          //         return const LoginPage();
-          //       },
-          //     );
-          //   },
           AppRoute.login: (context) => const LoginPage(),
-          AppRoute.logout : (context) => const LogOutPage(),
-          // AppRoute.dashboard: (context) {
-          //   final args = ModalRoute.of(context)?.settings.arguments as int? ??
-          //       0; // Default to 0 if null
-          //   return MainPage(initialIndex: args);
-          // },
+          AppRoute.logout: (context) => const LogOutPage(),
+
+          // ---------- INSTALLATION ----------
           AppRoute.listInstallation: (context) => const ListInstallationPage(),
           AppRoute.formInstallation: (context) => const FormInstallationPage(),
-          AppRoute.formAllStepInstallation: (context) => const FormAllStepInstallation(),
+          AppRoute.formAllStepInstallation: (context) =>
+              const FormAllStepInstallation(),
           AppRoute.historyInstallation: (context) =>
               const InstallationHistory(),
           AppRoute.detailHistoryInstallation: (context) =>
@@ -136,7 +126,252 @@ class MainApp extends StatelessWidget {
               const DetailStepInstallationPage(),
           AppRoute.detailDMSTicket: (context) => const DMSDetailTicket(),
           AppRoute.formEnvironemntInstallation: (context) =>
-              const EnvironmentInstallationPage()
+              const EnvironmentInstallationPage(),
+
+          // ---------- INSPECTION ----------
+          AppRoute.listInspection: (context) =>
+              const ListInspectionPage(tickets: []),
+          AppRoute.formInspection: (context) {
+            final args = ModalRoute.of(context)?.settings.arguments
+                as Map<String, dynamic>?;
+            final ticketNumber = args?['ticketNumber'] ?? 'Unknown';
+            final formattedIdInspection =
+                args?['formattedIdInspection'] ?? 'Unknown';
+            final defectId = args?['defectId'] ?? 'Unknown';
+            final selectedAssetTagging =
+                args?['selectedAssetTagging'] as AssetTaggingInspection?;
+            return FormInspectionPage(
+              ticketNumber: ticketNumber,
+              formattedIdInspection: formattedIdInspection,
+              defectId: defectId,
+              selectedAssetTagging: selectedAssetTagging!,
+            );
+          },
+          AppRoute.formInspectionPause: (context) {
+            final args = ModalRoute.of(context)?.settings.arguments
+                as Map<String, dynamic>?;
+            final ticketNumber = args?['ticketNumber'] ?? 'Unknown';
+            final formattedIdInspection =
+                args?['formattedIdInspection'] ?? 'Unknown';
+            final idInspection = args?['qms_ticket'] ?? 'Unknown';
+            final defectId = args?['defectId'] ?? 'Unknown';
+            final selectedAssetTagging =
+                args?['selectedAssetTagging'] as AssetTaggingInspection?;
+            return FormInspectionPausePage(
+              ticketNumber: ticketNumber,
+              formattedIdInspection: formattedIdInspection,
+              idInspection: idInspection,
+              defectId: defectId,
+              selectedAssetTagging: selectedAssetTagging!,
+            );
+          },
+          AppRoute.summaryInspection: (context) {
+            final args = ModalRoute.of(context)?.settings.arguments
+                as Map<String, dynamic>?;
+            final idInspection = args?['idInspection'] ?? 'Unknown';
+            final sectionPatrol = args?['sectionPatrol'] ?? 'Unknown';
+            return SummaryInspection(
+              idInspection: idInspection,
+              sectionPatrol: sectionPatrol,
+            );
+          },
+          AppRoute.detailInspectionResult: (context) {
+            final args = ModalRoute.of(context)?.settings.arguments
+                as Map<String, dynamic>;
+            final assetTagging = args['assetTagging'];
+            final idInspection = args['idInspection'];
+            return DetailInspectionResultPage(
+              assetTagging: assetTagging,
+              idInspection: idInspection,
+            );
+          },
+          AppRoute.detailInspection: (context) {
+            final args = ModalRoute.of(context)?.settings.arguments
+                as Map<String, dynamic>?;
+            final ticketNumber = args?['ticketNumber'] ?? 'Unknown';
+            final formattedIdInspection =
+                args?['formattedIdInspection'] ?? 'Unknown';
+            return DetailInspectionPage(
+              ticketNumber: ticketNumber,
+              formattedIdInspection: formattedIdInspection,
+            );
+          },
+          AppRoute.detailInspectionStatus: (context) {
+            final args = ModalRoute.of(context)?.settings.arguments
+                as Map<String, dynamic>?;
+            final dmsTicket = args?['dms_ticket'] ?? 'Unknown';
+            final qmsTicket = args?['qms_ticket'] ?? 'Test';
+            return DetailInspectionStatusPage(
+              dmsTicket: dmsTicket,
+              qmsTicket: qmsTicket,
+            );
+          },
+          AppRoute.detailDmsTicketInspection: (context) {
+            final args = ModalRoute.of(context)?.settings.arguments
+                as Map<String, dynamic>?;
+            final ticketNumber = args?['ticketNumber'] ?? 'Unknown';
+            return DetailDmsTicketInspectionPage(ticketNumber: ticketNumber);
+          },
+          AppRoute.historyInspection: (context) => const InspectionHistory(),
+          AppRoute.detailHistoryInspection: (context) {
+            final args = ModalRoute.of(context)?.settings.arguments
+                as Map<String, dynamic>?;
+            final idInspection = args?['qms_ticket'] ?? 'Unknown';
+            return DetailHistoryInspectionPage(
+              idInspection: idInspection,
+            );
+          },
+          AppRoute.detailAssetTaggingInspection: (context) {
+            final args = ModalRoute.of(context)?.settings.arguments
+                as Map<String, dynamic>?;
+            final ticketNumber = args?['ticketNumber'] ?? 'Unknown';
+            final formattedIdInspection =
+                args?['formattedIdInspection'] ?? 'Unknown';
+            final isReversed = args?['isReversed'] ?? false;
+            return DetailAssetTaggingInspectionPage(
+              ticketNumber: ticketNumber,
+              formattedIdInspection: formattedIdInspection,
+              isReversed: isReversed,
+            );
+          },
+          AppRoute.detailPausedInspection: (context) {
+            final args = ModalRoute.of(context)?.settings.arguments
+                as Map<String, dynamic>?;
+            final ticketNumber = args?['ticketNumber'] ?? 'Unknown';
+            final idInspection = args?['qms_ticket'] ?? 'Unknown';
+            final isReversed = args?['isReversed'] ?? false;
+            return DetailPausedInspectionPage(
+              ticketNumber: ticketNumber,
+              idInspection: idInspection,
+              isReversed: isReversed,
+            );
+          },
+
+          // ---------- RECTIFICATION ----------
+          AppRoute.rectificationShow: (context) {
+            final args = ModalRoute.of(context)?.settings.arguments
+                as Map<String, dynamic>;
+            final ticketNumber = args['ticketNumber'];
+            final type = args['type']; // Assuming sequenceId is a String
+
+            return RectificationShow(ticketNumber: ticketNumber, type: type);
+          },
+          AppRoute.rectificationCreate: (context) =>
+              const RectificationCreate(),
+
+          // ---------- QUALITY AUDIT ----------
+          AppRoute.listAudit: (context) => const ListAuditPage(tickets: []),
+          AppRoute.formAudit: (context) {
+            final args = ModalRoute.of(context)?.settings.arguments
+                as Map<String, dynamic>?;
+            final ticketNumber = args?['ticketNumber'] ?? 'Unknown';
+            final formattedIdAudit = args?['formattedIdAudit'] ?? 'Unknown';
+            final defectId = args?['defectId'] ?? 'Unknown';
+            final selectedAssetTagging =
+                args?['selectedAssetTagging'] as AssetTaggingAudit?;
+            return FormAuditPage(
+                ticketNumber: ticketNumber,
+                formattedIdAudit: formattedIdAudit,
+                defectId: defectId,
+                selectedAssetTagging: selectedAssetTagging!);
+          },
+          AppRoute.formAuditPause: (context) {
+            final args = ModalRoute.of(context)?.settings.arguments
+                as Map<String, dynamic>?;
+            final ticketNumber = args?['ticketNumber'] ?? 'Unknown';
+            final formattedIdAudit = args?['formattedIdAudit'] ?? 'Unknown';
+            final idAudit = args?['qms_ticket'] ?? 'Unknown';
+            final defectId = args?['defectId'] ?? 'Unknown';
+            final selectedAssetTagging =
+                args?['selectedAssetTagging'] as AssetTaggingAudit?;
+            return FormAuditPausePage(
+                ticketNumber: ticketNumber,
+                formattedIdAudit: formattedIdAudit,
+                idAudit: idAudit,
+                defectId: defectId,
+                selectedAssetTagging: selectedAssetTagging!);
+          },
+          AppRoute.summaryAudit: (context) {
+            final args = ModalRoute.of(context)?.settings.arguments
+                as Map<String, dynamic>?;
+            final idAudit = args?['idAudit'] ?? 'Unknown';
+            final sectionPatrol = args?['sectionPatrol'] ?? 'Unknown';
+
+            return SummaryAudit(
+              idAudit: idAudit,
+              sectionPatrol: sectionPatrol,
+            );
+          },
+          AppRoute.detailAuditResult: (context) {
+            final args = ModalRoute.of(context)?.settings.arguments
+                as Map<String, dynamic>;
+            final assetTagging = args['assetTagging'];
+            final idAudit = args['idAudit'];
+
+            return DetailAuditResultPage(
+              assetTagging: assetTagging,
+              idAudit: idAudit,
+            );
+          },
+          AppRoute.detailAudit: (context) {
+            final args = ModalRoute.of(context)?.settings.arguments
+                as Map<String, dynamic>?;
+            final ticketNumber = args?['ticketNumber'] ?? 'Unknown';
+            final formattedIdAudit = args?['formattedIdAudit'] ?? 'Unknown';
+            return DetailAuditPage(
+              ticketNumber: ticketNumber,
+              formattedIdAudit: formattedIdAudit,
+            );
+          },
+          AppRoute.detailAuditStatus: (context) {
+            final args = ModalRoute.of(context)?.settings.arguments
+                as Map<String, dynamic>?;
+            final dmsTicket = args?['dms_ticket'] ?? 'Unknown';
+            final qmsTicket = args?['qms_ticket'] ?? 'Test';
+            return DetailAuditStatusPage(
+              dmsTicket: dmsTicket,
+              qmsTicket: qmsTicket,
+            );
+          },
+          AppRoute.detailDmsTicketAudit: (context) {
+            final args = ModalRoute.of(context)?.settings.arguments
+                as Map<String, dynamic>?;
+            final ticketNumber = args?['ticketNumber'] ?? 'Unknown';
+            return DetailDmsTicketAuditPage(ticketNumber: ticketNumber);
+          },
+          AppRoute.historyAudit: (context) => const AuditHistory(),
+          AppRoute.detailHistoryAudit: (context) {
+            final args = ModalRoute.of(context)?.settings.arguments
+                as Map<String, dynamic>?;
+            final idAudit = args?['qms_ticket'] ?? 'Unknown';
+            return DetailHistoryAuditPage(
+              idAudit: idAudit,
+            );
+          },
+          AppRoute.detailAssetTaggingAudit: (context) {
+            final args = ModalRoute.of(context)?.settings.arguments
+                as Map<String, dynamic>?;
+            final ticketNumber = args?['ticketNumber'] ?? 'Unknown';
+            final formattedIdAudit = args?['formattedIdAudit'] ?? 'Unknown';
+            final isReversed = args?['isReversed'] ?? false;
+            return DetailAssetTaggingAuditPage(
+              ticketNumber: ticketNumber,
+              formattedIdAudit: formattedIdAudit,
+              isReversed: isReversed,
+            );
+          },
+          AppRoute.detailPausedAudit: (context) {
+            final args = ModalRoute.of(context)?.settings.arguments
+                as Map<String, dynamic>?;
+            final ticketNumber = args?['ticketNumber'] ?? 'Unknown';
+            final idAudit = args?['qms_ticket'] ?? 'Unknown';
+            final isReversed = args?['isReversed'] ?? false;
+            return DetailPausedAuditPage(
+              ticketNumber: ticketNumber,
+              idAudit: idAudit,
+              isReversed: isReversed,
+            );
+          },
         },
       ),
     );

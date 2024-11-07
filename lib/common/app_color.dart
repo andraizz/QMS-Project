@@ -1,4 +1,5 @@
 part of 'common.dart';
+
 class AppColor {
   static Color splashBackground = const Color(0xffDFECFF);
   static Color scaffold = const Color(0xffEBEBEB);
@@ -22,4 +23,5 @@ class AppColor {
   static Color rejectedColor = const Color(0xffEB4D4B);
   static Color closedToBeRectifiedColor = const Color(0xffDFE6E9);
   static Color activeStepColor = const Color(0xff88D66C);
+  static Color onProgress = const Color(0xFFEDFF23);
 }

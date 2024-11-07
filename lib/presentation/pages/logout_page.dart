@@ -1,7 +1,6 @@
 part of 'pages.dart';
 
 class LogOutPage extends StatefulWidget {
-  
   const LogOutPage({super.key});
 
   @override
@@ -24,13 +23,19 @@ class _LogOutPageState extends State<LogOutPage> {
     return Scaffold(
       body: Center(
         child: buildItemMenu(Icons.logout, 'Logout', () {
-          DInfo.dialogConfirmation(context, 'Logout', 'Yes to confirm Logout').then((yes) {
-            if(yes ?? false) {
+          DInfo.dialogConfirmation(context, 'Logout', 'Yes to confirm Logout')
+              .then((yes) {
+            if (yes ?? false) {
               DSession.removeUser();
               context.read<UserCubit>().update(User());
               // context.read<UserDataCubit>().clearUserData();
               // context.read<LogoutCubit>().fetchUserLogout(userId!);
-              Navigator.pushNamedAndRemoveUntil(context, AppRoute.login, (route) => route.settings.name == AppRoute.dashboard);
+              // Navigator.pushNamedAndRemoveUntil(context, AppRoute.login, (route) => route.settings.name == AppRoute.dashboard);
+              Navigator.pushNamedAndRemoveUntil(
+                context,
+                AppRoute.login,
+                (route) => false, // This clears all previous routes
+              );
             }
           });
         }),

@@ -1,7 +1,8 @@
 part of 'widgets.dart';
 
 class ItemTextHistory {
-  static Widget primary(String title, String subTitle, int maxLines, {double? width}) {
+  static Widget primary(String title, String subTitle, int maxLines,
+      {double? width}) {
     return Padding(
       padding: const EdgeInsets.symmetric(
         horizontal: 8,
@@ -51,7 +52,9 @@ class ItemTextHistory {
             ),
           ),
           Text(
-            DateFormat('dd MMMM yyyy').format(subTitle!),
+            subTitle != null
+                ? DateFormat('dd MMMM yyyy').format(subTitle)
+                : '-',
             style: TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.w600,

@@ -21,8 +21,11 @@ class _MainPageState extends State<MainPage> {
     const DashboardPage(),
     const InspectionHistory(),
     const InstallationHistory(),
-    const Scaffold(), // Rectification History
-    const Scaffold() // Quality Audit History
+    const RectificationIndex(
+      indexType: 'history',
+      inspectionTicketNumber: '-',
+    ),
+    const AuditHistory()
   ];
 
   @override

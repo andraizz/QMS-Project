@@ -10,9 +10,45 @@ class DashboardPage extends StatefulWidget {
 class _DashboardPageState extends State<DashboardPage> {
   List<TicketByUser> ticketByUserCM = [];
   List<TicketByUser> ticketByUserPM = [];
+  List<dynamic> dmsTickets = [];
+  List<Inspection> qmsInspections = [];
+  List<Audit> qmsAudits = [];
+
   late User user;
+  late Future<void> _ticketsFuture;
+  late Future<void> _ticketsFuture2;
+  // late Future<List<dynamic>> _tickets;
 
   bool navigateToInstallation = false;
+  DateTime? lastBackPressTime;
+
+  @override
+  void initState() {
+    super.initState();
+    user = context.read<UserCubit>().state;
+    refresh();
+    // _tickets = ApiService().getTickets(user.username!);
+    _ticketsFuture = fetchTickets();
+    _ticketsFuture2 = fetchTickets2();
+  }
+
+  Future<void> fetchTickets() async {
+    final List<dynamic> dmsData = await ApiService().getTickets(user.username!);
+    dmsTickets = dmsData;
+
+    final List<Inspection> inspectionData =
+        await ApiService().fetchAllInspections(user.username!);
+    qmsInspections = inspectionData;
+  }
+
+  Future<void> fetchTickets2() async {
+    final List<dynamic> dmsData = await ApiService().getTickets(user.username!);
+    dmsTickets = dmsData;
+
+    final List<Audit> auditData =
+        await ApiService().fetchAllAudits(user.username!);
+    qmsAudits = auditData;
+  }
 
   refresh() async {
     context
@@ -22,11 +58,24 @@ class _DashboardPageState extends State<DashboardPage> {
     context.read<TicketByUserBloc>().add(FetchTicketByUserPM(user.username!));
   }
 
-  @override
-  void initState() {
-    user = context.read<UserCubit>().state;
-    refresh();
-    super.initState();
+  Future<bool> _onWillPop() async {
+    final now = DateTime.now();
+
+    if (lastBackPressTime == null ||
+        now.difference(lastBackPressTime!) > const Duration(seconds: 2)) {
+      lastBackPressTime = now;
+
+      // Tampilkan pesan untuk pengguna agar menekan tombol back lagi untuk keluar
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Tekan sekali lagi untuk keluar'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return false; // Cegah aplikasi keluar dengan sekali tekan
+    }
+
+    return true; // Keluarkan aplikasi jika pengguna menekan tombol back dua kali dalam 2 detik
   }
 
   @override
@@ -34,19 +83,22 @@ class _DashboardPageState extends State<DashboardPage> {
     DateTime now = DateTime.now();
     String formattedDate = DateFormat('EEEE \nd MMMM yyyy').format(now);
 
-    return Scaffold(
-      body: RefreshIndicator(
-        onRefresh: () async => refresh(),
-        child: ListView(
-          physics: const BouncingScrollPhysics(),
-          padding: const EdgeInsets.all(24),
-          children: [
-            welcomeCard(formattedDate: formattedDate),
-            const Gap(36),
-            buildQmsModule(),
-            const Gap(36),
-            buildProgressQmsTicket(),
-          ],
+    return WillPopScope(
+      onWillPop: _onWillPop,
+      child: Scaffold(
+        body: RefreshIndicator(
+          onRefresh: () async => refresh(),
+          child: ListView(
+            physics: const BouncingScrollPhysics(),
+            padding: const EdgeInsets.all(24),
+            children: [
+              welcomeCard(formattedDate: formattedDate),
+              const Gap(36),
+              buildQmsModule(),
+              const Gap(36),
+              buildProgressQmsTicket(),
+            ],
+          ),
         ),
       ),
     );
@@ -148,8 +200,7 @@ class _DashboardPageState extends State<DashboardPage> {
     return BlocBuilder<UserCubit, User?>(
       builder: (context, user) {
         if (user == null) {
-          return const Center(
-              child: CircularProgressIndicator()); // Show loading state
+          return const Center(child: CircularProgressIndicator());
         }
         final String jabatan = user.jabatan ?? '';
 
@@ -174,22 +225,84 @@ class _DashboardPageState extends State<DashboardPage> {
               mainAxisSpacing: 16,
               crossAxisSpacing: 16,
               children: [
-                buildItemModuleMenu(
-                  asset: 'assets/images/inspection_bg.png',
-                  status: 'Inspection',
-                  total: 0,
-                  onTap: () {
-                    if (jabatan == 'Patroli SIM A' ||
-                        jabatan == 'Patroli SIM C') {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const ListInspection(),
-                        ),
-                      );
+                // FutureBuilder<List<dynamic>>(
+                //   future: _tickets,
+                //   builder: (context, snapshot) {
+                //     int ticketCount = 0;
+
+                //     if (snapshot.hasData &&
+                //         snapshot.data != null &&
+                //         snapshot.data!.isNotEmpty) {
+                //       final List<dynamic> tickets = snapshot.data!;
+                //       ticketCount = tickets.length;
+                //     }
+
+                //     return buildItemModuleMenu(
+                //       asset: 'assets/images/inspection_bg.png',
+                //       status: 'Inspection',
+                //       total: ticketCount,
+                //       onTap: () {
+                //         if (jabatan == 'Patroli SIM A' ||
+                //             jabatan == 'Patroli SIM C') {
+                //           Navigator.push(
+                //             context,
+                //             MaterialPageRoute(
+                //               builder: (context) => ListInspectionPage(
+                //                 tickets: snapshot.data ?? [],
+                //               ),
+                //             ),
+                //           );
+                //         } else {
+                //           _showAccessDeniedDialog(context, 'Inspection');
+                //         }
+                //       },
+                //     );
+                //   },
+                // ),
+                FutureBuilder<void>(
+                  future: _ticketsFuture,
+                  builder: (context, snapshot) {
+                    List<dynamic> filteredInspectionTickets;
+
+                    if (qmsInspections.isEmpty) {
+                      filteredInspectionTickets = dmsTickets;
                     } else {
-                      _showAccessDeniedDialog(context, 'Inspection');
+                      final existingQmsTicketNumbers = qmsInspections
+                          .map((inspection) => inspection.dmsTicket)
+                          .toSet();
+
+                      filteredInspectionTickets = dmsTickets.where((ticket) {
+                        final ticketNumber = ticket['ticket_number'];
+
+                        bool shouldInclude =
+                            !existingQmsTicketNumbers.contains(ticketNumber);
+
+                        return shouldInclude;
+                      }).toList();
                     }
+
+                    int ticketCount = filteredInspectionTickets.length;
+
+                    return buildItemModuleMenu2(
+                      asset: 'assets/images/inspection_bg.png',
+                      status: 'Inspection',
+                      total: ticketCount,
+                      onTap: () {
+                        if (jabatan == 'Patroli SIM A' ||
+                            jabatan == 'Patroli SIM C') {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ListInspectionPage(
+                                tickets: filteredInspectionTickets,
+                              ),
+                            ),
+                          );
+                        } else {
+                          _showAccessDeniedDialog(context, 'Inspection');
+                        }
+                      },
+                    );
                   },
                 ),
                 BlocBuilder<TicketByUserBloc, TicketByUserState>(
@@ -269,31 +382,58 @@ class _DashboardPageState extends State<DashboardPage> {
                         jabatan == 'Patroli SIM A' ||
                         jabatan == 'Patroli SIM C') {
                       Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const ListRectification(),
-                        ),
-                      );
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const RectificationIndex(
+                                  indexType: 'created',
+                                  inspectionTicketNumber: '-')));
                     } else {
                       _showAccessDeniedDialog(context, 'Rectification');
                     }
                   },
                 ),
-                buildItemModuleMenu(
-                  asset: 'assets/images/qualityaudit_bg.png',
-                  status: 'Quality Audit',
-                  total: 0,
-                  onTap: () {
-                    if (jabatan == 'Optimation') {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const ListQualityAudit(),
-                        ),
-                      );
+                FutureBuilder<void>(
+                  future: _ticketsFuture2,
+                  builder: (context, snapshot) {
+                    List<dynamic> filteredAuditTickets;
+
+                    if (qmsAudits.isEmpty) {
+                      filteredAuditTickets = dmsTickets;
                     } else {
-                      _showAccessDeniedDialog(context, 'Quality Audit');
+                      final existingQmsTicketNumbers =
+                          qmsAudits.map((audit) => audit.dmsTicket).toSet();
+
+                      filteredAuditTickets = dmsTickets.where((ticket) {
+                        final ticketNumber = ticket['ticket_number'];
+
+                        bool shouldInclude =
+                            !existingQmsTicketNumbers.contains(ticketNumber);
+
+                        return shouldInclude;
+                      }).toList();
                     }
+
+                    int ticketCount = filteredAuditTickets.length;
+
+                    return buildItemModuleMenu(
+                      asset: 'assets/images/qualityaudit_bg.png',
+                      status: 'Quality Audit',
+                      total: ticketCount,
+                      onTap: () {
+                        if (jabatan == 'Optimation') {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ListAuditPage(
+                                tickets: filteredAuditTickets,
+                              ),
+                            ),
+                          );
+                        } else {
+                          _showAccessDeniedDialog(context, 'Quality Audit');
+                        }
+                      },
+                    );
                   },
                 ),
               ],
