@@ -65,7 +65,6 @@ class _DashboardPageState extends State<DashboardPage> {
         now.difference(lastBackPressTime!) > const Duration(seconds: 2)) {
       lastBackPressTime = now;
 
-      // Tampilkan pesan untuk pengguna agar menekan tombol back lagi untuk keluar
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Tekan sekali lagi untuk keluar'),
