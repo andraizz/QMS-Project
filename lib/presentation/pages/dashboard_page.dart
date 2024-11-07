@@ -74,7 +74,7 @@ class _DashboardPageState extends State<DashboardPage> {
       return false; // Cegah aplikasi keluar dengan sekali tekan
     }
 
-    return true; // Keluarkan aplikasi jika pengguna menekan tombol back dua kali dalam 2 detik
+    return true;
   }
 
   @override
