@@ -194,7 +194,6 @@ class _DetailInspectionPageState extends State<DetailInspectionPage> {
                           .map((tag) => {'asset_name': tag.assetName})
                           .toList();
 
-                  // Persiapkan data yang akan dikirim ke API, termasuk pengecekan urutan terbalik (reverse)
                   final payload = {
                     'id_inspection': qmsTicketNumber,
                     'is_reverse': isReverse,
@@ -210,7 +209,6 @@ class _DetailInspectionPageState extends State<DetailInspectionPage> {
                   await ApiService().updateInspectionTicketStatusOnProgress(
                       widget.formattedIdInspection, 'On Progress');
 
-                  // Jika response berhasil (success true), sembunyikan loading dan pindah ke halaman detail inspeksi
                   if (response['success'] != null && response['success']) {
                     _hideLoadingDialog(context);
 

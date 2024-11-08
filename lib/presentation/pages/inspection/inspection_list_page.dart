@@ -4,7 +4,6 @@ class ListInspectionPage extends StatefulWidget {
   final List<dynamic>? tickets;
 
   const ListInspectionPage({super.key, this.tickets});
-  // const ListInspectionPage({super.key});
 
   @override
   State<ListInspectionPage> createState() => _ListInspectionPageState();
@@ -29,14 +28,12 @@ class _ListInspectionPageState extends State<ListInspectionPage> {
     }
   }
 
-  // Fungsi untuk mengambil data dari API
   void fetchTickets() async {
     setState(() {
       tickets = null; // Clear data sebelum fetch baru
       isLoading = true;
     });
     try {
-      // Panggil API yang mengembalikan data tiket
       List<dynamic> data = await apiService.getTickets(user.username!);
       print('Data fetched: $data');
 
@@ -47,7 +44,7 @@ class _ListInspectionPageState extends State<ListInspectionPage> {
     } catch (e) {
       print("Error fetching tickets: $e");
       setState(() {
-        isLoading = false; // Error terjadi, loader berhenti
+        isLoading = false;
       });
     }
   }
@@ -86,7 +83,7 @@ class _ListInspectionPageState extends State<ListInspectionPage> {
                     : ListView.builder(
                         padding: const EdgeInsets.all(20),
                         physics: const BouncingScrollPhysics(),
-                        itemCount: tickets?.length ?? 0, // Jumlah tiket
+                        itemCount: tickets?.length ?? 0,
                         itemBuilder: (context, index) {
                           // Data tiap tiket
                           var ticket = tickets?[index];

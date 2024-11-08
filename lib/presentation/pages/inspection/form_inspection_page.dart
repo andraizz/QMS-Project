@@ -222,7 +222,6 @@ class _FormInspectionPageState extends State<FormInspectionPage> {
                           description: edtRemark.text,
                         );
 
-                        // Update status asset tagging yang selesai
                         await ApiService().updateAssetTaggingInspectionStatus(
                           nama: edtAssetTagging.text,
                           idInspection: edtQmsInspectionTicketNumber.text,
@@ -405,15 +404,13 @@ class _FormInspectionPageState extends State<FormInspectionPage> {
                   final categoryItems = selectedCategoryItem;
 
                   if (categoryItems != null) {
-                    // Fetch Category Item Code berdasarkan Inspection Detail dan Cable Type
                     fetchCategoryItemCode(newValue!, categoryItems)
                         .then((categoryItemCodeResults) {
                       setState(() {
                         if (categoryItemCodeResults.isNotEmpty) {
                           selectedCategoryItemCode =
                               categoryItemCodeResults.first;
-                          edtcategoryItemCode.text =
-                              selectedCategoryItemCode!; // Update controller
+                          edtcategoryItemCode.text = selectedCategoryItemCode!;
                         }
                       });
                     }).catchError((error) {

@@ -85,12 +85,11 @@ class _DetailHistoryInspectionPageState
                                       margin: const EdgeInsets.symmetric(
                                           horizontal: 20, vertical: 10),
                                       decoration: BoxDecoration(
-                                        color: Colors.redAccent.withOpacity(
-                                            0.1), // Latar belakang merah transparan
+                                        color:
+                                            Colors.redAccent.withOpacity(0.1),
                                         borderRadius: BorderRadius.circular(10),
                                         border: Border.all(
-                                          color: Colors
-                                              .redAccent, // Warna border merah
+                                          color: Colors.redAccent,
                                           width: 1,
                                         ),
                                       ),
@@ -98,7 +97,7 @@ class _DetailHistoryInspectionPageState
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
                                           Icon(
-                                            Icons.error_outline, // Ikon error
+                                            Icons.error_outline,
                                             color: Colors.redAccent,
                                             size: 40,
                                           ),

@@ -23,7 +23,6 @@ class _DetailInspectionResultPageState
   void initState() {
     super.initState();
 
-    // Fetch data dari API menggunakan parameter yang diterima melalui konstruktor
     _inspectionResults = ApiService().getInspectionResultsByTagging(
         widget.idInspection, widget.assetTagging);
   }
@@ -128,10 +127,9 @@ class _DetailInspectionResultPageState
           const Gap(12),
           ElevatedButton(
             onPressed: () {
-              // Navigasi ke halaman baru dengan semua gambar
               _showAllImagesPage(context, allImages);
             },
-            child: Text('View Photos'),
+            child: const Text('View Photos'),
           ),
         ],
       ),
@@ -167,7 +165,7 @@ class _DetailInspectionResultPageState
                       Text(
                         imageTitles[
                             index], // Display the title before the image
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -229,7 +227,7 @@ class _DetailInspectionResultPageState
           height: 200,
           width: double.infinity,
           errorBuilder: (context, error, stackTrace) {
-            return Center(
+            return const Center(
               child: Text(
                 'Error loading image',
                 style: TextStyle(color: Colors.white),

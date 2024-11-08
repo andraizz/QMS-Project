@@ -225,7 +225,6 @@ class _FormInspectionPausePageState extends State<FormInspectionPausePage> {
                           description: edtRemark.text,
                         );
 
-                        // Update status asset tagging yang selesai
                         await ApiService().updateAssetTaggingInspectionStatus(
                           nama: edtAssetTagging.text,
                           idInspection: edtQmsInspectionTicketNumber.text,
@@ -251,7 +250,6 @@ class _FormInspectionPausePageState extends State<FormInspectionPausePage> {
                             'formattedIdInspection':
                                 widget.formattedIdInspection,
                             'qms_ticket': widget.formattedIdInspection,
-                            // 'selectedAssetTagging': edtAssetTagging,
                             'assetTaggingData': response.assetTagging,
                             'defectId': widget.defectId,
                           },
@@ -341,7 +339,6 @@ class _FormInspectionPausePageState extends State<FormInspectionPausePage> {
                   inspectionDetails = []; // Clear inspection details
                   categoryItemCode = []; // Clear inspection details
 
-                  // Fetch category items based on selected cable type
                   fetchCategoryItems(newValue!).then((categoryItemResults) {
                     setState(() {
                       categoryItems = categoryItemResults;

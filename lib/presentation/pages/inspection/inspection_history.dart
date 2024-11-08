@@ -19,16 +19,12 @@ class _InspectionHistoryState extends State<InspectionHistory> {
   }
 
   Future<List<Inspection>> _fetchInspectionHistory() async {
-    // String username = 'Patroli';
     return await ApiService().fetchAllInspections(user.username!);
   }
 
-  // Fungsi untuk menangani aksi ketika tombol back pada perangkat ditekan
   Future<bool> _onWillPop() async {
-    // Jika ingin menutup aplikasi
     return true; // Mengembalikan true akan menutup aplikasi
 
-    // Jika ingin navigasi ke dashboard utama
     // Navigator.pushReplacementNamed(context, AppRoute.dashboard);
     // return false; // Mengembalikan false akan mencegah kembali ke halaman sebelumnya
   }

@@ -111,40 +111,6 @@ class _DetailAssetTaggingInspectionPageState
     return assetTaggings.every((tag) => tag.status == 2);
   }
 
-  Future<void> _completeAllAssetTaggings() async {
-    for (var assetTag in assetTaggings) {
-      try {
-        await ApiService().updateAssetTaggingInspectionStatus(
-          nama: assetTag.nama,
-          idInspection: widget.formattedIdInspection,
-          status: 2, // Set semua asset tagging ke status 2 (selesai)
-          findingCount: assetTag.findingCount,
-        );
-        print('Updated status for ${assetTag.nama} successfully.');
-      } catch (e) {
-        print('Failed to update status for ${assetTag.nama}: $e');
-      }
-    }
-
-    _refreshAssetTaggings(widget.formattedIdInspection);
-  }
-
-  void _showLoadingDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return const Center(
-          child: CircularProgressIndicator(),
-        );
-      },
-    );
-  }
-
-  void _hideLoadingDialog(BuildContext context) {
-    Navigator.of(context).pop();
-  }
-
   Future<void> _onWillPop(bool didPop) async {
     if (didPop) {
       return;
@@ -387,7 +353,6 @@ class _DetailAssetTaggingInspectionPageState
                                                     .indexOf(currentTag);
                                                 if (currentIndex + 1 <
                                                     assetTaggings.length) {
-                                                  // Jika ada, ubah status asset tagging berikutnya menjadi 1
                                                   await _updateAssetTaggingStatus(
                                                     assetTaggings[
                                                             currentIndex + 1]
