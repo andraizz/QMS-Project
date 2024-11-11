@@ -157,7 +157,7 @@ class _FormInspectionPageState extends State<FormInspectionPage> {
         onPopInvoked: _onWillPop,
         canPop: false,
         child: Scaffold(
-          appBar: AppBarWidget.cantBack('Form Inspection', context,
+          appBar: AppBarWidget.cantBack('Form Site Inspection', context,
               onBackPressed: () => _onWillPop(false)),
           body: Column(
             children: [

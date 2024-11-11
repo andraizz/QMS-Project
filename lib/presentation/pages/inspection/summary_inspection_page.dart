@@ -63,7 +63,7 @@ class _SummaryInspectionState extends State<SummaryInspection> {
       onPopInvoked: _onWillPop,
       canPop: false,
       child: Scaffold(
-        appBar: AppBarWidget.cantBack('Summary Inspection', context,
+        appBar: AppBarWidget.cantBack('Summary Site Inspection', context,
             onBackPressed: () => _onWillPop(false)),
         body: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 24),

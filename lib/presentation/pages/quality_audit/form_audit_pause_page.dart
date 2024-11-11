@@ -158,7 +158,7 @@ class _FormAuditPausePageState extends State<FormAuditPausePage> {
         onPopInvoked: _onWillPop,
         canPop: false,
         child: Scaffold(
-          appBar: AppBarWidget.cantBack('Form Quality Audit', context,
+          appBar: AppBarWidget.cantBack('Form Site Quality Audit', context,
               onBackPressed: () => _onWillPop(false)),
           body: Column(
             children: [
@@ -239,6 +239,8 @@ class _FormAuditPausePageState extends State<FormAuditPausePage> {
 
                         _hideLoadingDialog(context);
 
+                        await Future.delayed(Duration.zero);
+
                         Navigator.pushReplacementNamed(
                           context,
                           AppRoute.detailPausedAudit,
@@ -246,7 +248,6 @@ class _FormAuditPausePageState extends State<FormAuditPausePage> {
                             'ticketNumber': widget.ticketNumber,
                             'formattedIdAudit': widget.formattedIdAudit,
                             'qms_ticket': widget.formattedIdAudit,
-                            // 'selectedAssetTagging': edtAssetTagging,
                             'assetTaggingData': response.assetTagging,
                             'defectId': widget.defectId,
                           },

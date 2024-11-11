@@ -61,7 +61,7 @@ class _SummaryAuditState extends State<SummaryAudit> {
       onPopInvoked: _onWillPop,
       canPop: false,
       child: Scaffold(
-        appBar: AppBarWidget.cantBack('Summary Quality Audit', context,
+        appBar: AppBarWidget.cantBack('Summary Site Quality Audit', context,
             onBackPressed: () => _onWillPop(false)),
         body: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 24),

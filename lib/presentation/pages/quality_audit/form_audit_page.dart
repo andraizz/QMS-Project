@@ -157,7 +157,7 @@ class _FormAuditPageState extends State<FormAuditPage> {
         onPopInvoked: _onWillPop,
         canPop: false,
         child: Scaffold(
-          appBar: AppBarWidget.cantBack('Form Quality Audit', context,
+          appBar: AppBarWidget.cantBack('Form Site Audit', context,
               onBackPressed: () => _onWillPop(false)),
           body: Column(
             children: [
@@ -222,7 +222,6 @@ class _FormAuditPageState extends State<FormAuditPage> {
                           description: edtRemark.text,
                         );
 
-                        // Update status asset tagging yang selesai
                         await ApiService().updateAssetTaggingAuditStatus(
                           nama: edtAssetTagging.text,
                           idAudit: edtQmsAuditTicketNumber.text,
@@ -234,6 +233,8 @@ class _FormAuditPageState extends State<FormAuditPage> {
                             widget.formattedIdAudit, 'On Progress');
 
                         _hideLoadingDialog(context);
+
+                        await Future.delayed(Duration.zero);
 
                         Navigator.pushReplacementNamed(
                           context,
@@ -304,7 +305,7 @@ class _FormAuditPageState extends State<FormAuditPage> {
           ),
           const Gap(6),
           InputWidget.disable(
-            'QMS Quality Audit Defect ID',
+            'QMS Audit Defect ID',
             edtQmsAuditDefectId,
           ),
           const Gap(6),
@@ -401,15 +402,13 @@ class _FormAuditPageState extends State<FormAuditPage> {
                   final categoryItems = selectedCategoryItem;
 
                   if (categoryItems != null) {
-                    // Fetch Category Item Code berdasarkan Audit Detail dan Cable Type
                     fetchCategoryItemCode(newValue!, categoryItems)
                         .then((categoryItemCodeResults) {
                       setState(() {
                         if (categoryItemCodeResults.isNotEmpty) {
                           selectedCategoryItemCode =
                               categoryItemCodeResults.first;
-                          edtcategoryItemCode.text =
-                              selectedCategoryItemCode!; // Update controller
+                          edtcategoryItemCode.text = selectedCategoryItemCode!;
                         }
                       });
                     }).catchError((error) {
