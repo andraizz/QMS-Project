@@ -135,7 +135,12 @@ class _DetailAssetTaggingInspectionPageState
         false;
 
     if (shouldPop) {
-      Navigator.pushReplacementNamed(context, AppRoute.dashboard, arguments: 1);
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        AppRoute.dashboard,
+        arguments: 1,
+        (route) => false,
+      );
     }
   }
 
