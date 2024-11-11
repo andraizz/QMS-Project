@@ -16,7 +16,7 @@ class _CameraWithLocationOverlayState extends State<CameraWithLocationOverlay> {
   Future<void>? _initializeControllerFuture;
   Position? _currentPosition;
   String? _currentAddress;
-  final documentations = <XFile>[].obs;
+  // final documentations = <XFile>[].obs;
   final panoramicImages = <XFile>[].obs;
   final nearViewImages = <XFile>[].obs;
   final farViewImages = <XFile>[].obs;
@@ -133,7 +133,7 @@ class _CameraWithLocationOverlayState extends State<CameraWithLocationOverlay> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Camera with Location Overlay'),
+        title: const Text('Camera with Location Overlay'),
       ),
       body: FutureBuilder<void>(
         future: _initializeControllerFuture,
@@ -146,22 +146,22 @@ class _CameraWithLocationOverlayState extends State<CameraWithLocationOverlay> {
                   left: 16,
                   right: 16,
                   child: Container(
-                    padding: EdgeInsets.all(10),
+                    padding: const EdgeInsets.all(10),
                     color: AppColor.defaultText.withOpacity(0.5),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           'Latitude: ${_currentPosition?.latitude ?? 'Loading...'}',
-                          style: TextStyle(color: Colors.white),
+                          style: const TextStyle(color: Colors.white),
                         ),
                         Text(
                           'Longitude: ${_currentPosition?.longitude ?? 'Loading...'}',
-                          style: TextStyle(color: Colors.white),
+                          style: const TextStyle(color: Colors.white),
                         ),
                         Text(
                           'Location: $_currentAddress',
-                          style: TextStyle(color: Colors.white),
+                          style: const TextStyle(color: Colors.white),
                         ),
                       ],
                     ),
