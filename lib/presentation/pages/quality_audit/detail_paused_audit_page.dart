@@ -2,14 +2,12 @@ part of '../pages.dart';
 
 class DetailPausedAuditPage extends StatefulWidget {
   final String ticketNumber;
-  // final String formattedIdAudit;
   final String idAudit;
   final bool isReversed;
 
   const DetailPausedAuditPage({
     super.key,
     required this.ticketNumber,
-    // required this.formattedIdAudit,
     required this.idAudit,
     required this.isReversed,
   });
@@ -19,7 +17,6 @@ class DetailPausedAuditPage extends StatefulWidget {
 }
 
 class _DetailPausedAuditPageState extends State<DetailPausedAuditPage> {
-  // List<AssetTaggingAudit> assetTaggings = [];
   List<AssetTaggingAudit> assetTaggingData = [];
   AssetTaggingAudit? selectedAssetTagging;
 
@@ -37,7 +34,6 @@ class _DetailPausedAuditPageState extends State<DetailPausedAuditPage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    // Jalankan refresh setiap kali halaman muncul kembali
     _refreshAssetTaggings(widget.idAudit);
   }
 
@@ -97,38 +93,6 @@ class _DetailPausedAuditPageState extends State<DetailPausedAuditPage> {
     return assetTaggingData.every((tag) => tag.status == 2);
   }
 
-  Future<void> _completeAllAssetTaggings() async {
-    for (var assetTag in assetTaggingData) {
-      try {
-        await ApiService().updateAssetTaggingAuditStatus(
-          nama: assetTag.nama,
-          idAudit: widget.idAudit,
-          status: 2, // Set semua asset tagging ke status 2 (selesai)
-          findingCount: assetTag.findingCount,
-        );
-        print('Updated status for ${assetTag.nama} successfully.');
-      } catch (e) {
-        print('Failed to update status for ${assetTag.nama}: $e');
-      }
-    }
-
-    _refreshAssetTaggings(widget.idAudit);
-  }
-
-  void _showLoadingDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return const Center(child: CircularProgressIndicator());
-      },
-    );
-  }
-
-  void _hideLoadingDialog(BuildContext context) {
-    Navigator.of(context).pop();
-  }
-
   Future<void> _onWillPop(bool didPop) async {
     if (didPop) return;
 
@@ -152,7 +116,12 @@ class _DetailPausedAuditPageState extends State<DetailPausedAuditPage> {
         false;
 
     if (shouldPop) {
-      Navigator.pushReplacementNamed(context, AppRoute.dashboard, arguments: 4);
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        AppRoute.dashboard,
+        arguments: 4,
+        (route) => false,
+      );
     }
   }
 
@@ -164,9 +133,9 @@ class _DetailPausedAuditPageState extends State<DetailPausedAuditPage> {
     if (args == null || args['assetTaggingData'] == null) {
       return Scaffold(
         appBar: AppBar(
-          title: Text('Detail Paused Audit'),
+          title: const Text('Detail Paused Audit'),
         ),
-        body: Center(child: Text('No data available')),
+        body: const Center(child: Text('No data available')),
       );
     }
 
@@ -367,7 +336,6 @@ class _DetailPausedAuditPageState extends State<DetailPausedAuditPage> {
                                                         .indexOf(currentTag);
                                                 if (currentIndex + 1 <
                                                     assetTaggingData.length) {
-                                                  // Jika ada, ubah status asset tagging berikutnya menjadi 1
                                                   await _updateAssetTaggingStatus(
                                                     assetTaggingData[
                                                             currentIndex + 1]
@@ -379,21 +347,19 @@ class _DetailPausedAuditPageState extends State<DetailPausedAuditPage> {
                                                     createDefectId: false,
                                                   );
 
-                                                  // Update status di local
                                                   setState(() {
                                                     assetTaggingData[
                                                             currentIndex + 1]
                                                         .status = 1;
                                                   });
                                                 } else {
-                                                  // Jika sudah di akhir daftar, refresh seluruh asset tagging
                                                   setState(() {
                                                     _refreshAssetTaggings(
                                                         widget.idAudit);
                                                   });
                                                 }
                                               },
-                                              child: Text('No'),
+                                              child: const Text('No'),
                                             ),
                                           ],
                                         );
@@ -416,7 +382,6 @@ class _DetailPausedAuditPageState extends State<DetailPausedAuditPage> {
                   child: DButtonBorder(
                     onClick: isLastAssetTagging()
                         ? () async {
-                            // Complete all asset taggings
                             Navigator.pushReplacementNamed(
                               context,
                               AppRoute.summaryAudit,

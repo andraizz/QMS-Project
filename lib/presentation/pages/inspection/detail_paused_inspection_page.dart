@@ -2,14 +2,12 @@ part of '../pages.dart';
 
 class DetailPausedInspectionPage extends StatefulWidget {
   final String ticketNumber;
-  // final String formattedIdInspection;
   final String idInspection;
   final bool isReversed;
 
   const DetailPausedInspectionPage({
     super.key,
     required this.ticketNumber,
-    // required this.formattedIdInspection,
     required this.idInspection,
     required this.isReversed,
   });
@@ -21,7 +19,6 @@ class DetailPausedInspectionPage extends StatefulWidget {
 
 class _DetailPausedInspectionPageState
     extends State<DetailPausedInspectionPage> {
-  // List<AssetTaggingInspection> assetTaggings = [];
   List<AssetTaggingInspection> assetTaggingData = [];
   AssetTaggingInspection? selectedAssetTagging;
 
@@ -122,7 +119,12 @@ class _DetailPausedInspectionPageState
         false;
 
     if (shouldPop) {
-      Navigator.pushReplacementNamed(context, AppRoute.dashboard, arguments: 1);
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        AppRoute.dashboard,
+        arguments: 1,
+        (route) => false,
+      );
     }
   }
 
@@ -349,7 +351,6 @@ class _DetailPausedInspectionPageState
                                                     createDefectId: false,
                                                   );
 
-                                                  // Update status di local
                                                   setState(() {
                                                     assetTaggingData[
                                                             currentIndex + 1]
