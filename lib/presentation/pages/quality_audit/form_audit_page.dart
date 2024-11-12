@@ -157,7 +157,7 @@ class _FormAuditPageState extends State<FormAuditPage> {
         onPopInvoked: _onWillPop,
         canPop: false,
         child: Scaffold(
-          appBar: AppBarWidget.cantBack('Form Site Audit', context,
+          appBar: AppBarWidget.cantBack('Form Site Quality Audit', context,
               onBackPressed: () => _onWillPop(false)),
           body: Column(
             children: [
@@ -234,7 +234,7 @@ class _FormAuditPageState extends State<FormAuditPage> {
 
                         _hideLoadingDialog(context);
 
-                        await Future.delayed(Duration.zero);
+                        await Future.delayed(const Duration(milliseconds: 100));
 
                         Navigator.pushReplacementNamed(
                           context,
