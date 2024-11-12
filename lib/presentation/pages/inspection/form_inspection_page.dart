@@ -235,7 +235,7 @@ class _FormInspectionPageState extends State<FormInspectionPage> {
 
                         _hideLoadingDialog(context);
 
-                        await Future.delayed(Duration.zero);
+                        await Future.delayed(const Duration(milliseconds: 100));
 
                         Navigator.pushReplacementNamed(
                           context,

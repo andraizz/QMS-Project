@@ -239,7 +239,7 @@ class _FormAuditPausePageState extends State<FormAuditPausePage> {
 
                         _hideLoadingDialog(context);
 
-                        await Future.delayed(Duration.zero);
+                        await Future.delayed(const Duration(milliseconds: 100));
 
                         Navigator.pushReplacementNamed(
                           context,
