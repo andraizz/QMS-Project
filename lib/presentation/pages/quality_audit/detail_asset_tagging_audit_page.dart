@@ -110,40 +110,6 @@ class _DetailAssetTaggingAuditPageState
     return assetTaggings.every((tag) => tag.status == 2);
   }
 
-  Future<void> _completeAllAssetTaggings() async {
-    for (var assetTag in assetTaggings) {
-      try {
-        await ApiService().updateAssetTaggingAuditStatus(
-          nama: assetTag.nama,
-          idAudit: widget.formattedIdAudit,
-          status: 2, // Set semua asset tagging ke status 2 (selesai)
-          findingCount: assetTag.findingCount,
-        );
-        print('Updated status for ${assetTag.nama} successfully.');
-      } catch (e) {
-        print('Failed to update status for ${assetTag.nama}: $e');
-      }
-    }
-
-    _refreshAssetTaggings(widget.formattedIdAudit);
-  }
-
-  void _showLoadingDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return const Center(
-          child: CircularProgressIndicator(),
-        );
-      },
-    );
-  }
-
-  void _hideLoadingDialog(BuildContext context) {
-    Navigator.of(context).pop();
-  }
-
   Future<void> _onWillPop(bool didPop) async {
     if (didPop) {
       return;
@@ -338,29 +304,27 @@ class _DetailAssetTaggingAuditPageState
                                                   createDefectId: true,
                                                 );
 
-                                                Navigator.pop(context);
-                                                if (mounted) {
-                                                  Navigator
-                                                      .pushReplacementNamed(
-                                                    context,
-                                                    AppRoute.formAudit,
-                                                    arguments: {
-                                                      'ticketNumber':
-                                                          widget.ticketNumber,
-                                                      'formattedIdAudit': widget
-                                                          .formattedIdAudit,
-                                                      'selectedAssetTagging':
-                                                          currentTag,
-                                                      'defectId': newDefectId,
-                                                    },
-                                                  ).then((_) {
-                                                    setState(() {
-                                                      _refreshAssetTaggings(
-                                                          widget
-                                                              .formattedIdAudit);
-                                                    });
+                                                // Navigator.pop(context);
+                                                // if (mounted) {
+                                                Navigator.pushReplacementNamed(
+                                                  context,
+                                                  AppRoute.formAudit,
+                                                  arguments: {
+                                                    'ticketNumber':
+                                                        widget.ticketNumber,
+                                                    'formattedIdAudit':
+                                                        widget.formattedIdAudit,
+                                                    'selectedAssetTagging':
+                                                        currentTag,
+                                                    'defectId': newDefectId,
+                                                  },
+                                                ).then((_) {
+                                                  setState(() {
+                                                    _refreshAssetTaggings(widget
+                                                        .formattedIdAudit);
                                                   });
-                                                }
+                                                });
+                                                // }
                                               },
                                               child: const Text('Yes'),
                                             ),
@@ -404,12 +368,10 @@ class _DetailAssetTaggingAuditPageState
                                                     createDefectId: false,
                                                   );
 
-                                                  // Update status di local
                                                   setState(() {
-                                                    assetTaggings[currentIndex +
-                                                                1]
-                                                            .status =
-                                                        1; // Ubah status menjadi 1
+                                                    assetTaggings[
+                                                            currentIndex + 1]
+                                                        .status = 1;
                                                   });
                                                 } else {
                                                   // Jika sudah di akhir daftar, refresh seluruh asset tagging
@@ -443,8 +405,6 @@ class _DetailAssetTaggingAuditPageState
             child: DButtonBorder(
               onClick: isLastAssetTagging()
                   ? () async {
-                      // Complete all asset taggings
-                      // await _completeAllAssetTaggings();
                       Navigator.pushReplacementNamed(
                         context,
                         AppRoute.summaryAudit,
