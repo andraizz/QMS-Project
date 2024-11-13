@@ -21,7 +21,6 @@ class _DetailAuditResultPageState extends State<DetailAuditResultPage> {
   void initState() {
     super.initState();
 
-    // Fetch data dari API menggunakan parameter yang diterima melalui konstruktor
     _auditResults = ApiService()
         .getAuditResultsByTagging(widget.idAudit, widget.assetTagging);
   }
@@ -126,7 +125,6 @@ class _DetailAuditResultPageState extends State<DetailAuditResultPage> {
           const Gap(12),
           ElevatedButton(
             onPressed: () {
-              // Navigasi ke halaman baru dengan semua gambar
               _showAllImagesPage(context, allImages);
             },
             child: Text('View Photos'),
@@ -165,7 +163,7 @@ class _DetailAuditResultPageState extends State<DetailAuditResultPage> {
                       Text(
                         imageTitles[
                             index], // Display the title before the image
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
